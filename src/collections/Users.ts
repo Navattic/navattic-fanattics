@@ -5,9 +5,52 @@ export const Users: CollectionConfig = {
   admin: {
     useAsTitle: 'email',
   },
-  auth: true,
+  auth: {
+    tokenExpiration: 28800,
+    cookies: {
+      sameSite: 'Lax',
+      secure: process.env.NODE_ENV === 'production',
+      domain: process.env.NODE_ENV === 'development' ? 'localhost' : undefined,
+    },
+    verify: false,
+  },
+  access: {
+    create: () => true, // allow anyone to create a user
+    read: ({ req: { user } }) => {
+      return (
+        user?.roles?.includes('admin') || {
+          id: {
+            equals: user?.id,
+          },
+        }
+      )
+    },
+    update: ({ req: { user } }) => {
+      return (
+        user?.roles?.includes('admin') || {
+          id: {
+            equals: user?.id,
+          },
+        }
+      )
+    },
+    delete: ({ req: { user } }) => (user?.roles?.includes('admin') ? true : false),
+    admin: ({ req: { user } }) => (user?.roles?.includes('admin') ? true : false),
+  },
   fields: [
     // Email added by default
-    // Add more fields as needed
+    { name: 'firstName', type: 'text' },
+    { name: 'lastName', type: 'text' },
+    {
+      name: 'roles',
+      type: 'select',
+      hasMany: true,
+      saveToJWT: true,
+      defaultValue: ['user'],
+      options: [
+        { label: 'Admin', value: 'admin' },
+        { label: 'User', value: 'user' },
+      ],
+    },
   ],
 }
