@@ -1,4 +1,4 @@
-import '../index.css'
+import './globals.css'
 import AppNavbar from '@/components/ui/AppNavbar'
 import Providers from '@/components/Providers'
 
