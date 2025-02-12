@@ -11,18 +11,20 @@ export interface Config {
     users: UserAuthOperations;
   };
   collections: {
+    challenges: Challenge;
+    ledger: Ledger;
     users: User;
     media: Media;
-    challenges: Challenge;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
   };
   collectionsJoins: {};
   collectionsSelect: {
+    challenges: ChallengesSelect<false> | ChallengesSelect<true>;
+    ledger: LedgerSelect<false> | LedgerSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
-    challenges: ChallengesSelect<false> | ChallengesSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
@@ -61,13 +63,69 @@ export interface UserAuthOperations {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "challenges".
+ */
+export interface Challenge {
+  id: number;
+  title: string;
+  deadline: string;
+  points: number;
+  content: {
+    root: {
+      type: string;
+      children: {
+        type: string;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  slug?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ledger".
+ */
+export interface Ledger {
+  id: number;
+  /**
+   * User who earned, lost or redeemed points
+   */
+  user_id: number | User;
+  /**
+   * Number of points awarded (positive) or deducted (negative)
+   */
+  amount: number;
+  /**
+   * Description of why the transaction occurred
+   */
+  reason: string;
+  /**
+   * Related challenge, if applicable
+   */
+  challenge_id?: (number | null) | Challenge;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users".
  */
 export interface User {
   id: number;
   firstName?: string | null;
   lastName?: string | null;
+  loginMethod: 'google' | 'email';
   roles?: ('admin' | 'user')[] | null;
+  user_id?: string | null;
+  avatar?: string | null;
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -100,39 +158,19 @@ export interface Media {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "challenges".
- */
-export interface Challenge {
-  id: number;
-  title: string;
-  deadline: string;
-  points: number;
-  content: {
-    root: {
-      type: string;
-      children: {
-        type: string;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  };
-  slug?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
   id: number;
   document?:
+    | ({
+        relationTo: 'challenges';
+        value: number | Challenge;
+      } | null)
+    | ({
+        relationTo: 'ledger';
+        value: number | Ledger;
+      } | null)
     | ({
         relationTo: 'users';
         value: number | User;
@@ -140,10 +178,6 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'media';
         value: number | Media;
-      } | null)
-    | ({
-        relationTo: 'challenges';
-        value: number | Challenge;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -189,12 +223,40 @@ export interface PayloadMigration {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "challenges_select".
+ */
+export interface ChallengesSelect<T extends boolean = true> {
+  title?: T;
+  deadline?: T;
+  points?: T;
+  content?: T;
+  slug?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ledger_select".
+ */
+export interface LedgerSelect<T extends boolean = true> {
+  user_id?: T;
+  amount?: T;
+  reason?: T;
+  challenge_id?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users_select".
  */
 export interface UsersSelect<T extends boolean = true> {
   firstName?: T;
   lastName?: T;
+  loginMethod?: T;
   roles?: T;
+  user_id?: T;
+  avatar?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;
@@ -222,19 +284,6 @@ export interface MediaSelect<T extends boolean = true> {
   height?: T;
   focalX?: T;
   focalY?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "challenges_select".
- */
-export interface ChallengesSelect<T extends boolean = true> {
-  title?: T;
-  deadline?: T;
-  points?: T;
-  content?: T;
-  slug?: T;
-  updatedAt?: T;
-  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload'
+import { v4 as uuidv4 } from 'uuid'
 
 export const Users: CollectionConfig = {
   slug: 'users',
@@ -37,10 +38,31 @@ export const Users: CollectionConfig = {
     delete: ({ req: { user } }) => (user?.roles?.includes('admin') ? true : false),
     admin: ({ req: { user } }) => (user?.roles?.includes('admin') ? true : false),
   },
+  hooks: {
+    beforeChange: [
+      async ({ data }) => {
+        if (!data.user_id) {
+          data.user_id = uuidv4()
+        }
+        return data
+      },
+    ],
+  },
   fields: [
     // Email added by default
     { name: 'firstName', type: 'text' },
     { name: 'lastName', type: 'text' },
+    { name: 'email', type: 'text', defaultValue: undefined },
+    {
+      name: 'loginMethod',
+      type: 'select',
+      required: true,
+      defaultValue: 'email',
+      options: [
+        { label: 'Google', value: 'google' },
+        { label: 'Email', value: 'email' },
+      ],
+    },
     {
       name: 'roles',
       type: 'select',
@@ -51,6 +73,32 @@ export const Users: CollectionConfig = {
         { label: 'Admin', value: 'admin' },
         { label: 'User', value: 'user' },
       ],
+    },
+    {
+      name: 'user_id',
+      type: 'text',
+      admin: {
+        readOnly: true,
+      },
+      hidden: true,
+      defaultValue: undefined,
+      hooks: {
+        beforeValidate: [
+          ({ value }) => {
+            if (!value) {
+              return uuidv4()
+            }
+            return value
+          },
+        ],
+      },
+    },
+    {
+      name: 'avatar', 
+      type: 'text', 
+      admin: {
+        position: 'sidebar',
+      },
     },
   ],
 }

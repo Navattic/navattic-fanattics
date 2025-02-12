@@ -3,6 +3,9 @@ import config from '@/payload.config'
 import Link from 'next/link'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/authOptions'
+import Leaderboard from '@/components/ui/Leaderboard'
+
+const payload = await getPayload({ config })
 
 const Home = async () => {
   const session = await getServerSession(authOptions)
@@ -13,45 +16,92 @@ const Home = async () => {
       </div>
     )
   }
-  const payload = await getPayload({ config })
+
+  const sessionUserData = await payload.find({
+    collection: 'users',
+    where: {
+      email: {
+        equals: session?.user?.email,
+      },
+    },
+  })
 
   const challenges = await payload.find({
     collection: 'challenges',
   })
 
-  // const users = await payload.find({
-  //   collection: 'users',
-  // })
+  const users = await payload.find({
+    collection: 'users',
+  })
+
+  const ledger = await payload.find({
+    collection: 'ledger',
+  })
+
+  const sessionUser = sessionUserData.docs[0]
 
   const challengesData = challenges.docs
-  // const usersData = users
+  const usersData = users.docs
+  const ledgerData = ledger.docs
 
-  // console.log(usersData)
+  // Helper function to calculate points for a user
+  const calculateUserPoints = (userId: number) => {
+    return ledgerData
+      .filter((entry) => {
+        const entryUserId = typeof entry.user_id === 'number' ? entry.user_id : entry.user_id.id
+        return entryUserId === userId
+      })
+      .reduce((total, entry) => total + entry.amount, 0)
+  }
 
   return (
-    <div className="container mx-auto py-8 max-w-5xl">
+    <div className="container mx-auto py-8 max-w-7xl">
       <div key="challenges-list">
-        <h1 className="text-2xl font-medium border-b border-gray-200 pb-2">Challenges</h1>
-        <div className="flex flex-col gap-4 mt-4">
-          {challengesData?.map((challenge) => (
-            <Link
-              key={challenge.id}
-              className="text-xl ml-1 text-blue-800 flex flex-col"
-              href={`challenges/${challenge.slug}`}
-            >
-              <div className="text-xl hover:underline">{challenge.title}</div>
-              <div className="text-sm text-gray-500">Earn {challenge.points} points</div>
-            </Link>
-          ))}
-        </div>
-        <div className="flex flex-col gap-4 mt-4">
-          {/* {usersData?.map((user) => (
-                <div
-                  key={user.id}
-                  className="text-xl ml-1 text-blue-800 flex flex-col"
-                >
-                </div>
-              ))} */}
+        <h1 className="text-2xl font-medium pb-2 mt-20 capitalize">
+          Welcome, {sessionUser.firstName} {sessionUser.lastName}!
+        </h1>
+        <h2 className="text-lg text-gray-500">
+          You have {calculateUserPoints(sessionUser.id)} points
+        </h2>
+        <div className="flex gap-4 mt-20">
+          <div className="flex-1 border border-gray-200 rounded-lg py-8">
+            <h1 className="text-2xl font-medium border-b border-gray-200 pb-4 mx-8">Challenges</h1>
+            <div className="flex flex-col gap-4 mt-4 px-4">
+              {challengesData?.map((challenge) => {
+                // if the ledger array has an item with challenge_id.id === challenge.id, then the challenge is completed
+                const isCompleted = ledgerData.some((ledger) => {
+                  const challengeId =
+                    typeof ledger.challenge_id === 'number'
+                      ? ledger.challenge_id
+                      : ledger.challenge_id?.id
+                  return challengeId === challenge.id
+                })
+
+                return (
+                  <div
+                    key={challenge.id}
+                    className="flex flex-row justify-between items-center hover:bg-gray-50 transition-all duration-300 p-4 rounded-lg"
+                  >
+                    <div className="flex flex-col gap-2">
+                      <Link
+                        className="text-xl ml-1 text-blue-800"
+                        href={`challenges/${challenge.slug}`}
+                      >
+                        <div className="text-xl hover:underline">{challenge.title}</div>
+                      </Link>
+                      {isCompleted && (
+                        <div className="bg-green-100 text-green-800 py-0 px-3 rounded-full text-sm border border-green-200 w-fit">
+                          Completed
+                        </div>
+                      )}
+                    </div>
+                    <div className="text-sm text-gray-500">{challenge.points} points</div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+          <Leaderboard usersData={usersData} calculateUserPoints={calculateUserPoints} />
         </div>
       </div>
     </div>

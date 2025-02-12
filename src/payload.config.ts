@@ -5,11 +5,13 @@ import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import path from 'path'
 import { buildConfig } from 'payload'
 import { fileURLToPath } from 'url'
+import { resendAdapter } from '@payloadcms/email-resend'
 import sharp from 'sharp'
 
 import { Users } from './collections/Users'
 import { Media } from './collections/Media'
 import { Challenges } from './collections/Challenges'
+import Ledger from './collections/Ledger'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -21,7 +23,7 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
   },
-  collections: [Users, Media, Challenges],
+  collections: [Challenges, Ledger, Users, Media,],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   cors: ['*', 'http://localhost:3000'],
@@ -34,6 +36,11 @@ export default buildConfig({
     },
   }),
   sharp,
+  email: resendAdapter({
+    defaultFromAddress: 'noreply@mail.navattic.dev', // change to .dev for prod
+    defaultFromName: 'Payload CMS',
+    apiKey: process.env.RESEND_API_KEY || '',
+  }),
   plugins: [
     payloadCloudPlugin(),
     // storage-adapter-placeholder

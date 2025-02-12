@@ -2,6 +2,8 @@
 
 import React from 'react'
 import { signIn, signOut, useSession } from 'next-auth/react'
+import Image from 'next/image'
+
 
 const AuthButton = () => {
   const { data: session } = useSession()
@@ -11,7 +13,13 @@ const AuthButton = () => {
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-2">
           {session?.user?.image && (
-            <img src={session?.user?.image} alt="User" className="size-7 rounded-full" />
+            <Image
+              src={session?.user?.image}
+              alt="User"
+              width={28}
+              height={28}
+              className="rounded-full"
+            />
           )}
           {session?.user?.name}
         </div>
