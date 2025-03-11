@@ -19,7 +19,7 @@ const ChallengePage = async ({ params }: { params: { slug: string } }) => {
     },
   })
 
-  const { slug } = params
+  const { slug } = await params
 
   const challenges = await payload.find({
     collection: 'challenges',
