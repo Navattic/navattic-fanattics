@@ -14,6 +14,7 @@ export interface Config {
     challenges: Challenge;
     ledger: Ledger;
     users: User;
+    comments: Comment;
     media: Media;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -24,6 +25,7 @@ export interface Config {
     challenges: ChallengesSelect<false> | ChallengesSelect<true>;
     ledger: LedgerSelect<false> | LedgerSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
+    comments: CommentsSelect<false> | CommentsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -125,7 +127,6 @@ export interface User {
   loginMethod: 'google' | 'email';
   roles?: ('admin' | 'user')[] | null;
   user_id?: string | null;
-  avatar?: string | null;
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -136,6 +137,19 @@ export interface User {
   loginAttempts?: number | null;
   lockUntil?: string | null;
   password?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "comments".
+ */
+export interface Comment {
+  id: number;
+  content?: string | null;
+  user?: (number | null) | User;
+  challenge?: (number | null) | Challenge;
+  createdAt: string;
+  updatedAt: string;
+  approved?: boolean | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -174,6 +188,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'users';
         value: number | User;
+      } | null)
+    | ({
+        relationTo: 'comments';
+        value: number | Comment;
       } | null)
     | ({
         relationTo: 'media';
@@ -256,7 +274,6 @@ export interface UsersSelect<T extends boolean = true> {
   loginMethod?: T;
   roles?: T;
   user_id?: T;
-  avatar?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;
@@ -266,6 +283,18 @@ export interface UsersSelect<T extends boolean = true> {
   hash?: T;
   loginAttempts?: T;
   lockUntil?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "comments_select".
+ */
+export interface CommentsSelect<T extends boolean = true> {
+  content?: T;
+  user?: T;
+  challenge?: T;
+  createdAt?: T;
+  updatedAt?: T;
+  approved?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

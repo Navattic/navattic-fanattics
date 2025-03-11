@@ -54,6 +54,16 @@ const Home = async () => {
       .reduce((total, entry) => total + entry.amount, 0)
   }
 
+  const userLedgerEntries = await payload.find({
+    collection: 'ledger',
+    where: {
+      user_id: {
+        equals: sessionUser.id,
+      },
+    },
+  })
+
+
   return (
     <div className="container mx-auto py-8 max-w-7xl">
       <div key="challenges-list">
@@ -61,20 +71,24 @@ const Home = async () => {
           Welcome, {sessionUser.firstName} {sessionUser.lastName}!
         </h1>
         <h2 className="text-lg text-gray-500">
-          You have {calculateUserPoints(sessionUser.id)} points
+          You have {calculateUserPoints(sessionUser.id)} points ({challengesData.filter(challenge => 
+            userLedgerEntries.docs.some(ledger => 
+              typeof ledger.challenge_id === 'object' && 
+              ledger.challenge_id?.id === challenge.id
+            )
+          ).length}{' '}
+          challenge{userLedgerEntries.docs.length === 1 ? '' : 's'} completed)
         </h2>
         <div className="flex gap-4 mt-20">
           <div className="flex-1 border border-gray-200 rounded-lg py-8">
             <h1 className="text-2xl font-medium border-b border-gray-200 pb-4 mx-8">Challenges</h1>
             <div className="flex flex-col gap-4 mt-4 px-4">
               {challengesData?.map((challenge) => {
-                // if the ledger array has an item with challenge_id.id === challenge.id, then the challenge is completed
-                const isCompleted = ledgerData.some((ledger) => {
-                  const challengeId =
-                    typeof ledger.challenge_id === 'number'
-                      ? ledger.challenge_id
-                      : ledger.challenge_id?.id
-                  return challengeId === challenge.id
+                const isCompleted = userLedgerEntries.docs.some((ledger) => {
+                  return (
+                    typeof ledger.challenge_id === 'object' &&
+                    ledger.challenge_id?.id === challenge.id
+                  )
                 })
 
                 return (

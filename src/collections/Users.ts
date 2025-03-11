@@ -93,12 +93,5 @@ export const Users: CollectionConfig = {
         ],
       },
     },
-    {
-      name: 'avatar', 
-      type: 'text', 
-      admin: {
-        position: 'sidebar',
-      },
-    },
   ],
 }

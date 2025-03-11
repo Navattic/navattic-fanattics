@@ -7,12 +7,16 @@ interface LeaderboardProps {
 }
 
 function Leaderboard({ usersData, calculateUserPoints }: LeaderboardProps) {
+  // Sort users by points in descending order
+  const sortedUsers = [...usersData].sort((a, b) => {
+    return calculateUserPoints(b.id) - calculateUserPoints(a.id)
+  })
+
   return (
     <div className="flex-1 border border-gray-200 rounded-lg p-8">
       <h1 className="text-2xl font-medium border-b border-gray-200 pb-4">Leaderboard</h1>
       <ol className="flex flex-col gap-12 mt-8">
-        {usersData?.map((user, index) => {
-          console.log(user)
+        {sortedUsers?.map((user, index) => {
           return (
             <li key={user.id} className="flex items-center gap-2">
               <div className="text-lg font-semibold text-gray-800 mr-4">{index + 1}</div>
