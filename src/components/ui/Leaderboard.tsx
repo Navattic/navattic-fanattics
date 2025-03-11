@@ -14,12 +14,12 @@ function Leaderboard({ usersData, calculateUserPoints }: LeaderboardProps) {
 
   return (
     <div className="flex-1 border border-gray-200 rounded-lg p-8">
-      <h1 className="text-2xl font-medium border-b border-gray-200 pb-4">Leaderboard</h1>
+      <h1 className="text-lg font-medium border-b border-gray-200 pb-4">Leaderboard</h1>
       <ol className="flex flex-col gap-12 mt-8">
         {sortedUsers?.map((user, index) => {
           return (
             <li key={user.id} className="flex items-center gap-2">
-              <div className="text-lg font-semibold text-gray-800 mr-4">{index + 1}</div>
+              <div className="text-base font-semibold text-gray-800 mr-4">{index + 1}</div>
               <Avatar user={user} />
               <div className="text-base font-medium ml-1 text-gray-800 flex flex-col capitalize">
                 <div className="flex items-center gap-2">
