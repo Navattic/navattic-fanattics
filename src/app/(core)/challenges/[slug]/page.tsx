@@ -8,7 +8,9 @@ import Link from 'next/link'
 import { Comments } from '@/components/ui/Comments'
 const payload = await getPayload({ config })
 
-const ChallengePage = async ({ params }: { params: { slug: string } }) => {
+const ChallengePage = async ({ params }: { params: Promise<{ slug: string }> }) => {
+  const { slug } = await params
+  
   const session = await getServerSession(authOptions)
   const sessionUser = await payload.find({
     collection: 'users',
@@ -19,7 +21,6 @@ const ChallengePage = async ({ params }: { params: { slug: string } }) => {
     },
   })
 
-  const { slug } = await params
 
   const challenges = await payload.find({
     collection: 'challenges',
