@@ -6,11 +6,16 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/authOptions'
 import Link from 'next/link'
 import { Comments } from '@/components/ui/Comments'
+import PageHeader from '@/components/ui/PageHeader'
+import { Container } from '@/components/ui/Container'
+import { formatDate } from '@/utils/formatDate'
+import { CalendarIcon, CoinsIcon } from 'lucide-react'
+
 const payload = await getPayload({ config })
 
 const ChallengePage = async ({ params }: { params: Promise<{ slug: string }> }) => {
   const { slug } = await params
-  
+
   const session = await getServerSession(authOptions)
   const sessionUser = await payload.find({
     collection: 'users',
@@ -20,7 +25,6 @@ const ChallengePage = async ({ params }: { params: Promise<{ slug: string }> }) 
       },
     },
   })
-
 
   const challenges = await payload.find({
     collection: 'challenges',
@@ -52,43 +56,40 @@ const ChallengePage = async ({ params }: { params: Promise<{ slug: string }> }) 
 
   return (
     <>
-      <div className="relative w-full p-4">
-        <div className="max-w-5xl mx-auto flex items-center gap-2 text-sm text-gray-600">
-          <Link href="/" className="hover:text-gray-900">
-            Home
-          </Link>
-          <span>/</span>
-          <span className="text-gray-900">{challenge.title}</span>
-        </div>
-      </div>
-      <div className="flex gap-2 mt-10 max-w-5xl mx-auto">
-        <div className="flex flex-col gap-2 w-full">
-          <h1 className="font-medium text-4xl border-b pb-2 mb-4 flex items-center gap-2">
-            {challenge.title}{' '}
-            <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">
-              {challenge.points} points
-            </span>
+      <PageHeader />
+
+      <Container>
+        <div className="mt-10 w-full border-b border-gray-200">
+          <div className="space-y-2 pb-4 border-b border-gray-200">
+            <h1 className="font-medium text-xl pb-2">{challenge.title} </h1>
+            <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
+              <div className="flex items-center">
+                <CalendarIcon className="mr-1 h-4 w-4" />
+                Created: {formatDate(challenge.createdAt)}
+              </div>
+              <div className="flex items-center">
+                <CalendarIcon className="mr-1 h-4 w-4" />
+                Deadline: {formatDate(challenge.deadline)}
+              </div>
+              <div className="flex items-center">
+                <CoinsIcon className="mr-1 h-4 w-4" />
+                Points: {challenge.points}
+              </div>
+            </div>
             {userChallengeCompletedData.length > 0 ? (
-              <span className="bg-green-100 text-green-800 p-1 px-3 rounded-full text-sm">
-                Completed on{' '}
-                {new Date(userChallengeCompletedData[0].createdAt).toLocaleDateString()}
+              <span className="bg-green-100 text-green-800 py-0.5 px-3 rounded-full text-sm">
+                Completed
               </span>
             ) : (
               ''
             )}
-          </h1>
-          <div className="flex justify-between items-center">
-            <p className="text-gray-600">
-              Deadline: {new Date(challenge.deadline).toLocaleDateString()}
-            </p>
           </div>
-          <div className="max-w-xl mt-8 prose prose-slate">
+          <div className="mt-4 text-base text-gray-600 max-w-prose">
             <RichText data={challenge.content} />
           </div>
         </div>
-
         <Comments />
-      </div>
+      </Container>
     </>
   )
 }

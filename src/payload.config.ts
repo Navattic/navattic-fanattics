@@ -13,6 +13,7 @@ import { Media } from './collections/Media'
 import { Challenges } from './collections/Challenges'
 import Ledger from './collections/Ledger'
 import { Comments } from './collections/Comments'
+import { Avatars } from './collections/Avatars'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -24,7 +25,7 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
   },
-  collections: [Challenges, Ledger, Users, Comments, Media,],
+  collections: [Challenges, Ledger, Users, Comments, Media, Avatars],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   cors: ['*', 'http://localhost:3000'],

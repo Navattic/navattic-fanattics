@@ -6,11 +6,12 @@
   "tailwind": {
     "config": "tailwind.config.ts",
     "css": "src/app/styles/globals.css",
-    "baseColor": "neutral",
+    "baseColor": "slate",
     "cssVariables": true
   },
   "aliases": {
     "components": "@/components/shadcn",
-    "utils": "@/lib/utils"
+    "utils": "@/lib/utils",
+    "hooks": "@/components/shadcn/hooks"
   }
 }

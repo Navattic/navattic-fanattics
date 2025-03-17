@@ -1,5 +1,23 @@
+import { formatSlug } from '@/utils/formatSlug'
 import type { CollectionConfig } from 'payload'
 import { v4 as uuidv4 } from 'uuid'
+
+// Add this interface near the top of the file
+interface Media {
+  id: string
+  sizes?: {
+    thumbnail?: {
+      width: number
+      height: number
+      crop: string
+    }
+    profile?: {
+      width: number
+      height: number
+      crop: string
+    }
+  }
+}
 
 export const Users: CollectionConfig = {
   slug: 'users',
@@ -54,6 +72,16 @@ export const Users: CollectionConfig = {
     { name: 'lastName', type: 'text' },
     { name: 'email', type: 'text', defaultValue: undefined },
     {
+      name: 'avatar',
+      type: 'upload',
+      relationTo: 'avatars',
+      required: false,
+      admin: {
+        description: 'Upload a profile image (recommended size: 256x256px)',
+        position: 'sidebar',
+      },
+    },
+    {
       name: 'loginMethod',
       type: 'select',
       required: true,
@@ -73,6 +101,28 @@ export const Users: CollectionConfig = {
         { label: 'Admin', value: 'admin' },
         { label: 'User', value: 'user' },
       ],
+    },
+    {
+      name: 'slug',
+      label: 'Slug (auto-generated)',
+      type: 'text',
+      admin: {
+        position: 'sidebar',
+      },
+      hooks: {
+        beforeValidate: [
+          formatSlug((data, originalDoc) => {
+            const firstName = data?.firstName || originalDoc?.firstName || ''
+            const lastName = data?.lastName || originalDoc?.lastName || ''
+
+            if (firstName && lastName) {
+              return `${firstName} ${lastName}`
+            }
+
+            return firstName || lastName
+          }),
+        ],
+      },
     },
     {
       name: 'user_id',

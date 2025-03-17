@@ -1,7 +1,9 @@
 import '../styles/globals.css'
-import AppNavbar from '@/components/ui/AppNavbar'
+// import AppNavbar from '@/components/ui/AppNavbar'
 import Providers from '@/components/Providers'
 import localFont from 'next/font/local'
+import { AppSidebar } from '@/components/ui/AppSidebar'
+import { SidebarTrigger } from '@/components/shadcn/ui/sidebar'
 
 export const metadata = {
   title: 'Fanatic Portal',
@@ -23,8 +25,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={`${suisse.variable} font-sans`}>
       <body>
         <Providers>
-          <main>
-            <AppNavbar />
+          <AppSidebar />
+          <main className="w-full mx-auto">
+            {/* <SidebarTrigger /> */}
+            {/* <AppNavbar /> */}
             {children}
           </main>
         </Providers>

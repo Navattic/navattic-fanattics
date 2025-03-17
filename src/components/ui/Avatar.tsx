@@ -1,10 +1,27 @@
-import type { User } from '@/payload-types'
+import type { User, Avatar } from '@/payload-types'
+import Image from 'next/image'
 
-export default function Avatar({ user }: { user: User }) {
+export default function Avatar({
+  user,
+  size = 'thumbnail',
+}: {
+  user: User
+  size?: 'full' | 'thumbnail'
+  }) {
+  
+  // if size='full', render the full size avatar
+  const sizeSrc =
+    size === 'full'
+      ? (user.avatar as Avatar)?.sizes?.profile?.url || (user.avatar as Avatar)?.url || ''
+      : (user.avatar as Avatar)?.sizes?.thumbnail?.url || (user.avatar as Avatar)?.url || ''
+
   return (
-    <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
-      {user.firstName?.charAt(0).toUpperCase()}
-      {user.lastName?.charAt(0).toUpperCase()}
-    </div>
+    <Image
+      className="rounded-full shadow-sm"
+      src={sizeSrc}
+      alt={`${(user.avatar as Avatar)?.alt || `${user.firstName}'s avatar`}`}
+      width={size === 'full' ? 100 : 48}
+      height={size === 'full' ? 100 : 48}
+    />
   )
 }

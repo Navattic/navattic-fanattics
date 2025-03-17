@@ -1,6 +1,6 @@
 export const Comments = () => {
   return (
-    <div className="w-96 border-l pl-8">
+    <div className="w-full py-10">
       <div className="flex flex-col gap-4">
         <h2 className="text-xl font-medium">Comments</h2>
 
