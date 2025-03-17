@@ -1,5 +1,6 @@
 import { Challenge, Ledger } from '@/payload-types'
-
+import { Badge, Icon } from '@/components/ui'
+import { formatTimeRemaining } from '@/utils/formatTimeRemaining'
 import Link from 'next/link'
 
 const ChallengesList = async ({
@@ -10,36 +11,48 @@ const ChallengesList = async ({
   userLedgerEntries: Ledger[]
 }) => {
   return (
-    <div className="flex-1 bg-white rounded-lg shadow-md border border-gray-100">
-      <div className="text-base border-b border-gray-200 pb-2 text-gray-500">Challenges</div>
-      <div className="flex flex-col gap-4 mt-2">
-        {challengesData?.map((challenge) => {
-          const isCompleted = userLedgerEntries.some((ledger) => {
-            return (
-              typeof ledger.challenge_id === 'object' && ledger.challenge_id?.id === challenge.id
-            )
-          })
-
-          return (
-            <div
-              key={challenge.id}
-              className="flex flex-row justify-between items-center hover:bg-gray-50 transition-all duration-300 p-4 rounded-lg"
-            >
-              <div className="flex flex-col gap-2">
-                <Link className="ml-1 text-blue-800" href={`challenges/${challenge.slug}`}>
-                  <div className="text-base hover:underline">{challenge.title}</div>
-                </Link>
+    <div className="flex flex-col gap-4">
+      {challengesData?.map((challenge) => {
+        const isCompleted = userLedgerEntries.some((ledger) => {
+          return typeof ledger.challenge_id === 'object' && ledger.challenge_id?.id === challenge.id
+        })
+        return (
+          <Link
+            key={challenge.id}
+            href={`/challenges/${challenge.slug}`}
+            className="bg-white px-8 py-6 rounded-2xl border border-gray-100 shadow-xs space-y-3"
+          >
+            <div className="space-y-2">
+              <h3 className="text-lg font-medium">{challenge.title}</h3>
+              <div className="flex items-center gap-2">
+                <Badge size="sm" colorScheme="yellow">
+                  <Icon name="coins" size="xs" className="mr-1" />
+                  {challenge.points} points
+                </Badge>
                 {isCompleted && (
-                  <div className="bg-green-100 text-green-800 py-0 px-3 rounded-full text-sm border border-green-200 w-fit">
+                  <Badge size="sm" colorScheme="green">
+                    <Icon name="award" size="xs" className="mr-1" />
                     Completed
-                  </div>
+                  </Badge>
                 )}
               </div>
-              <div className="text-sm text-gray-500">{challenge.points} points</div>
             </div>
-          )
-        })}
-      </div>
+            <p className="text-sm text-gray-500 text-balance">{challenge.description}</p>
+            <div className="flex gap-5">
+              <div className="flex items-center gap-1">
+                <Icon name="message-square" size="sm" className="text-gray-400" />
+                <span className="text-gray-500 text-sm">2</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <Icon name="calendar-clock" size="sm" className="text-gray-400" />
+                <span className="text-gray-500 text-sm">
+                  {formatTimeRemaining(challenge.deadline)}
+                </span>
+              </div>
+            </div>
+          </Link>
+        )
+      })}
     </div>
   )
 }

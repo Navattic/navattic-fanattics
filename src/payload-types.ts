@@ -72,6 +72,7 @@ export interface UserAuthOperations {
 export interface Challenge {
   id: number;
   title: string;
+  description: string;
   deadline: string;
   points: number;
   content: {
@@ -293,6 +294,7 @@ export interface PayloadMigration {
  */
 export interface ChallengesSelect<T extends boolean = true> {
   title?: T;
+  description?: T;
   deadline?: T;
   points?: T;
   content?: T;

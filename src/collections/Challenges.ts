@@ -16,6 +16,12 @@ export const Challenges: CollectionConfig = {
       required: true,
     },
     {
+      label: 'Challenge Description (keep this short and concise)',
+      name: 'description',
+      type: 'text',
+      required: true,
+    },
+    {
       name: 'deadline',
       type: 'date',
       required: true,
@@ -40,8 +46,8 @@ export const Challenges: CollectionConfig = {
         position: 'sidebar',
       },
       hooks: {
-        beforeValidate: [formatSlug('title')]
-      }
+        beforeValidate: [formatSlug('title')],
+      },
     },
   ],
 }

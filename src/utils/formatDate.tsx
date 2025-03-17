@@ -10,10 +10,12 @@ export function formatDate(
     includeDay?: boolean
     includeYear?: boolean
     includeTime?: boolean
+    abbreviateMonth?: boolean
   } = {
     includeDay: true,
     includeYear: true,
     includeTime: false,
+    abbreviateMonth: false,
   },
 ): string {
   if (!isoString) return ''
@@ -26,7 +28,18 @@ export function formatDate(
       return ''
     }
 
-    const month = date.toLocaleString('en-US', { month: 'long' })
+    // Create a new options object by merging the default options with the provided options
+    const mergedOptions = {
+      includeDay: true,
+      includeYear: true,
+      includeTime: false,
+      abbreviateMonth: false,
+      ...options,
+    }
+
+    const month = date.toLocaleString('en-US', {
+      month: mergedOptions.abbreviateMonth ? 'short' : 'long',
+    })
     const day = date.getDate()
     const year = date.getFullYear()
 
@@ -45,14 +58,14 @@ export function formatDate(
       }
     }
 
-    const dayWithSuffix = options.includeDay ? `${day}${getOrdinalSuffix(day)}` : ''
-    const yearString = options.includeYear ? `, ${year}` : ''
-    const timeString = options.includeTime
+    const dayWithSuffix = mergedOptions.includeDay ? `${day}${getOrdinalSuffix(day)}` : ''
+    const yearString = mergedOptions.includeYear ? `, ${year}` : ''
+    const timeString = mergedOptions.includeTime
       ? ` at ${date.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true })}`
       : ''
 
     // Handle different formatting options
-    if (options.includeDay) {
+    if (mergedOptions.includeDay) {
       return `${month} ${dayWithSuffix}${yearString}${timeString}`
     } else {
       return `${month}${yearString}${timeString}`
