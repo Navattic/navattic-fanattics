@@ -1,32 +1,28 @@
+import { payload } from '@/lib/payloadClient'
 import { notFound } from 'next/navigation'
-import { getPayload } from 'payload'
-import config from '@/payload.config'
 import { RichText } from '@payloadcms/richtext-lexical/react'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/authOptions'
-import Link from 'next/link'
 import { Comments } from '@/components/ui/Comments'
 import PageHeader from '@/components/ui/PageHeader'
 import { Container } from '@/components/ui/Container'
 import { formatDate } from '@/utils/formatDate'
-import { CalendarIcon, CoinsIcon } from 'lucide-react'
 import { Badge, Icon } from '@/components/ui'
 import { formatTimeRemaining } from '@/utils/formatTimeRemaining'
-
-const payload = await getPayload({ config })
 
 const ChallengePage = async ({ params }: { params: Promise<{ slug: string }> }) => {
   const { slug } = await params
 
   const session = await getServerSession(authOptions)
-  const sessionUser = await payload.find({
+  
+  const sessionUser = (await payload.find({
     collection: 'users',
     where: {
       email: {
         equals: session?.user?.email,
       },
     },
-  })
+  })).docs[0]
 
   const challenges = await payload.find({
     collection: 'challenges',
@@ -53,8 +49,9 @@ const ChallengePage = async ({ params }: { params: Promise<{ slug: string }> }) 
   })
 
   const userChallengeCompletedData = ledger.docs.filter(
-    (ledger) => typeof ledger.user_id === 'object' && ledger.user_id?.id === sessionUser.docs[0].id,
+    (ledger) => typeof ledger.user_id === 'object' && ledger.user_id?.id === sessionUser.id,
   )
+
 
   return (
     <>
@@ -98,7 +95,7 @@ const ChallengePage = async ({ params }: { params: Promise<{ slug: string }> }) 
               <RichText data={challenge.content} />
             </div>
           </div>
-          <Comments />
+          <Comments user={sessionUser} challenge={challenge} />
         </Container>
       </div>
     </>

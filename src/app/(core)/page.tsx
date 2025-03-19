@@ -1,13 +1,10 @@
-import { getPayload } from 'payload'
-import config from '@/payload.config'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/authOptions'
 import { Container } from '@/components/ui/Container'
 import ChallengesList from '@/components/ui/ChallengesList'
 import Leaderboard from '@/components/ui/Leaderboard'
 import PageHeader from '@/components/ui/PageHeader'
-
-const payload = await getPayload({ config })
+import { payload } from '@/lib/payloadClient'
 
 const Home = async () => {
   const session = await getServerSession(authOptions)
@@ -94,11 +91,13 @@ const Home = async () => {
       </div>
       <Container>
         <div className="flex flex-col gap-4 my-20">
-          <ChallengesList
-            // sessionUser={sessionUser}
-            challengesData={challengesData}
-            userLedgerEntries={userLedgerEntries}
-          />
+          {challengesData && (
+            <ChallengesList
+              // sessionUser={sessionUser}
+              challengesData={challengesData}
+              userLedgerEntries={userLedgerEntries}
+            />
+          )}
           <Leaderboard usersData={usersData} calculateUserPoints={calculateUserPoints} />
         </div>
       </Container>

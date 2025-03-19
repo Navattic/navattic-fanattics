@@ -6,22 +6,23 @@ import { Container } from '@/components/ui/Container'
 import ChallengesList from '@/components/ui/ChallengesList'
 import { authOptions } from '@/lib/authOptions'
 import { getServerSession } from 'next-auth'
+
 const payload = await getPayload({ config })
 
 const Challenges = async () => {
   const session = await getServerSession(authOptions)
-  
+
   const challengesData = (
     await payload.find({
       collection: 'challenges',
     })
   ).docs
 
-const sessionUser = (
-  await payload.find({
-    collection: 'users',
-    where: {
-      email: {
+  const sessionUser = (
+    await payload.find({
+      collection: 'users',
+      where: {
+        email: {
           equals: session?.user?.email,
         },
       },
@@ -44,10 +45,9 @@ const sessionUser = (
       <div className="bg-gray-50 min-h-screen">
         <Container>
           <PageTitle title="Challenges" description="Complete challenges to earn points" />
-          <ChallengesList
-            challengesData={challengesData}
-            userLedgerEntries={userLedgerEntries}
-          />
+          {challengesData && (
+            <ChallengesList challengesData={challengesData} userLedgerEntries={userLedgerEntries} />
+          )}
         </Container>
       </div>
     </>

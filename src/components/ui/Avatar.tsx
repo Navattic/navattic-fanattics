@@ -7,8 +7,7 @@ export default function Avatar({
 }: {
   user: User
   size?: 'full' | 'thumbnail'
-  }) {
-  
+}) {
   // if size='full', render the full size avatar
   const sizeSrc =
     size === 'full'
@@ -17,11 +16,11 @@ export default function Avatar({
 
   return (
     <Image
-      className="rounded-full shadow-sm"
+      className="rounded-full shadow-sm aspect-square"
       src={sizeSrc}
       alt={`${(user.avatar as Avatar)?.alt || `${user.firstName}'s avatar`}`}
-      width={size === 'full' ? 100 : 48}
-      height={size === 'full' ? 100 : 48}
+      width={size === 'full' ? 100 : 32}
+      height={size === 'full' ? 100 : 32}
     />
   )
 }

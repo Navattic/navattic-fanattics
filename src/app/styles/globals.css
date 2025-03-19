@@ -344,6 +344,35 @@
     --pink-700: 335 78% 42%;
     --pink-800: 336 74% 35%;
     --pink-900: 336 69% 30%;
+    /* Shadows */
+    --shadow-button-base-layered: 0px 1px 1px 0px rgba(0, 0, 0, 0.1),
+      0px 2px 3px 0px rgba(0, 0, 0, 0.08), 1px 4px 8px 0px rgba(0, 0, 0, 0.12);
+
+    --shadow-gray-button-inset-skeuo: 0px -3px 2px 0px rgba(0, 0, 0, 0.4) inset,
+      0px 2px 0.4px 0px rgba(255, 255, 255, 0.14) inset;
+    --shadow-blue-button-inset-skeuo: 0px -3px 2px 0px rgba(0, 0, 0, 0.2) inset,
+      0px 2px 0.4px 0px rgba(255, 255, 255, 0.14) inset;
+    --shadow-red-button-inset-skeuo: 0px -3px 2px 0px rgba(0, 0, 0, 0.2) inset,
+      0px 2px 0.4px 0px rgba(255, 255, 255, 0.14) inset;
+
+    --shadow-button-deep-inset-indented: 0px 3px 1px 0px rgba(0, 0, 0, 0.2) inset,
+      0px 0px 3px 0px rgba(0, 0, 0, 0.2) inset;
+    --shadow-button-shallow-inset-indented: 0px 2px 1px 0px rgba(0, 0, 0, 0.05) inset;
+
+    --shadow-button-elevated: 0px 2px 3px 0px rgba(0, 0, 0, 0.03),
+      0px 2px 2px -1px rgba(0, 0, 0, 0.03);
+
+    --shadow-gray-solid-focus: 0px 0px 0px 1px var(--colors-white, #fff),
+      0px 0px 1px 3px rgba(7, 10, 13, 0.4);
+    --shadow-blue-solid-focus: 0px 0px 0px 1px var(--colors-white, #fff),
+      0px 0px 1px 3px rgba(38, 109, 240, 0.4);
+    --shadow-red-solid-focus: 0px 0px 0px 1px var(--colors-white, #fff),
+      0px 0px 1px 3px rgba(239, 68, 68, 0.4);
+
+    --shadow-gray-focus: 0px 0px 0px 1px var(--colors-white, #fff),
+      0px 0px 1px 3px rgba(7, 10, 13, 0.2);
+    --shadow-blue-focus: 0px 0px 0px 1px var(--colors-white, #fff),
+      0px 0px 1px 3px rgba(38, 109, 240, 0.2);
 
     /* Other */
     --background: 0 0% 100%;
@@ -447,6 +476,65 @@
 }
 
 @layer utilities {
+    .shadow-solid-button-active,
+  :where(button, a):active .shadow-solid-button-active,
+  :where(button, a).shadow-solid-gray-button-default:active,
+  :where(button, a).shadow-solid-blue-button-default:active,
+  :where(button, a).shadow-solid-red-button-default:active {
+    box-shadow: var(--shadow-button-deep-inset-indented);
+  }
+
+  /* Active state for ghost buttons */
+  .shadow-ghost-button-active,
+  :where(button, a):active .shadow-ghost-button-active,
+  button:active.shadow-ghost-button-active,
+  a:active.shadow-ghost-button-active {
+    box-shadow: var(--shadow-button-shallow-inset-indented);
+  }
+
+  /* Additional selectors for data-active attribute */
+  [data-active=true].shadow-solid-button-active,
+  [data-active=true].shadow-solid-gray-button-default,
+  [data-active=true].shadow-solid-blue-button-default,
+  [data-active=true].shadow-solid-red-button-default {
+    box-shadow: var(--shadow-button-deep-inset-indented);
+  }
+
+  [data-active=true].shadow-ghost-button-active {
+    box-shadow: var(--shadow-button-shallow-inset-indented);
+  }
+  
+  .shadow-solid-gray-button-default {
+    box-shadow: var(--shadow-button-base-layered), var(--shadow-gray-button-inset-skeuo);
+  }
+
+  .shadow-solid-blue-button-default {
+    box-shadow: var(--shadow-button-base-layered), var(--shadow-blue-button-inset-skeuo);
+  }
+
+  .shadow-solid-red-button-default {
+    box-shadow: var(--shadow-button-base-layered), var(--shadow-red-button-inset-skeuo);
+  }
+
+  .shadow-solid-button-active {
+    box-shadow: var(--shadow-button-deep-inset-indented);
+  }
+
+  .shadow-solid-button-gray-focus {
+    box-shadow: var(--shadow-gray-button-inset-skeuo), var(--shadow-gray-solid-focus);
+  }
+
+  .shadow-solid-button-blue-focus {
+    box-shadow: var(--shadow-blue-button-inset-skeuo), var(--shadow-blue-solid-focus);
+  }
+
+  .shadow-solid-button-red-focus {
+    box-shadow: var(--shadow-red-button-inset-skeuo), var(--shadow-red-solid-focus);
+  }
+
+  .shadow-ghost-button-active {
+    box-shadow: var(--shadow-button-shallow-inset-indented);
+  }
   /* .text-4xl {
     font-size: clamp(2rem, 2rem + 2vw, 4.25rem);
     line-height: clamp(2rem, 2rem + 2vw, 4.5rem);
@@ -586,4 +674,8 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+.payload-richtext > img {
+  @apply rounded-xl shadow-sm;
 }

@@ -189,12 +189,14 @@ export interface Avatar {
  */
 export interface Comment {
   id: number;
-  content?: string | null;
-  user?: (number | null) | User;
-  challenge?: (number | null) | Challenge;
-  createdAt: string;
+  content: string;
+  user: number | User;
+  challenge: number | Challenge;
+  parent?: (number | null) | Comment;
+  status?: ('pending' | 'approved' | 'rejected') | null;
+  flaggedReports?: number | null;
   updatedAt: string;
-  approved?: boolean | null;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -344,9 +346,11 @@ export interface CommentsSelect<T extends boolean = true> {
   content?: T;
   user?: T;
   challenge?: T;
-  createdAt?: T;
+  parent?: T;
+  status?: T;
+  flaggedReports?: T;
   updatedAt?: T;
-  approved?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

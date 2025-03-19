@@ -2,38 +2,46 @@ import type { CollectionConfig } from 'payload'
 
 export const Comments: CollectionConfig = {
   slug: 'comments',
+  access: {
+    read: () => true,
+    create: () => true,
+    update: () => true,
+    delete: () => true,
+  },
   fields: [
     {
       name: 'content',
-      type: 'text',
+      type: 'textarea',
+      required: true,
     },
     {
       name: 'user',
       type: 'relationship',
       relationTo: 'users',
+      required: true,
     },
     {
       name: 'challenge',
       type: 'relationship',
       relationTo: 'challenges',
-    },
-    // {
-    //   name: 'parentComment',
-    //   type: 'relationship',
-    //   relationTo: 'comments',
-    // },
-    {
-      name: 'createdAt',
-      type: 'date',
+      required: true,
     },
     {
-      name: 'updatedAt',
-      type: 'date',
+      name: 'parent',
+      type: 'relationship',
+      relationTo: 'comments',
+      required: false,
     },
     {
-      name: 'approved',
-      type: 'checkbox',
-      defaultValue: true,
+      name: 'status',
+      type: 'select',
+      options: ['pending', 'approved', 'rejected'],
+      defaultValue: 'approved',
+    },
+    {
+      name: 'flaggedReports',
+      type: 'number',
+      defaultValue: 0,
     },
   ],
 }
