@@ -26,7 +26,7 @@ function CommentForm({ user, challenge }: CommentFormProps) {
       setError(null)
       
       await createComment({
-        comment,
+        commentContent: comment,
         user,
         challenge
       })

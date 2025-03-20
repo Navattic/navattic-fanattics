@@ -1,6 +1,7 @@
 import { User, Challenge, Comment } from '@/payload-types'
 import { payload } from '@/lib/payloadClient'
-import { CommentWithNoParent } from '@/components/ui/Comments/Comments'
+import { CommentBlock } from '@/components/ui/Comments/Comments'
+import { cn } from '@/lib/utils'
 
 function CommentTree({
   comment,
@@ -14,20 +15,31 @@ function CommentTree({
   repliesMap: Record<string, Comment[]>
 }) {
   const replies = repliesMap[comment.id] || []
-  const hasReplies = replies.length > 0
+  const hasChild = replies.length > 0
+  // Check if this comment is the last in its parent's replies list
+  const parentId = (comment.parent as Comment)?.id
+  const parentReplies = parentId ? repliesMap[parentId] || [] : []
+  // Only consider last reply if it doesn't have its own replies
+  const isLastChildOfParent = parentReplies[parentReplies.length - 1]?.id === comment.id
 
+  const hasParent = comment.parent !== null
+  const parentHasSiblings = parentReplies.length > 1
+  
   return (
     <div className="w-full">
-      <CommentWithNoParent
+      <CommentBlock
         comment={comment}
         user={user}
         challenge={challenge}
-        hasReplies={hasReplies}
+        hasChild={hasChild}
+        hasParent={hasParent}
+        isLastChildOfParent={isLastChildOfParent}
+        parentHasSiblings={parentHasSiblings}
       />
       {replies.map((reply) => {
         const replyUser = reply.user as User
         return (
-          <div className="flex pl-4" key={reply.id}>
+          <div className={cn('relative flex pl-4')} key={reply.id}>
             <div className="border-b-2 border-l-2 rounded-bl-2xl border-gray-200 h-9 w-[20px]"></div>
             <CommentTree
               key={reply.id}
@@ -43,7 +55,7 @@ function CommentTree({
   )
 }
 
-const CommentSection = async ({ user, challenge }: { user: User; challenge: Challenge }) => {
+const CommentSection = async ({ challenge }: { challenge: Challenge }) => {
   const comments = (
     await payload.find({
       collection: 'comments',

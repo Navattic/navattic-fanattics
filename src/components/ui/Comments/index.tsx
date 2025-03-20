@@ -8,7 +8,7 @@ export const Comments = ({ user, challenge }: { user: User; challenge: Challenge
       <div className="flex flex-col gap-4">
         <h2 className="text-base font-medium">Comments</h2>
         <CommentForm user={user} challenge={challenge} />
-        <CommentSection user={user} challenge={challenge} />
+        <CommentSection challenge={challenge} />
       </div>
     </div>
   )

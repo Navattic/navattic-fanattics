@@ -39,6 +39,18 @@ export const Comments: CollectionConfig = {
       defaultValue: 'approved',
     },
     {
+      name: 'likes',
+      type: 'number',
+      defaultValue: 0,
+    },
+    {
+      name: 'likedBy',
+      type: 'relationship',
+      relationTo: 'users',
+      hasMany: true,
+      defaultValue: [],
+    },
+    {
       name: 'flaggedReports',
       type: 'number',
       defaultValue: 0,

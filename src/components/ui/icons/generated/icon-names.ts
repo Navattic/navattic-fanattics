@@ -127,6 +127,7 @@ export const IconNames = [
   'tablet-smartphone',
   'target',
   'text-cursor-input',
+  'thumbs-up-filled',
   'thumbs-up',
   'timer',
   'tree-palm',

@@ -127,6 +127,7 @@ export type IconName =
   | 'tablet-smartphone'
   | 'target'
   | 'text-cursor-input'
+  | 'thumbs-up-filled'
   | 'thumbs-up'
   | 'timer'
   | 'tree-palm'

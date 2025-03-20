@@ -10,7 +10,7 @@ import Statistics from '@/features/profile/Statistics'
 
 const payload = await getPayload({ config })
 
-const ProfilePage = async ({ params }: { params: { slug: string } }) => {
+const ProfilePage = async ({ params }: { params: Promise<{ slug: string }> }) => {
   const { slug } = await params
 
   // Fetch the session for context if needed
@@ -34,7 +34,6 @@ const ProfilePage = async ({ params }: { params: { slug: string } }) => {
   }
 
   const user = userResponse.docs[0]
-
 
   return (
     <Container>

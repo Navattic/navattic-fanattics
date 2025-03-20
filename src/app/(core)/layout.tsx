@@ -3,7 +3,7 @@ import '../styles/globals.css'
 import Providers from '@/components/Providers'
 import localFont from 'next/font/local'
 import { AppSidebar } from '@/components/ui/AppSidebar'
-import { SidebarTrigger } from '@/components/shadcn/ui/sidebar'
+// import { SidebarTrigger } from '@/components/shadcn/ui/sidebar'
 
 export const metadata = {
   title: 'Fanatic Portal',

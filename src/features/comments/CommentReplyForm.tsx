@@ -5,6 +5,7 @@ import Avatar from '@/components/ui/Avatar'
 import { Challenge, User, Comment as PayloadComment } from '@/payload-types'
 import { Button } from '@/components/ui'
 import { createComment } from './actions'
+import { useSWRConfig } from 'swr'
 
 interface CommentReplyFormProps {
   parentComment: PayloadComment
@@ -14,10 +15,17 @@ interface CommentReplyFormProps {
   hasReplies: boolean
 }
 
-function CommentReplyForm({ parentComment, user, challenge, setOpenReply, hasReplies }: CommentReplyFormProps) {
+function CommentReplyForm({
+  parentComment,
+  user,
+  challenge,
+  setOpenReply,
+  hasReplies,
+}: CommentReplyFormProps) {
   const [commentContent, setCommentContent] = useState('')
   const [status, setStatus] = useState<'idle' | 'executing' | 'error'>('idle')
   const [error, setError] = useState<string | null>(null)
+  const { mutate } = useSWRConfig()
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -37,10 +45,12 @@ function CommentReplyForm({ parentComment, user, challenge, setOpenReply, hasRep
 
       setCommentContent('')
       setStatus('idle')
+      mutate(`comments-${challenge.id}`)
+      setOpenReply(false)
     } catch (err) {
       setStatus('error')
       setError('Failed to post comment. Please try again.')
-      console.error(err)
+      console.error('Error submitting reply:', err)
     }
   }
 

@@ -1,46 +1,73 @@
 'use client'
 
 import Avatar from '@/components/ui/Avatar'
-import { Button, Icon } from '@/components/ui'
 import { User, Comment, Challenge } from '@/payload-types'
 import { useState } from 'react'
 import CommentReplyForm from '@/features/comments/CommentReplyForm'
+import { CommentActions } from '@/features/comments/CommentActions'
 
-export function CommentWithNoParent({
+export function CommentBlock({
   comment,
   user,
   challenge,
-  hasReplies,
+  isLastChildOfParent,
+  hasChild,
+  hasParent,
+  parentHasSiblings,
 }: {
   comment: Comment
   user: User
   challenge: Challenge
-  hasReplies: boolean
+  hasChild: boolean
+  isLastChildOfParent: boolean
+  hasParent: boolean
+  parentHasSiblings: boolean
 }) {
   const [openReply, setOpenReply] = useState(false)
 
+  const regularBorder = hasChild
+  const sideBorder = parentHasSiblings && (hasChild || hasParent) && !isLastChildOfParent
+  const noBorder = isLastChildOfParent && !hasChild
+
+  // (hasParent && parentHasSiblings) && !hasChild && !isLastChildOfParent
   return (
     <>
       <div key={comment.id} className="flex flex-col">
-        <div className="flex items-center mt-6">
+        {!noBorder && sideBorder && (
+          <div className="absolute left-4 top-0 h-full w-0.5 bg-gray-300" />
+        )}
+        <div className="flex items-center mt-4">
           <div className="mr-3">
             <Avatar user={user} size="thumbnail" />
           </div>
           <div className="flex items-center gap-2">
-            <div className="text-sm font-semibold text-gray-800 capitalize">
+            <div className="text-base font-semibold text-gray-800 capitalize">
               {user.firstName} {user.lastName}
             </div>
             <div className="text-sm text-gray-400">• 4d ago</div>
-            <div className="text-sm text-gray-400">{hasReplies ? 'has replies' : 'no replies'}</div>
+            {/* <div className="text-xs">
+              {`${hasParent ? 'has parent' : 'no parent'}`}
+              <br />
+              {`${hasChild ? 'has child' : 'no child'}`}
+              <br />
+              {`${isLastChildOfParent ? 'is last child of parent' : 'is not last child of parent'}`}
+              <br />
+              {`${parentHasSiblings ? 'parent has siblings' : 'parent has no siblings'}`}
+            </div> */}
           </div>
         </div>
         <div className="relative flex items-stretch">
           <div className="px-4 mr-3 self-stretch">
-            {hasReplies && <div className="w-0.5 bg-gray-300 h-full"></div>}
+            {!noBorder && regularBorder && <div className="w-0.5 bg-gray-300 h-full" />}
           </div>
           <div className="flex-col">
-            <div className="text-sm text-gray-800">{comment.content}</div>
-            <CommentActions setOpenReply={setOpenReply} openReply={openReply} />
+            <div className="text-base text-gray-800">{comment.content}</div>
+            <CommentActions
+              setOpenReply={setOpenReply}
+              openReply={openReply}
+              comment={comment}
+              user={user}
+            />
           </div>
         </div>
       </div>
@@ -50,80 +77,9 @@ export function CommentWithNoParent({
           user={user}
           challenge={challenge}
           setOpenReply={setOpenReply}
-          hasReplies={hasReplies}
+          hasReplies={hasChild}
         />
       )}
     </>
-  )
-}
-
-export function CommentReply({
-  comment,
-  user,
-  challenge,
-}: {
-  comment: Comment
-  user: User
-  challenge: Challenge
-}) {
-  const [openReply, setOpenReply] = useState(false)
-
-  return (
-    <>
-      <div key={comment.id} className="flex flex-col">
-        <div className="flex items-center mt-8">
-          <div className="mr-3">
-            <Avatar user={user} size="thumbnail" />
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="text-sm font-semibold text-gray-800 capitalize">
-              {user.firstName} {user.lastName}
-            </div>
-            <div className="text-sm text-gray-400">• 4d ago</div>
-          </div>
-        </div>
-        <div className="relative flex items-stretch">
-          <div className="px-4 mr-3 self-stretch">
-            <div className="w-0.5 bg-gray-300 h-full"></div>
-          </div>
-          <div className="flex-col">
-            <div className="text-sm text-gray-800">{comment.content}</div>
-            <CommentActions setOpenReply={setOpenReply} openReply={openReply} />
-          </div>
-        </div>
-      </div>
-      {openReply && (
-        <CommentReplyForm
-          parentComment={comment}
-          user={user}
-          challenge={challenge}
-          setOpenReply={setOpenReply}
-        />
-      )}
-    </>
-  )
-}
-
-const CommentActions = ({
-  setOpenReply,
-  openReply,
-}: {
-  setOpenReply: (open: boolean) => void
-  openReply: boolean
-}) => {
-  return (
-    <div className="flex gap-1 my-3">
-      <Button variant="ghost" size="sm">
-        <Icon name="thumbs-up" size="sm" className="-translate-y-0.5" />
-        Like
-      </Button>
-      <Button variant="ghost" size="sm" onClick={() => setOpenReply(!openReply)}>
-        <Icon name="reply" size="sm" className="-translate-y-[3px]" />
-        Reply
-      </Button>
-      <Button variant="ghost" size="sm">
-        <Icon name="ellipsis" size="sm" />
-      </Button>
-    </div>
   )
 }
