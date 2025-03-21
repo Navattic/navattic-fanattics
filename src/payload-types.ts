@@ -194,6 +194,7 @@ export interface Comment {
   challenge: number | Challenge;
   parent?: (number | null) | Comment;
   status?: ('pending' | 'approved' | 'rejected') | null;
+  deleted?: boolean | null;
   likes?: number | null;
   likedBy?: (number | User)[] | null;
   flaggedReports?: number | null;
@@ -350,6 +351,7 @@ export interface CommentsSelect<T extends boolean = true> {
   challenge?: T;
   parent?: T;
   status?: T;
+  deleted?: T;
   likes?: T;
   likedBy?: T;
   flaggedReports?: T;

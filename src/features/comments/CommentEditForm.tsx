@@ -4,38 +4,38 @@ import { useState } from 'react'
 import { Button } from '@/components/ui'
 import { updateComment } from './actions'
 import { Comment } from '@/payload-types'
+
 interface CommentEditFormProps {
+  commentId: number
   initialContent: string
-  commentId: Comment['id']
   onCancel: () => void
-  onSuccess: () => void
+  onSuccess: (updatedComment: Comment) => void
 }
 
-function CommentEditForm({ initialContent, commentId, onCancel, onSuccess }: CommentEditFormProps) {
+export function CommentEditForm({
+  commentId,
+  initialContent,
+  onCancel,
+  onSuccess,
+}: CommentEditFormProps) {
   const [content, setContent] = useState(initialContent)
-  const [status, setStatus] = useState<'idle' | 'executing' | 'error'>('idle')
-  const [error, setError] = useState<string | null>(null)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
-  async function handleSubmit(e: React.FormEvent) {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-
-    if (!content.trim()) return
+    setIsSubmitting(true)
 
     try {
-      setStatus('executing')
-      setError(null)
-
-      await updateComment({
+      const updatedComment = await updateComment({
         commentId,
         content,
       })
-
-      setStatus('idle')
-      onSuccess()
-    } catch (err) {
-      setStatus('error')
-      setError('Failed to update comment. Please try again.')
-      console.error('Error updating comment:', err)
+      onSuccess(updatedComment)
+    } catch (error) {
+      console.error('Error updating comment:', error)
+      // Optionally show an error message to the user
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -45,9 +45,8 @@ function CommentEditForm({ initialContent, commentId, onCancel, onSuccess }: Com
         className="w-full bg-white border rounded-lg p-3 h-24 resize-none"
         value={content}
         onChange={(e) => setContent(e.target.value)}
-        disabled={status === 'executing'}
+        disabled={isSubmitting}
       />
-      {error && <p className="text-sm text-red-500">{error}</p>}
       <div className="flex gap-2">
         <Button
           variant="ghost"
@@ -55,7 +54,7 @@ function CommentEditForm({ initialContent, commentId, onCancel, onSuccess }: Com
           type="button"
           size="sm"
           onClick={onCancel}
-          disabled={status === 'executing'}
+          disabled={isSubmitting}
         >
           Cancel
         </Button>
@@ -64,7 +63,7 @@ function CommentEditForm({ initialContent, commentId, onCancel, onSuccess }: Com
           colorScheme="gray"
           type="submit"
           size="sm"
-          disabled={!content.trim() || status === 'executing'}
+          disabled={!content.trim() || isSubmitting}
         >
           Save Changes
         </Button>
@@ -72,5 +71,3 @@ function CommentEditForm({ initialContent, commentId, onCancel, onSuccess }: Com
     </form>
   )
 }
-
-export default CommentEditForm

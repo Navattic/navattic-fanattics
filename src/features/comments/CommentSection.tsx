@@ -10,13 +10,11 @@ function CommentTree({
   user,
   challenge,
   repliesMap,
-  onCommentUpdate,
 }: {
   comment: Comment
   user: User
   challenge: Challenge
   repliesMap: Record<string, Comment[]>
-  onCommentUpdate: (updatedComment: Comment) => void
 }) {
   const replies = repliesMap[comment.id] || []
   const hasChild = replies.length > 0
@@ -31,7 +29,6 @@ function CommentTree({
   return (
     <div className="w-full">
       <CommentBlock
-        onCommentUpdate={onCommentUpdate}
         comment={comment}
         user={user}
         challenge={challenge}
@@ -46,7 +43,6 @@ function CommentTree({
           <div className={cn('relative flex pl-4')} key={reply.id}>
             <div className="border-b-2 border-l-2 rounded-bl-2xl border-gray-200 h-9 w-[20px]"></div>
             <CommentTree
-              onCommentUpdate={onCommentUpdate}
               key={reply.id}
               comment={reply}
               user={replyUser}
@@ -60,13 +56,7 @@ function CommentTree({
   )
 }
 
-const CommentSection = async ({
-  challenge,
-  onCommentUpdate,
-}: {
-  challenge: Challenge
-  onCommentUpdate: (updatedComment: Comment) => void
-}) => {
+const CommentSection = async ({ challenge }: { challenge: Challenge }) => {
   // Query for top-level comments only
   const topLevelComments = (
     await payload.find({
@@ -111,7 +101,6 @@ const CommentSection = async ({
         return (
           <Suspense key={comment.id} fallback={<CommentSkeleton />}>
             <CommentTree
-              onCommentUpdate={onCommentUpdate}
               comment={comment}
               user={user}
               challenge={challenge}

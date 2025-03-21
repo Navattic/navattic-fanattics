@@ -54,9 +54,11 @@ export async function toggleLike({
     const comment = await payload.findByID({
       collection: 'comments',
       id: commentId,
+      depth: 1, // Ensure we get the full user objects
     })
 
-    const isLiked = (comment.likedBy as User[])?.some((user) => user.id === userId) || false
+    const likedBy = (comment.likedBy as User[]) || []
+    const isLiked = likedBy.some((user) => user.id === userId)
 
     const updatedComment = await payload.update({
       collection: 'comments',
@@ -64,9 +66,10 @@ export async function toggleLike({
       data: {
         likes: isLiked ? (comment.likes || 0) - 1 : (comment.likes || 0) + 1,
         likedBy: isLiked
-          ? (comment.likedBy as User[])?.filter((user) => user.id !== userId) || []
-          : [...(comment.likedBy as User[]), userId],
+          ? likedBy.filter((user) => user.id !== userId)
+          : [...likedBy, { id: userId }],
       },
+      depth: 1, // Return the full user objects
     })
 
     return {
@@ -114,6 +117,7 @@ export async function updateComment({
       data: {
         content: content.trim(),
       },
+      depth: 1, // Ensure we get the full comment object with relationships
     })
 
     return result

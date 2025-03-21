@@ -39,6 +39,11 @@ export const Comments: CollectionConfig = {
       defaultValue: 'approved',
     },
     {
+      name: 'deleted',
+      type: 'checkbox',
+      defaultValue: false,
+    },
+    {
       name: 'likes',
       type: 'number',
       defaultValue: 0,

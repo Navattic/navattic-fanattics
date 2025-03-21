@@ -1,3 +1,5 @@
+'use client'
+
 import { Button, Icon } from '@/components/ui'
 import { Comment, User } from '@/payload-types'
 import { toggleLike } from './actions'
@@ -8,71 +10,54 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from '@/components/shadcn/ui/dropdown-menu'
-import { useOptimistic, startTransition } from 'react'
+import { useState } from 'react'
 
 interface CommentActionsProps {
   setOpenReply: (open: boolean) => void
   openReply: boolean
   comment: Comment
   user: User | null
-  onCommentUpdate: (updatedComment: Comment) => void
   setIsEditing: (isEditing: boolean) => void
-  isEditing: boolean
 }
 
 export function CommentActions({
   setOpenReply,
   openReply,
-  comment,
+  comment: initialComment,
   user,
-  onCommentUpdate = () => {},
   setIsEditing,
-  isEditing,
 }: CommentActionsProps) {
-  const [optimisticComment, addOptimistic] = useOptimistic(
-    comment,
-    (currentComment, updatedComment: Comment) => updatedComment,
-  )
+  const [comment, setComment] = useState(initialComment)
 
   const isLiked = user
-    ? (optimisticComment.likedBy as User[])?.some((likedUser) => likedUser.id === user.id)
+    ? (comment.likedBy as User[])?.some((likedUser) => likedUser.id === user.id)
     : false
 
   const handleLike = async () => {
     if (!user) return
 
-    startTransition(() => {
-      const currentLikes = optimisticComment.likes || 0
-      const newLikes = isLiked ? currentLikes - 1 : currentLikes + 1
-      const newLikedBy = isLiked
-        ? (optimisticComment.likedBy as User[]).filter((u) => u.id !== user.id)
-        : [...((optimisticComment.likedBy as User[]) || []), user]
+    const currentLikes = comment.likes || 0
+    const newLikes = isLiked ? currentLikes - 1 : currentLikes + 1
+    const newLikedBy = isLiked
+      ? (comment.likedBy as User[]).filter((u) => u.id !== user.id)
+      : [...((comment.likedBy as User[]) || []), user]
 
-      addOptimistic({
-        ...optimisticComment,
-        likes: newLikes,
-        likedBy: newLikedBy,
-      })
-    })
+    // Optimistic update
+    setComment((prev) => ({
+      ...prev,
+      likes: newLikes,
+      likedBy: newLikedBy,
+    }))
 
     try {
-      const { likes, isLiked } = await toggleLike({
-        commentId: optimisticComment.id,
+      await toggleLike({
+        commentId: comment.id,
         userId: user.id,
       })
-
-      const updatedComment = {
-        ...optimisticComment,
-        likes,
-        likedBy: isLiked
-          ? [...(optimisticComment.likedBy as User[]), user]
-          : (optimisticComment.likedBy as User[]).filter((u) => u.id !== user.id),
-      }
-
-      onCommentUpdate(updatedComment)
     } catch (error) {
       console.error('Error handling like:', error)
-      // Automatic rollback happens here via useOptimistic
+      // Revert to the original state on error
+      setComment(initialComment)
     }
   }
 
@@ -86,9 +71,7 @@ export function CommentActions({
           size="sm"
           className="-translate-y-px"
         />
-        <span className="min-w-5">
-          {optimisticComment.likes === 0 ? 'Like' : optimisticComment.likes}
-        </span>
+        <span className="min-w-5">{comment.likes === 0 ? 'Like' : comment.likes}</span>
       </Button>
       <Button variant="ghost" size="sm" onClick={() => setOpenReply(!openReply)}>
         <Icon name="reply" size="sm" className="-translate-y-[2px]" />

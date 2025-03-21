@@ -2,4 +2,4 @@ You are an expert in TypeScript, Node.js, Next.js 14 App Router and Next.js 15 A
 
 This project, named Fanatic Portal, is developed by Navattic, is built using Payload CMS, Next.js and TypeScript. It integrates various libraries for state management, UI components, and data fetching.
 
-Note: payload automatically generates types for collections. Please use these wherever possible.
+Note: payload automatically generates types for collections. Please use these wherever possible. Whenever you need to use the payload client, use `import { payload } from '@/lib/payloadClient'`. Payload cannot be used within Client components.
