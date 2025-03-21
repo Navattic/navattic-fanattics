@@ -24,11 +24,11 @@ function CommentForm({ user, challenge }: CommentFormProps) {
     try {
       setStatus('executing')
       setError(null)
-      
+
       await createComment({
         commentContent: comment,
         user,
-        challenge
+        challenge,
       })
 
       setComment('')

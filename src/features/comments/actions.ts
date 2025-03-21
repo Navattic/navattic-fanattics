@@ -2,6 +2,7 @@
 
 import { payload } from '@/lib/payloadClient'
 import { User, Challenge, Comment } from '@/payload-types'
+import { revalidateTag } from 'next/cache'
 
 export async function createComment({
   commentContent,
@@ -34,6 +35,7 @@ export async function createComment({
       },
     })
 
+    revalidateTag(`comments-${challenge.id}`)
     return result
   } catch (error) {
     console.error('Error creating comment:', error)
@@ -85,11 +87,38 @@ export async function getComments(challengeId: number): Promise<Comment[]> {
         challenge: { equals: challengeId },
         status: { equals: 'approved' },
       },
-      depth: 2,
+      depth: 10,
     })
     return result.docs
   } catch (error) {
     console.error('Error fetching comments:', error)
     throw new Error('Failed to fetch comments')
+  }
+}
+
+export async function updateComment({
+  commentId,
+  content,
+}: {
+  commentId: Comment['id']
+  content: Comment['content']
+}): Promise<Comment> {
+  if (!content.trim()) {
+    throw new Error('Comment content cannot be empty')
+  }
+
+  try {
+    const result = await payload.update({
+      collection: 'comments',
+      id: commentId,
+      data: {
+        content: content.trim(),
+      },
+    })
+
+    return result
+  } catch (error) {
+    console.error('Error updating comment:', error)
+    throw new Error('Failed to update comment')
   }
 }

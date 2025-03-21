@@ -5,6 +5,8 @@ import { User, Comment, Challenge } from '@/payload-types'
 import { useState } from 'react'
 import CommentReplyForm from '@/features/comments/CommentReplyForm'
 import { CommentActions } from '@/features/comments/CommentActions'
+import { formatPostDate } from '@/utils/formatDate'
+import CommentEditForm from '@/features/comments/CommentEditForm'
 
 export function CommentBlock({
   comment,
@@ -14,6 +16,7 @@ export function CommentBlock({
   hasChild,
   hasParent,
   parentHasSiblings,
+  onCommentUpdate = () => {},
 }: {
   comment: Comment
   user: User
@@ -22,14 +25,23 @@ export function CommentBlock({
   isLastChildOfParent: boolean
   hasParent: boolean
   parentHasSiblings: boolean
+  onCommentUpdate: (updatedComment: Comment) => void
 }) {
   const [openReply, setOpenReply] = useState(false)
+  const [isEditing, setIsEditing] = useState(false)
 
   const regularBorder = hasChild
   const sideBorder = parentHasSiblings && (hasChild || hasParent) && !isLastChildOfParent
   const noBorder = isLastChildOfParent && !hasChild
 
-  // (hasParent && parentHasSiblings) && !hasChild && !isLastChildOfParent
+  const handleEditSuccess = (updatedComment: Comment) => {
+    setIsEditing(false)
+    onCommentUpdate({
+      ...comment,
+      ...updatedComment,
+    })
+  }
+
   return (
     <>
       <div key={comment.id} className="flex flex-col">
@@ -44,7 +56,10 @@ export function CommentBlock({
             <div className="text-base font-semibold text-gray-800 capitalize">
               {user.firstName} {user.lastName}
             </div>
-            <div className="text-sm text-gray-400">• 4d ago</div>
+            <div className="text-sm text-gray-400">
+              • {formatPostDate(comment.createdAt)}
+              {comment.updatedAt && comment.updatedAt !== comment.createdAt && ' (edited)'}
+            </div>
             {/* <div className="text-xs">
               {`${hasParent ? 'has parent' : 'no parent'}`}
               <br />
@@ -60,13 +75,25 @@ export function CommentBlock({
           <div className="px-4 mr-3 self-stretch">
             {!noBorder && regularBorder && <div className="w-0.5 bg-gray-300 h-full" />}
           </div>
-          <div className="flex-col">
-            <div className="text-base text-gray-800">{comment.content}</div>
+          <div className="flex-col w-full">
+            {isEditing ? (
+              <CommentEditForm
+                initialContent={comment.content}
+                commentId={comment.id}
+                onCancel={() => setIsEditing(false)}
+                onSuccess={() => handleEditSuccess(comment)}
+              />
+            ) : (
+              <div className="text-base text-gray-800">{comment.content}</div>
+            )}
             <CommentActions
+              onCommentUpdate={onCommentUpdate}
               setOpenReply={setOpenReply}
               openReply={openReply}
               comment={comment}
               user={user}
+              setIsEditing={setIsEditing}
+              isEditing={isEditing}
             />
           </div>
         </div>
