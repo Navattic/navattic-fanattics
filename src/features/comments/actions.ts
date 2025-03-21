@@ -126,3 +126,21 @@ export async function updateComment({
     throw new Error('Failed to update comment')
   }
 }
+
+export async function softDeleteComment(commentId: number): Promise<Comment> {
+  try {
+    const result = await payload.update({
+      collection: 'comments',
+      id: commentId,
+      data: {
+        deleted: true,
+      },
+      depth: 1, // Ensure we get the full comment object with relationships
+    })
+
+    return result
+  } catch (error) {
+    console.error('Error soft deleting comment:', error)
+    throw new Error('Failed to delete comment')
+  }
+}

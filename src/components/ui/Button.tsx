@@ -19,6 +19,7 @@ const buttonVariants = cva(
       colorScheme: {
         gray: '',
         brand: '',
+        red: '',
       },
       size: {
         xs: 'h-6 rounded-lg text-xs gap-x-1.5 px-2.5', // 24px
@@ -63,6 +64,16 @@ const buttonVariants = cva(
         ]),
       },
       {
+        variant: 'solid',
+        colorScheme: 'red',
+        className: cn([
+          'bg-red-500 border-red-600 shadow-solid-red-button-default',
+          'hover:bg-red-600',
+          'active:shadow-solid-button-active data-[active=true]:shadow-solid-button-active',
+          'focus-visible:shadow-solid-button-red-focus',
+        ]),
+      },
+      {
         variant: 'outline',
         colorScheme: 'gray',
         className: cn([
@@ -79,6 +90,17 @@ const buttonVariants = cva(
         ]),
       },
       {
+        variant: 'outline',
+        colorScheme: 'red',
+        className: cn([
+          'border-red-300 shadow-button-elevated text-red-700',
+          'hover:bg-red-50 hover:text-red-900',
+          'dark:bg-white/10 dark:border-red-600 dark:text-white',
+          'active:text-red-900 data-[active=true]:text-red-900 active:shadow-button-shallow-inset-indented data-[active=true]:shadow-button-shallow-inset-indented',
+          'focus-visible:shadow-red-focus focus-visible:text-red-900',
+        ]),
+      },
+      {
         variant: 'ghost',
         colorScheme: 'gray',
         className: cn([
@@ -89,6 +111,16 @@ const buttonVariants = cva(
           // focus
           'focus-visible:text-gray-900 focus-visible:shadow-gray-focus focus-visible:bg-gray-100',
           // dark
+          'dark:text-white dark:hover:bg-transparent dark:hover:border-transparent',
+        ]),
+      },
+      {
+        variant: 'ghost',
+        colorScheme: 'red',
+        className: cn([
+          'hover:text-red-900 hover:border-red-200 hover:bg-red-100',
+          'active:text-red-900 data-[active=true]:text-red-900 active:border-red-100 data-[active=true]:border-red-100 active:bg-red-200 data-[active=true]:bg-red-200 active:shadow-ghost-button-active data-[active=true]:shadow-ghost-button-active',
+          'focus-visible:text-red-900 focus-visible:shadow-red-focus focus-visible:bg-red-100',
           'dark:text-white dark:hover:bg-transparent dark:hover:border-transparent',
         ]),
       },

@@ -142,6 +142,7 @@ export const IconNames = [
   'user-round-pen',
   'user-round',
   'user-search',
+  'user',
   'users-round',
   'video',
   'webhook',
