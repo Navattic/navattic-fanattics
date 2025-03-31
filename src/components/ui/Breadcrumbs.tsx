@@ -10,9 +10,11 @@ interface BreadcrumbsProps {
   className?: string
   separator?: React.ReactNode
   transformLabel?: (segment: string) => string
+  title?: string
 }
 
 function Breadcrumbs({
+  title,
   homeLabel = 'Home',
   className,
   separator = <ChevronRight className="h-4 w-4 text-gray-400" />,
@@ -33,7 +35,7 @@ function Breadcrumbs({
     ...segments.map((segment, index) => {
       const href = `/${segments.slice(0, index + 1).join('/')}`
       return {
-        label: transformLabel(segment),
+        label: title ? title : transformLabel(segment),
         href,
       }
     }),

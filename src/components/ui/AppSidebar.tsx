@@ -41,8 +41,8 @@ const items = [
     group: 'Fannatic Info',
     items: [
       {
-        label: 'Guide & Rules',
-        href: '/guide-and-rules',
+        label: 'Rules & Guide',
+        href: '/rules-and-guide',
         icon: BookOpenTextIcon,
       },
       {
@@ -111,7 +111,7 @@ export function AppSidebar() {
     <Sidebar>
       <SidebarHeader className="p-5 mb-10">
         <Link href="/">
-          <NavatticLogo className='w-24'/>
+          <NavatticLogo className="w-24" />
         </Link>
       </SidebarHeader>
       <SidebarContent className="flex flex-col gap-2">

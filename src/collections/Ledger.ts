@@ -1,6 +1,6 @@
 import type { CollectionConfig } from 'payload'
 
-const Ledger: CollectionConfig = {
+export const Ledger: CollectionConfig = {
   slug: 'ledger',
   labels: {
     singular: 'Ledger entry',
@@ -49,4 +49,3 @@ const Ledger: CollectionConfig = {
   ],
 }
 
-export default Ledger

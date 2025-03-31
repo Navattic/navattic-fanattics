@@ -58,7 +58,7 @@ const ChallengePage = async ({ params }: { params: Promise<{ slug: string }> }) 
       <PageHeader />
       <div className="bg-gray-50 min-h-screen">
         <Container className="pt-10">
-          <div className="w-full border border-gray-100 bg-gradient-to-b from-white to-[#F6F8F9] rounded-2xl shadow-sm">
+          <div className="content-container">
             <div className="space-y-4 border-b border-gray-200 p-8 py-6">
               <div className="flex items-start justify-between">
                 <div>

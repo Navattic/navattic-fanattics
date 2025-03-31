@@ -11,9 +11,10 @@ import sharp from 'sharp'
 import { Users } from './collections/Users'
 import { Media } from './collections/Media'
 import { Challenges } from './collections/Challenges'
-import Ledger from './collections/Ledger'
+import { Ledger } from './collections/Ledger'
 import { Comments } from './collections/Comments'
 import { Avatars } from './collections/Avatars'
+import { Guide } from './collections/Guide'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -25,6 +26,7 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
   },
+  globals: [Guide],
   collections: [Challenges, Ledger, Users, Comments, Media, Avatars],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
