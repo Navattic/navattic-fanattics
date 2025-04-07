@@ -686,3 +686,45 @@
 .payload-richtext > img {
   @apply rounded-xl shadow-sm;
 }
+
+
+.payload-rich-text h1 {
+  @apply mt-6 mb-4 text-4xl font-medium text-gray-900;
+}
+
+.payload-rich-text h2 {
+  @apply mt-6 mb-4 text-3xl font-medium text-gray-900;
+}
+
+.payload-rich-text h3 {
+  @apply mt-6 mb-4 text-2xl font-medium text-gray-900;
+}
+
+.payload-rich-text h4 {
+  @apply mt-6 mb-4 text-xl font-medium text-gray-900;
+}
+
+.payload-rich-text h5 {
+  @apply mt-6 mb-4 text-lg font-medium text-gray-900;
+}
+
+.payload-rich-text h6 {
+  @apply mb-4 text-md leading-relaxed;
+}
+
+.payload-rich-text p, a {
+  @apply mb-4 text-base leading-relaxed;
+}
+
+.payload-rich-text a {
+  @apply text-blue-500 underline-offset-2 hover:underline;
+}
+
+.payload-rich-text ul {
+  @apply list-disc list-inside mb-4;
+}
+
+.payload-rich-text ol {
+  @apply list-decimal list-inside mb-4;
+}
+

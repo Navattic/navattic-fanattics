@@ -15,9 +15,7 @@ const GuideAndRules = async () => {
     <>
       <PageHeader title="Rules & Guide" />
       <div className="bg-gray-50 min-h-screen">
-        <Container className="pt-10">
-          <div className="content-container">{guide && <GuideContent guide={guide} />}</div>
-        </Container>
+        <Container className="pt-10">{guide && <GuideContent guide={guide} />}</Container>
       </div>
     </>
   )

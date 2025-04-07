@@ -9,7 +9,7 @@ import {
 const GuideContent = ({ guide }: { guide: any }) => {
   return (
     <div className="content-container">
-      <div className="space-y-4 border-b border-gray-200 p-8 py-6">
+      <div className="space-y-4 border-b border-gray-200 p-8 py-6 pt-7">
         <h1 className="font-medium text-xl">Rules & Guide</h1>
       </div>
       <div className="p-8 pt-6 text-base text-gray-600 max-w-prose">
@@ -27,12 +27,12 @@ const GuideContent = ({ guide }: { guide: any }) => {
               <AccordionItem value="item-1">
                 <AccordionTrigger>
                   <div className="space-y-2">
-                    <h4 className="font-medium text-base ">{info.title}</h4>
+                    <h3 className="font-medium text-md text-gray-900">{info.title}</h3>
                     <p className="text-gray-500 font-normal text-sm">{info.description}</p>
                   </div>
                 </AccordionTrigger>
                 <AccordionContent>
-                  <RichText data={info.content} />
+                  <RichText className="payload-rich-text" data={info.content} />
                 </AccordionContent>
               </AccordionItem>
             </Accordion>
