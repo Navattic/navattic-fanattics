@@ -8,13 +8,21 @@ import { formatDate } from '@/utils/formatDate'
 import Avatar from '@/components/ui/Avatar'
 import Statistics from '@/features/profile/Statistics'
 
-const payload = await getPayload({ config }) 
+const payload = await getPayload({ config })
 
 const ProfilePage = async ({ params }: { params: Promise<{ slug: string }> }) => {
   const { slug } = await params
 
   // Fetch the session for context if needed
   const session = await getServerSession(authOptions)
+
+  if (!session) {
+    return (
+      <div className="mx-auto text-center mt-20">
+        <h1 className="text-xl font-medium">Please sign in to view profile</h1>
+      </div>
+    )
+  }
 
   // Fetch the user profile based on the slug
   const userResponse = await payload.find({

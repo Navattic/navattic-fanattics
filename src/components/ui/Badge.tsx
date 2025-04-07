@@ -225,7 +225,6 @@ export const Badge = forwardRef<HTMLDivElement, BadgeProps>(
       ) : (
         _iconRight
       )
-    const icon = iconLeft ? 'left' : iconRight ? 'right' : undefined
 
     return (
       <div

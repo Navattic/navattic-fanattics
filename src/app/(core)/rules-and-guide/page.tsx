@@ -1,7 +1,6 @@
 import { payload } from '@/lib/payloadClient'
 import PageHeader from '@/components/ui/PageHeader'
 import { Container } from '@/components/ui/Container'
-import PageTitle from '@/components/ui/PageTitle'
 import GuideContent from '@/components/ui/GuideContent'
 
 const GuideAndRules = async () => {

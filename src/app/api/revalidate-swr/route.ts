@@ -8,6 +8,6 @@ export async function POST(request: Request) {
     revalidateTag(key)
     return NextResponse.json({ revalidated: true, now: Date.now() })
   } catch (error) {
-    return NextResponse.json({ message: 'Failed to revalidate' }, { status: 500 })
+    return NextResponse.json({ message: `Failed to revalidate: ${error}` }, { status: 500 })
   }
 }

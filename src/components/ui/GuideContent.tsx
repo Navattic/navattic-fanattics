@@ -5,8 +5,9 @@ import {
   AccordionTrigger,
   AccordionContent,
 } from '../shadcn/ui/accordion'
+import { Guide } from '@/payload-types'
 
-const GuideContent = ({ guide }: { guide: any }) => {
+const GuideContent = ({ guide }: { guide: Guide }) => {
   return (
     <div className="content-container">
       <div className="space-y-4 border-b border-gray-200 p-8 py-6 pt-7">
@@ -15,16 +16,17 @@ const GuideContent = ({ guide }: { guide: any }) => {
       <div className="p-8 pt-6 text-base text-gray-600 max-w-prose">
         <RichText data={guide.introduction} />
       </div>
-      {guide.additionalInfo.length > 0 && (
+      {guide.additionalInfo && guide.additionalInfo.length > 0 && (
         <div className="p-8 pt-6 text-base text-gray-600">
           <h3 className="font-medium text-md mb-3">Learn more below:</h3>
-          {guide.additionalInfo.map((info: any) => (
+          {guide.additionalInfo.map((info, index: number) => (
             <Accordion
+              key={info.id}
               type="single"
               collapsible
               className="bg-white border border-gray-100 rounded-2xl px-8 py-2 cursor-pointer mb-2"
             >
-              <AccordionItem value="item-1">
+              <AccordionItem value={`item-${index}`}>
                 <AccordionTrigger>
                   <div className="space-y-2">
                     <h3 className="font-medium text-md text-gray-900">{info.title}</h3>

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server"
 
 export async function POST(req: Request) {
   try {
-    const { email, password } = await req.json()
+    // const { email, password } = await req.json()
     return NextResponse.json({ message: 'User registered' })
   } catch (error) {
     console.error(error)

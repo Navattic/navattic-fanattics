@@ -8,6 +8,7 @@ import { payload } from '@/lib/payloadClient'
 
 const Home = async () => {
   const session = await getServerSession(authOptions)
+  
   if (!session) {
     return (
       <div className="mx-auto text-center mt-20">

@@ -2,23 +2,6 @@ import { formatSlug } from '@/utils/formatSlug'
 import type { CollectionConfig } from 'payload'
 import { v4 as uuidv4 } from 'uuid'
 
-// Add this interface near the top of the file
-interface Media {
-  id: string
-  sizes?: {
-    thumbnail?: {
-      width: number
-      height: number
-      crop: string
-    }
-    profile?: {
-      width: number
-      height: number
-      crop: string
-    }
-  }
-}
-
 export const Users: CollectionConfig = {
   slug: 'users',
   admin: {
