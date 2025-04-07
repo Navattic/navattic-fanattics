@@ -8,8 +8,6 @@ const GuideAndRules = async () => {
     slug: 'guide',
   })
 
-  console.log(guide)
-
   return (
     <>
       <PageHeader title="Rules & Guide" />

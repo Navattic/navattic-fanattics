@@ -4,9 +4,11 @@ import Image from 'next/image'
 export default function Avatar({
   user,
   size = 'thumbnail',
+  className,
 }: {
   user: User
   size?: 'full' | 'thumbnail'
+  className?: string
 }) {
   // if size='full', render the full size avatar
   const sizeSrc =
@@ -16,7 +18,7 @@ export default function Avatar({
 
   return (
     <Image
-      className="rounded-full shadow-sm aspect-square"
+      className={`rounded-full shadow-sm aspect-square ${className}`}
       src={sizeSrc}
       alt={`${(user.avatar as Avatar)?.alt || `${user.firstName}'s avatar`}`}
       width={size === 'full' ? 100 : 32}

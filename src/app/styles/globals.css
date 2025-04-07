@@ -479,11 +479,10 @@
 }
 
 @layer utilities {
-
-  .content-container { 
-    @apply w-full border border-gray-100 bg-gradient-to-b from-white to-[#F6F8F9] rounded-2xl shadow-sm
+  .content-container {
+    @apply w-full border border-gray-100 bg-gradient-to-b from-white to-[#F6F8F9] rounded-2xl shadow-sm;
   }
-    .shadow-solid-button-active,
+  .shadow-solid-button-active,
   :where(button, a):active .shadow-solid-button-active,
   :where(button, a).shadow-solid-gray-button-default:active,
   :where(button, a).shadow-solid-blue-button-default:active,
@@ -500,17 +499,17 @@
   }
 
   /* Additional selectors for data-active attribute */
-  [data-active=true].shadow-solid-button-active,
-  [data-active=true].shadow-solid-gray-button-default,
-  [data-active=true].shadow-solid-blue-button-default,
-  [data-active=true].shadow-solid-red-button-default {
+  [data-active='true'].shadow-solid-button-active,
+  [data-active='true'].shadow-solid-gray-button-default,
+  [data-active='true'].shadow-solid-blue-button-default,
+  [data-active='true'].shadow-solid-red-button-default {
     box-shadow: var(--shadow-button-deep-inset-indented);
   }
 
-  [data-active=true].shadow-ghost-button-active {
+  [data-active='true'].shadow-ghost-button-active {
     box-shadow: var(--shadow-button-shallow-inset-indented);
   }
-  
+
   .shadow-solid-gray-button-default {
     box-shadow: var(--shadow-button-base-layered), var(--shadow-gray-button-inset-skeuo);
   }
@@ -687,44 +686,50 @@
   @apply rounded-xl shadow-sm;
 }
 
-
-.payload-rich-text h1 {
-  @apply mt-6 mb-4 text-4xl font-medium text-gray-900;
+.payload-rich-text > h1 {
+  @apply mt-6 mb-6 text-4xl font-medium text-gray-900;
 }
 
-.payload-rich-text h2 {
-  @apply mt-6 mb-4 text-3xl font-medium text-gray-900;
+.payload-rich-text > h2 {
+  @apply mt-6 mb-6 text-3xl font-medium text-gray-900;
 }
 
-.payload-rich-text h3 {
-  @apply mt-6 mb-4 text-2xl font-medium text-gray-900;
+.payload-rich-text > h3 {
+  @apply mt-6 mb-6 text-2xl font-medium text-gray-900;
 }
 
-.payload-rich-text h4 {
-  @apply mt-6 mb-4 text-xl font-medium text-gray-900;
+.payload-rich-text > h4 {
+  @apply mt-6 mb-6 text-xl font-medium text-gray-900;
 }
 
-.payload-rich-text h5 {
-  @apply mt-6 mb-4 text-lg font-medium text-gray-900;
+.payload-rich-text > h5 {
+  @apply mt-6 mb-6 text-lg font-medium text-gray-900;
 }
 
-.payload-rich-text h6 {
+.payload-rich-text > h6 {
   @apply mb-4 text-md leading-relaxed;
 }
 
-.payload-rich-text p, a {
+.payload-rich-text > p {
   @apply mb-4 text-base leading-relaxed;
 }
 
-.payload-rich-text a {
+.payload-rich-text > a {
   @apply text-blue-500 underline-offset-2 hover:underline;
 }
 
-.payload-rich-text ul {
+.payload-rich-text > ul {
   @apply list-disc list-inside mb-4;
 }
 
-.payload-rich-text ol {
+.payload-rich-text > ol {
   @apply list-decimal list-inside mb-4;
 }
 
+.payload-rich-text ul > li {
+  @apply text-base leading-relaxed;
+}
+
+.payload-rich-text ul > li > a {
+  @apply text-blue-500 underline-offset-2 hover:underline;
+}
