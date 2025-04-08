@@ -42,8 +42,8 @@ function Breadcrumbs({
   ]
 
   return (
-    <nav aria-label="Breadcrumbs" className={cn('flex items-center space-x-1 text-sm', className)}>
-      <ol className="flex items-center space-x-1">
+    <nav aria-label="Breadcrumbs" className={cn('flex items-center text-sm', className)}>
+      <ol className="flex items-center space-x-0">
         {breadcrumbs.map((breadcrumb, index) => {
           const isLast = index === breadcrumbs.length - 1
 
