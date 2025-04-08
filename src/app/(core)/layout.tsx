@@ -1,9 +1,17 @@
 import '../styles/globals.css'
-// import AppNavbar from '@/components/ui/AppNavbar'
 import Providers from '@/components/Providers'
 import localFont from 'next/font/local'
 import { AppSidebar } from '@/components/ui/AppSidebar'
-// import { SidebarTrigger } from '@/components/shadcn/ui/sidebar'
+
+// TODO: Add empty state throughout
+// TODO: Add loading state throughout (skeletons)
+// TODO: Add error state throughout
+// TODO: Add pagination
+// TODO: Add user profile
+// TODO: Add user settings 
+// TODO: Add Fanattic tier badge
+// TODO: Add notification system
+// TODO: Ensure all pages are gated unless signed in
 
 export const metadata = {
   title: 'Fanatic Portal',
@@ -27,8 +35,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Providers>
           <AppSidebar />
           <main className="w-full mx-auto">
-            {/* <SidebarTrigger /> */}
-            {/* <AppNavbar /> */}
             {children}
           </main>
         </Providers>

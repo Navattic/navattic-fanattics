@@ -97,7 +97,6 @@ const footerItems = [
   },
   {
     label: 'Sign out',
-    href: '/',
     icon: LogOutIcon,
   },
 ]
@@ -177,16 +176,24 @@ export function AppSidebar() {
                   className="w-[220px] rounded-xl"
                 >
                   {footerItems.map((item) =>
-                    item.label === 'Logout' ? (
-                      <DropdownMenuItem key={item.label}>
-                        <button onClick={() => signOut()}>{item.label}</button>
+                    item.label === 'Sign out' ? (
+                      <DropdownMenuItem
+                        key={item.label}
+                        onSelect={() => signOut()}
+                        className="hover:bg-gray-100 rounded-lg !h-8 px-3 pr-2.5 py-0 flex items-center gap-2 cursor-pointer"
+                      >
+                        <item.icon className="size-4 text-gray-500" />
+                        <span className="text-sm leading-none font-medium text-gray-600">
+                          {item.label}
+                        </span>
                       </DropdownMenuItem>
                     ) : (
                       <DropdownMenuItem
                         key={item.label}
                         className="hover:bg-gray-100 rounded-lg !h-8 px-3 pr-2.5 py-0"
+                        asChild
                       >
-                        <Link href={item.href} className="flex items-center gap-2">
+                        <Link href={item.href ?? ''} className="flex items-center gap-2">
                           <item.icon className="size-4 text-gray-500" />
                           <span className="text-sm leading-none font-medium text-gray-600">
                             {item.label}

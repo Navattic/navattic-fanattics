@@ -2,12 +2,14 @@ import { NextAuthOptions } from 'next-auth'
 import GoogleProvider from 'next-auth/providers/google'
 import { getPayload } from 'payload'
 import config from '@/payload.config'
-import { v4 } from 'uuid' 
-
+import { v4 } from 'uuid'
 
 export const authOptions: NextAuthOptions = {
   session: {
     strategy: 'jwt',
+  },
+  pages: {
+    signIn: '/login', // Use your custom sign-in page
   },
   providers: [
     GoogleProvider({
