@@ -95,16 +95,48 @@ export const Users: CollectionConfig = {
       },
       hooks: {
         beforeValidate: [
-          formatSlug((data, originalDoc) => {
-            const firstName = data?.firstName || originalDoc?.firstName || ''
-            const lastName = data?.lastName || originalDoc?.lastName || ''
+          async ({ data, originalDoc, req }) => {
+            // Early return if no name components
+            const firstName = data?.firstName || originalDoc?.firstName
+            const lastName = data?.lastName || originalDoc?.lastName
+            
+            if (!firstName && !lastName) return ''
 
-            if (firstName && lastName) {
-              return `${firstName} ${lastName}`
+            // Generate base slug
+            const baseSlug = formatSlug(`${firstName} ${lastName}`.trim())
+            if (!baseSlug) return ''
+
+            // Query to check for existing slugs
+            const baseQuery = {
+              slug: { equals: baseSlug },
+              ...(originalDoc?.id ? { id: { not_equals: originalDoc.id } } : {})
             }
 
-            return firstName || lastName
-          }),
+            // Check for existing slug
+            const existing = await req.payload.find({
+              collection: 'users',
+              where: baseQuery,
+            })
+
+            // Return base slug if no duplicates found
+            if (existing.totalDocs === 0) return baseSlug
+
+            // Find first available numbered slug
+            let count = 1
+            while (true) {
+              const numberedSlug = `${baseSlug}-${count}`
+              const duplicates = await req.payload.find({
+                collection: 'users',
+                where: {
+                  slug: { equals: numberedSlug },
+                  ...(originalDoc?.id ? { id: { not_equals: originalDoc.id } } : {})
+                },
+              })
+
+              if (duplicates.totalDocs === 0) return numberedSlug
+              count++
+            }
+          },
         ],
       },
     },

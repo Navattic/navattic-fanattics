@@ -2,13 +2,17 @@ import '../styles/globals.css'
 import Providers from '@/components/Providers'
 import localFont from 'next/font/local'
 import { AppSidebar } from '@/components/ui/AppSidebar'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/authOptions'
+import { redirect } from 'next/navigation'
+import { payload } from '@/lib/payloadClient'
 
 // TODO: Add empty state throughout
 // TODO: Add loading state throughout (skeletons)
 // TODO: Add error state throughout
 // TODO: Add pagination
 // TODO: Add user profile
-// TODO: Add user settings 
+// TODO: Add user settings
 // TODO: Add Fanattic tier badge
 // TODO: Add notification system
 // TODO: Ensure all pages are gated unless signed in
@@ -28,15 +32,31 @@ const suisse = localFont({
   variable: '--font-suisse',
 })
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const session = await getServerSession(authOptions)
+
+  if (!session) {
+    redirect('/login')
+  }
+
+  const userData = await payload.find({
+    collection: 'users',
+    where: {
+      email: {
+        equals: session?.user.email,
+      },
+    },
+  })
+
+  const user = userData.docs[0]
+
+
   return (
     <html lang="en" className={`${suisse.variable} font-sans`}>
       <body>
         <Providers>
-          <AppSidebar />
-          <main className="w-full mx-auto">
-            {children}
-          </main>
+          <AppSidebar user={user} />
+          <main className="w-full mx-auto">{children}</main>
         </Providers>
       </body>
     </html>

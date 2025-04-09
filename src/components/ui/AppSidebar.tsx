@@ -17,10 +17,12 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from '@/components/shadcn/ui/dropdown-menu'
 import {
   SettingsIcon,
   LogOutIcon,
+  ShieldUserIcon,
   TrophyIcon,
   HelpCircleIcon,
   EllipsisIcon,
@@ -35,6 +37,7 @@ import Link from 'next/link'
 import { signIn, signOut, useSession } from 'next-auth/react'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
+import { User } from '@/payload-types'
 
 const items = [
   {
@@ -79,32 +82,26 @@ const items = [
   },
 ]
 
-const footerItems = [
-  {
-    label: 'Admin',
-    href: '/admin',
-    icon: UserIcon,
-  },
-  {
-    label: 'Help',
-    href: '/help',
-    icon: HelpCircleIcon,
-  },
-  {
-    label: 'Account settings',
-    href: '/account-settings',
-    icon: SettingsIcon,
-  },
-  {
-    label: 'Sign out',
-    icon: LogOutIcon,
-  },
-]
-
-export function AppSidebar() {
+export function AppSidebar({ user }: { user: User }) {
   const { data: session } = useSession()
-
   const pathname = usePathname()
+
+  const footerItems = [
+    {
+      label: 'Admin Dashboard',
+      href: '/admin',
+      icon: ShieldUserIcon,
+    },
+    {
+      label: 'Profile',
+      href: `/profile/${user?.slug}`,
+      icon: UserIcon,
+    },
+    {
+      label: 'Sign out',
+      icon: LogOutIcon,
+    },
+  ]
 
   return (
     <Sidebar>
@@ -152,17 +149,17 @@ export function AppSidebar() {
                 <DropdownMenuTrigger asChild>
                   <SidebarMenuButton>
                     <div className="w-full flex justify-between items-center">
-                      <div className="flex items-center gap-2 text-sm font-medium text-gray-600">
-                        {session?.user?.image && (
+                      <div className="flex items-center gap-2 text-sm font-medium text-gray-600 capitalize">
+                        {user?.avatar && typeof user.avatar !== 'number' && (
                           <Image
-                            src={session?.user?.image}
+                            src={user.avatar.sizes?.thumbnail?.url ?? ''}
                             alt="User"
                             width={28}
                             height={28}
                             className="rounded-full"
                           />
                         )}
-                        {session?.user?.name}
+                        {user?.firstName} {user?.lastName}
                       </div>
                       <EllipsisIcon className="size-4 text-gray-500" />
                     </div>
@@ -188,18 +185,38 @@ export function AppSidebar() {
                         </span>
                       </DropdownMenuItem>
                     ) : (
-                      <DropdownMenuItem
-                        key={item.label}
-                        className="hover:bg-gray-100 rounded-lg !h-8 px-3 pr-2.5 py-0"
-                        asChild
-                      >
-                        <Link href={item.href ?? ''} className="flex items-center gap-2">
-                          <item.icon className="size-4 text-gray-500" />
-                          <span className="text-sm leading-none font-medium text-gray-600">
-                            {item.label}
-                          </span>
-                        </Link>
-                      </DropdownMenuItem>
+                      <>
+                        {item.label === 'Admin' && session?.user.roles?.includes('admin') ? (
+                          <>
+                            <DropdownMenuItem
+                              key={item.label}
+                              className="hover:bg-gray-100 rounded-lg !h-8 px-3 pr-2.5 py-0"
+                              asChild
+                            >
+                              <Link href={item.href ?? ''} className="flex items-center gap-2">
+                                <item.icon className="size-4 text-gray-500" />
+                                <span className="text-sm leading-none font-medium text-gray-600">
+                                  {item.label}
+                                </span>
+                              </Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                          </>
+                        ) : (
+                          <DropdownMenuItem
+                            key={item.label}
+                            className="hover:bg-gray-100 rounded-lg !h-8 px-3 pr-2.5 py-0"
+                            asChild
+                          >
+                            <Link href={item.href ?? ''} className="flex items-center gap-2">
+                              <item.icon className="size-4 text-gray-500" />
+                              <span className="text-sm leading-none font-medium text-gray-600">
+                                {item.label}
+                              </span>
+                            </Link>
+                          </DropdownMenuItem>
+                        )}
+                      </>
                     ),
                   )}
                 </DropdownMenuContent>
