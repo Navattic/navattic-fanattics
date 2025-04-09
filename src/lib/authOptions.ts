@@ -10,6 +10,7 @@ export const authOptions: NextAuthOptions = {
   },
   pages: {
     signIn: '/login', // Use your custom sign-in page
+    newUser: '/register',
   },
   providers: [
     GoogleProvider({
