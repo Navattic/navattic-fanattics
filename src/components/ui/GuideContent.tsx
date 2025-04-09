@@ -24,7 +24,7 @@ const GuideContent = ({ guide }: { guide: Guide }) => {
               key={info.id}
               type="single"
               collapsible
-              className="bg-white border border-gray-100 rounded-xl px-8 py-2 mb-4"
+              className="bg-white border border-gray-200 rounded-xl px-8 py-2 mb-4"
             >
               <AccordionItem value={`item-${index}`}>
                 <AccordionTrigger className="!cursor-pointer">

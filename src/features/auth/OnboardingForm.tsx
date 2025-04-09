@@ -2,7 +2,7 @@
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/Button'
 import { Form } from '@/components/shadcn/ui/form'
 import { Input } from '@/components/shadcn/ui/input'
@@ -10,7 +10,9 @@ import { Textarea } from '@/components/shadcn/ui/textarea'
 import { FieldSet } from '@/components/ui/FieldSet'
 import { Icon } from '@/components/ui'
 import { Label } from '@/components/shadcn/ui/label'
-
+import { Session } from 'next-auth'
+import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 const formSchema = z.object({
   firstName: z.string().min(2).max(50),
   lastName: z.string().min(2).max(50),
@@ -20,22 +22,75 @@ const formSchema = z.object({
   bio: z.string().max(500).optional(),
 })
 
-export default function OnboardingForm() {
+type OnboardingFormProps = {
+  session: Session
+}
+
+export default function OnboardingForm({ session }: OnboardingFormProps) {
+  const router = useRouter()
   const [step, setStep] = useState(1)
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  // Split the name from the session
+  const nameParts = session.user?.name?.split(' ') || []
+  const firstName = nameParts[0] || ''
+  const lastName = nameParts.slice(1).join(' ') || ''
+
+  // Get email from session
+  const email = session.user?.email || ''
+
+  // Get avatar URL from session
+  const avatarUrl = session.user?.image || null
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      firstName: '',
-      lastName: '',
-      email: '',
+      firstName,
+      lastName,
+      email,
+      username: firstName.toLowerCase() + (lastName ? lastName.toLowerCase().charAt(0) : ''),
       bio: '',
     },
   })
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values)
+  // Set avatar preview if available from Google
+  useEffect(() => {
+    if (avatarUrl) {
+      setAvatarPreview(avatarUrl)
+    }
+  }, [avatarUrl])
+
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    setIsSubmitting(true)
+
+    try {
+      // Send the form data to update the user profile
+      const response = await fetch('/api/auth/update-profile', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          firstName: values.firstName,
+          lastName: values.lastName,
+          email: values.email,
+          bio: values.bio,
+          // We'll handle avatar upload separately if needed
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to update profile')
+      }
+
+      // Redirect to the dashboard after successful submission
+      router.push('/')
+    } catch (error) {
+      console.error('Error updating profile:', error)
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   function handleNextStep() {
@@ -118,10 +173,12 @@ export default function OnboardingForm() {
               <div className="flex items-center gap-4">
                 <div className="relative w-24 h-24 rounded-full border border-border flex items-center justify-center bg-muted overflow-hidden">
                   {avatarPreview ? (
-                    <img
+                    <Image
                       src={avatarPreview}
                       alt="Avatar preview"
                       className="w-full h-full object-cover"
+                      width={96}
+                      height={96}
                     />
                   ) : (
                     <Icon name="user" className="w-10 h-10 text-muted-foreground" />
@@ -139,7 +196,6 @@ export default function OnboardingForm() {
                   accept="image/*"
                   onChange={handleAvatarChange}
                   className="sr-only"
-                  {...form.register('avatar')}
                 />
               </div>
             </FieldSet>
@@ -161,8 +217,8 @@ export default function OnboardingForm() {
               <Button type="button" variant="outline" size="md" onClick={handlePreviousStep}>
                 Back
               </Button>
-              <Button type="submit" variant="solid" size="md">
-                Enter portal <Icon name="arrow-right" />
+              <Button type="submit" variant="solid" size="md" disabled={isSubmitting}>
+                {isSubmitting ? 'Saving...' : 'Enter portal'} <Icon name="arrow-right" />
               </Button>
             </div>
           </>

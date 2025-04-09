@@ -1,6 +1,6 @@
 import { NextAuthOptions } from 'next-auth'
 import GoogleProvider from 'next-auth/providers/google'
-import { getPayload } from 'payload'
+import { getPayload, User } from 'payload'
 import config from '@/payload.config'
 import { v4 } from 'uuid'
 
@@ -10,7 +10,6 @@ export const authOptions: NextAuthOptions = {
   },
   pages: {
     signIn: '/login', // Use your custom sign-in page
-    newUser: '/register',
   },
   providers: [
     GoogleProvider({
@@ -49,18 +48,26 @@ export const authOptions: NextAuthOptions = {
             },
           })
         }
+
+        return true // Always return true to continue the flow
       } catch (error) {
         console.error('Error in SignIn Callback:', error)
         return false
       }
-      return true
     },
     async jwt({ token, user }) {
       if (user) {
-        token.roles = (user as any).roles
+        token.roles = (user as User).roles
       }
-
       return token
+    },
+    async redirect({ url, baseUrl }) {
+      // Custom redirect logic
+      if (url.startsWith(baseUrl)) {
+        // Redirect all successful logins to a middleware page, which will determine if they're a new user
+        return `${baseUrl}/auth-redirect`
+      }
+      return url
     },
   },
 }

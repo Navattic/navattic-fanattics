@@ -131,6 +131,7 @@ export interface User {
   id: number;
   firstName?: string | null;
   lastName?: string | null;
+  bio?: string | null;
   /**
    * Upload a profile image (recommended size: 256x256px)
    */
@@ -330,6 +331,7 @@ export interface LedgerSelect<T extends boolean = true> {
 export interface UsersSelect<T extends boolean = true> {
   firstName?: T;
   lastName?: T;
+  bio?: T;
   avatar?: T;
   loginMethod?: T;
   roles?: T;

@@ -54,6 +54,7 @@ export const Users: CollectionConfig = {
     { name: 'firstName', type: 'text' },
     { name: 'lastName', type: 'text' },
     { name: 'email', type: 'text', defaultValue: undefined },
+    { name: 'bio', type: 'text' },
     {
       name: 'avatar',
       type: 'upload',

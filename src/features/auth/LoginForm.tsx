@@ -10,13 +10,20 @@ export default function LoginForm() {
 
   const handleGoogleSignIn = () => {
     setIsLoading(true)
-    signIn('google', { callbackUrl: '/' })
+    signIn('google')
   }
 
   return (
     <div className="space-y-4">
       <div className="border border-gray-200 rounded-lg p-2 aspect-square relative inline-grid place-items-center shadow-xs gradient-to-b from-white to-gray-50">
-        <Image src="/logos/navattic-shadow.png" alt="Navattic Logo" width={40} height={40} priority className="translate-y-1" />
+        <Image
+          src="/logos/navattic-shadow.png"
+          alt="Navattic Logo"
+          width={40}
+          height={40}
+          priority
+          className="translate-y-1"
+        />
       </div>
       <h1 className="text-lg font-bold pb-6 text-gray-800">Sign in to Fanattic Portal</h1>
 
@@ -74,7 +81,7 @@ export default function LoginForm() {
 
       <div className="text-center mt-4">
         <p className="text-sm text-gray-500">
-          Don't have an account?{' '}
+          Don&apos;t have an account?{' '}
           <Link href="/register" className="text-blue-600 hover:underline">
             Register
           </Link>
