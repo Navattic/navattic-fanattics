@@ -17,6 +17,7 @@ export interface Config {
     comments: Comment;
     media: Media;
     avatars: Avatar;
+    companies: Company;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
@@ -29,6 +30,7 @@ export interface Config {
     comments: CommentsSelect<false> | CommentsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     avatars: AvatarsSelect<false> | AvatarsSelect<true>;
+    companies: CompaniesSelect<false> | CompaniesSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
@@ -131,7 +133,12 @@ export interface User {
   id: number;
   firstName?: string | null;
   lastName?: string | null;
+  /**
+   * e.g. CEO, CTO, etc.
+   */
+  title?: string | null;
   bio?: string | null;
+  company?: (number | null) | Company;
   /**
    * Upload a profile image (recommended size: 256x256px)
    */
@@ -150,6 +157,27 @@ export interface User {
   loginAttempts?: number | null;
   lockUntil?: string | null;
   password?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "companies".
+ */
+export interface Company {
+  id: number;
+  /**
+   * The name of the company
+   */
+  name: string;
+  /**
+   * Company website URL
+   */
+  website?: string | null;
+  /**
+   * Retrieve the logo from Brandfetch.com. Ideally, this would be replaced with a custom React component that would query the Brandfetch API for the logo, but this is a quick solve for the MVP
+   */
+  logoSrc?: string | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -255,6 +283,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'avatars';
         value: number | Avatar;
+      } | null)
+    | ({
+        relationTo: 'companies';
+        value: number | Company;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -331,7 +363,9 @@ export interface LedgerSelect<T extends boolean = true> {
 export interface UsersSelect<T extends boolean = true> {
   firstName?: T;
   lastName?: T;
+  title?: T;
   bio?: T;
+  company?: T;
   avatar?: T;
   loginMethod?: T;
   roles?: T;
@@ -423,6 +457,17 @@ export interface AvatarsSelect<T extends boolean = true> {
               filename?: T;
             };
       };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "companies_select".
+ */
+export interface CompaniesSelect<T extends boolean = true> {
+  name?: T;
+  website?: T;
+  logoSrc?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

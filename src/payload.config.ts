@@ -14,6 +14,7 @@ import { Challenges } from './collections/Challenges'
 import { Ledger } from './collections/Ledger'
 import { Comments } from './collections/Comments'
 import { Avatars } from './collections/Avatars'
+import { Companies } from './collections/Companies'
 import { Guide } from './collections/Guide'
 
 const filename = fileURLToPath(import.meta.url)
@@ -27,7 +28,7 @@ export default buildConfig({
     },
   },
   globals: [Guide],
-  collections: [Challenges, Ledger, Users, Comments, Media, Avatars],
+  collections: [Challenges, Ledger, Users, Comments, Media, Avatars, Companies],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   cors: ['*', 'http://localhost:3000'],

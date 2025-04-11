@@ -53,8 +53,16 @@ export const Users: CollectionConfig = {
     // Email added by default
     { name: 'firstName', type: 'text' },
     { name: 'lastName', type: 'text' },
-    { name: 'email', type: 'text', defaultValue: undefined },
+    { name: 'title', type: 'text', admin: { description: 'e.g. CEO, CTO, etc.' } },
+    { name: 'email', type: 'email', defaultValue: undefined },
     { name: 'bio', type: 'text' },
+    {
+      name: 'company',
+      type: 'relationship',
+      relationTo: 'companies',
+      required: false,
+      label: 'Company',
+    },
     {
       name: 'avatar',
       type: 'upload',
@@ -94,50 +102,7 @@ export const Users: CollectionConfig = {
         position: 'sidebar',
       },
       hooks: {
-        beforeValidate: [
-          async ({ data, originalDoc, req }) => {
-            // Early return if no name components
-            const firstName = data?.firstName || originalDoc?.firstName
-            const lastName = data?.lastName || originalDoc?.lastName
-            
-            if (!firstName && !lastName) return ''
-
-            // Generate base slug
-            const baseSlug = formatSlug(`${firstName} ${lastName}`.trim())
-            if (!baseSlug) return ''
-
-            // Query to check for existing slugs
-            const baseQuery = {
-              slug: { equals: baseSlug },
-              ...(originalDoc?.id ? { id: { not_equals: originalDoc.id } } : {})
-            }
-
-            // Check for existing slug
-            const existing = await req.payload.find({
-              collection: 'users',
-              where: baseQuery,
-            })
-
-            // Return base slug if no duplicates found
-            if (existing.totalDocs === 0) return baseSlug
-
-            // Find first available numbered slug
-            let count = 1
-            while (true) {
-              const numberedSlug = `${baseSlug}-${count}`
-              const duplicates = await req.payload.find({
-                collection: 'users',
-                where: {
-                  slug: { equals: numberedSlug },
-                  ...(originalDoc?.id ? { id: { not_equals: originalDoc.id } } : {})
-                },
-              })
-
-              if (duplicates.totalDocs === 0) return numberedSlug
-              count++
-            }
-          },
-        ],
+        beforeValidate: [formatSlug(['firstName', 'lastName'])],
       },
     },
     {

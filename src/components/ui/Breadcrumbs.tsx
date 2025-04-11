@@ -35,7 +35,7 @@ function Breadcrumbs({
     ...segments.map((segment, index) => {
       const href = `/${segments.slice(0, index + 1).join('/')}`
       return {
-        label: title ? title : transformLabel(segment),
+        label: transformLabel(segment),
         href,
       }
     }),
@@ -54,19 +54,19 @@ function Breadcrumbs({
               {index === 0 ? (
                 <Link
                   href={breadcrumb.href}
-                  className="flex items-center text-muted-foreground hover:text-foreground transition-colors"
+                  className="flex items-center text-muted-foreground hover:text-gray-800 transition-colors"
                 >
                   <Home className="h-4 w-4 mr-1" />
                   <span className="sr-only">{breadcrumb.label}</span>
                 </Link>
               ) : isLast ? (
-                <span className="font-medium text-foreground" aria-current="page">
-                  {breadcrumb.label}
+                <span className="font-medium text-gray-800 capitalize" aria-current="page">
+                  {title ? title : breadcrumb.label}
                 </span>
               ) : (
                 <Link
                   href={breadcrumb.href}
-                  className="text-muted-foreground hover:text-foreground transition-colors"
+                  className="text-muted-foreground hover:text-gray-800 transition-colors"
                 >
                   {breadcrumb.label}
                 </Link>

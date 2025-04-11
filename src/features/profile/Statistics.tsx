@@ -11,7 +11,7 @@ const StatisticCard = ({
   value: number
 }) => {
   return (
-    <div className="rounded-lg border border-gray-200 p-4 px-6 shadow-xs flex gap-4">
+    <div className="bg-white rounded-lg border border-gray-200 p-4 px-6 shadow-xs flex gap-4">
       <span className="text-gray-500 mt-1">{icon}</span>
       <div className="flex flex-col">
         <p className="text-lg font-bold text-gray-900">{value}</p>
