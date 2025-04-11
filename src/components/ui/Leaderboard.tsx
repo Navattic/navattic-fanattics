@@ -37,7 +37,6 @@ function Leaderboard({ usersData, calculateUserPoints }: LeaderboardProps) {
                     </div>
                   )}
                 </div>
-
                 <div className="text-sm text-gray-500">Points: {calculateUserPoints(user.id)}</div>
               </div>
             </li>

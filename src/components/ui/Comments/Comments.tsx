@@ -56,7 +56,7 @@ export function CommentBlock({
                 <Icon name="user" size="md" className="text-gray-600" />
               </div>
             ) : (
-              <Avatar user={user} size="thumbnail" />
+              <Avatar user={user} size="md" />
             )}
           </div>
           <div className="flex items-center gap-2">

@@ -13,6 +13,7 @@ export interface Config {
   collections: {
     challenges: Challenge;
     ledger: Ledger;
+    Events: Event;
     users: User;
     comments: Comment;
     media: Media;
@@ -26,6 +27,7 @@ export interface Config {
   collectionsSelect: {
     challenges: ChallengesSelect<false> | ChallengesSelect<true>;
     ledger: LedgerSelect<false> | LedgerSelect<true>;
+    Events: EventsSelect<false> | EventsSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     comments: CommentsSelect<false> | CommentsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
@@ -218,19 +220,55 @@ export interface Avatar {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "comments".
+ * via the `definition` "Events".
  */
-export interface Comment {
+export interface Event {
   id: number;
-  content: string;
-  user: number | User;
-  challenge: number | Challenge;
-  parent?: (number | null) | Comment;
-  status?: ('pending' | 'approved' | 'rejected') | null;
-  deleted?: boolean | null;
-  likes?: number | null;
-  likedBy?: (number | User)[] | null;
-  flaggedReports?: number | null;
+  /**
+   * The name of the event
+   */
+  title: string;
+  /**
+   * Link to the event page
+   */
+  eventPageUrl: string;
+  /**
+   * Square aspect ratio image for the event
+   */
+  image: number | Media;
+  location: {
+    /**
+     * Name of the venue
+     */
+    name: string;
+    /**
+     * Link to the venue website or location (optional)
+     */
+    link?: string | null;
+    /**
+     * Physical address of the venue. Leave blank and check "Is Webinar" if this is a virtual event.
+     */
+    address?: string | null;
+    /**
+     * Check if this event is a webinar
+     */
+    isWebinar?: boolean | null;
+  };
+  date: {
+    /**
+     * Display format of the date (e.g., "Wednesday, March 5")
+     */
+    displayDate: string;
+    /**
+     * Start date and time of the event
+     */
+    startTime: string;
+    /**
+     * End date and time of the event
+     */
+    endTime: string;
+    timeZone: 'CDT' | 'CST' | 'EDT' | 'EST' | 'PDT' | 'PST';
+  };
   updatedAt: string;
   createdAt: string;
 }
@@ -255,6 +293,24 @@ export interface Media {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "comments".
+ */
+export interface Comment {
+  id: number;
+  content: string;
+  user: number | User;
+  challenge: number | Challenge;
+  parent?: (number | null) | Comment;
+  status?: ('pending' | 'approved' | 'rejected') | null;
+  deleted?: boolean | null;
+  likes?: number | null;
+  likedBy?: (number | User)[] | null;
+  flaggedReports?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
@@ -267,6 +323,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'ledger';
         value: number | Ledger;
+      } | null)
+    | ({
+        relationTo: 'Events';
+        value: number | Event;
       } | null)
     | ({
         relationTo: 'users';
@@ -353,6 +413,33 @@ export interface LedgerSelect<T extends boolean = true> {
   amount?: T;
   reason?: T;
   challenge_id?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "Events_select".
+ */
+export interface EventsSelect<T extends boolean = true> {
+  title?: T;
+  eventPageUrl?: T;
+  image?: T;
+  location?:
+    | T
+    | {
+        name?: T;
+        link?: T;
+        address?: T;
+        isWebinar?: T;
+      };
+  date?:
+    | T
+    | {
+        displayDate?: T;
+        startTime?: T;
+        endTime?: T;
+        timeZone?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
 }

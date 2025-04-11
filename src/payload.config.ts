@@ -7,15 +7,17 @@ import { buildConfig } from 'payload'
 import { fileURLToPath } from 'url'
 import { resendAdapter } from '@payloadcms/email-resend'
 import sharp from 'sharp'
-
-import { Users } from './collections/Users'
-import { Media } from './collections/Media'
-import { Challenges } from './collections/Challenges'
-import { Ledger } from './collections/Ledger'
-import { Comments } from './collections/Comments'
-import { Avatars } from './collections/Avatars'
-import { Companies } from './collections/Companies'
-import { Guide } from './collections/Guide'
+import {
+  Users,
+  Media,
+  Challenges,
+  Ledger,
+  Comments,
+  Avatars,
+  Companies,
+  Events,
+  Guide,
+} from './collections'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -28,7 +30,7 @@ export default buildConfig({
     },
   },
   globals: [Guide],
-  collections: [Challenges, Ledger, Users, Comments, Media, Avatars, Companies],
+  collections: [Challenges, Ledger, Events, Users, Comments, Media, Avatars, Companies],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   cors: ['*', 'http://localhost:3000'],

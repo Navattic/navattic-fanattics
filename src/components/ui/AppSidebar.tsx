@@ -50,7 +50,7 @@ const items = [
       },
       {
         label: 'Event Schedule',
-        href: '/calendar',
+        href: '/event-schedule',
         icon: CalendarIcon,
       },
       {

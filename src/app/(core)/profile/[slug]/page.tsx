@@ -51,7 +51,7 @@ const ProfilePage = async ({ params }: { params: Promise<{ slug: string }> }) =>
       <div className="bg-gray-50 min-h-screen">
         <Container className="pt-10">
           <div className="flex flex-row gap-8 border-b border-gray-200 pb-8">
-            <Avatar user={user} size="full" />
+            <Avatar user={user} size="xl" />
             <div className="relative space-y-2">
               <div className="space-y-0">
                 <h1 className="text-lg font-medium capitalize">

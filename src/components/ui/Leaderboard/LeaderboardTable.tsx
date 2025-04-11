@@ -69,7 +69,7 @@ const LeaderboardTable = () => {
               <TableCell className="text-base px-4">{index + 1}</TableCell>
               <TableCell className="font-medium capitalize px-4">
                 <div className="flex items-center gap-2 text-base">
-                  <Avatar user={user ? user : null} size="thumbnail" />
+                  <Avatar user={user ? user : null} size="md" />
                   <span className="ml-2">
                     {user.firstName} {user.lastName}
                   </span>

@@ -10,11 +10,13 @@ export function formatDate(
     includeDay?: boolean
     includeYear?: boolean
     includeTime?: boolean
+    includeMonth?: boolean
     abbreviateMonth?: boolean
   } = {
     includeDay: true,
     includeYear: true,
     includeTime: false,
+    includeMonth: true,
     abbreviateMonth: false,
   },
 ): string {
@@ -60,15 +62,16 @@ export function formatDate(
 
     const dayWithSuffix = mergedOptions.includeDay ? `${day}${getOrdinalSuffix(day)}` : ''
     const yearString = mergedOptions.includeYear ? `, ${year}` : ''
+    const monthString = mergedOptions.includeMonth ? `${month} ` : ''
     const timeString = mergedOptions.includeTime
-      ? ` at ${date.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true })}`
+      ? `${mergedOptions.includeMonth || mergedOptions.includeDay || mergedOptions.includeYear ? ' ' : ''}${date.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true })}`
       : ''
 
     // Handle different formatting options
     if (mergedOptions.includeDay) {
-      return `${month} ${dayWithSuffix}${yearString}${timeString}`
+      return `${monthString}${dayWithSuffix}${yearString}${timeString}`
     } else {
-      return `${month}${yearString}${timeString}`
+      return `${monthString}${yearString}${timeString}`.trim()
     }
   } catch (error) {
     console.error('Error formatting date:', error)

@@ -8,76 +8,63 @@ import { Icon } from '../Icon'
 const PodiumCard = ({ user, position }: { user: User; position: number }) => {
   const styles = [
     {
-      text: 'text-yellow-500',
-      text_dark: 'text-yellow-800',
-      bg: 'bg-yellow-50/80',
-      bg_light: 'bg-yellow-50/90',
+      text: 'text-yellow-700',
+      bg: 'bg-yellow-100',
       border: 'border-2 border-yellow-200/70',
-      translate: 'transform -translate-y-0',
     },
     {
-      text: 'text-gray-800',
-      text_dark: 'text-gray-800',
-      bg: 'bg-gray-100',
-      bg_light: 'bg-gray-100/60',
+      text: 'text-purple-600',
+      bg: 'bg-purple-50',
       border: 'border-gray-300',
-      translate: 'transform translate-y-0',
     },
     {
       text: 'text-orange-600',
-      text_dark: 'text-orange-800',
-      bg: 'bg-orange-50',
-      bg_light: 'bg-orange-50/80',
+      bg: 'bg-orange-100',
       border: 'border-orange-200/80',
-      translate: 'transform translate-y-0',
     },
   ]
 
   return (
-    <div
-      className={`border border-gray-200 rounded-2xl overflow-hidden ${styles[position - 1].translate} ${styles[position - 1].bg}`}
-    >
-      <div className={`flex gap-2 justify-center items-center p-4 py-2 pt-3 text-sm font-medium`}>
-        <span className={`${styles[position - 1].text_dark}`}>
-          {position}
-          {position === 1 ? 'st' : position === 2 ? 'nd' : 'rd'} Place
-        </span>
-        <Icon name="trophy" className={`size-4 ${styles[position - 1].text}`} />
-      </div>
-      <div className="m-1 p-4 bg-white rounded-xl shadow-sm">
-        <div className="flex items-center ml-1">
-          <div className="w-14">
-            <Avatar user={user} size="full" />
-          </div>
+    <>
+      <div className="p-[6px] pb-[10px] bg-white rounded-2xl inset-shadow flex flex-col gap-4">
+        <div
+          className={`${styles[position - 1].bg} p-4 py-1 pt-2 text-sm font-medium rounded-t-[12px] rounded-b-[4px]`}
+        >
+          <span className={`${styles[position - 1].text}`}>
+            <Icon name="award" className={`mr-2 size-4 ${styles[position - 1].text}`} />
+            {position}
+            {position === 1 ? 'st' : position === 2 ? 'nd' : 'rd'} Place
+          </span>
+        </div>
+        <div className="flex items-center ml-1 px-4">
+          <Avatar user={user} size="lg" />
           <div className="ml-4">
             <div className="text-base font-semibold text-gray-800 capitalize">
               {user.firstName} {user.lastName}
             </div>
-            <div className="text-sm text-gray-500">placeholder@email.com</div>
+            <div className="text-xs text-gray-500">placeholder@email.com</div>
           </div>
         </div>
-        <div className="flex justify-between w-full mt-6 gap-3">
-          <div
-            className={`flex-1 flex flex-col items-center gap-1 px-2 rounded-md p-2 ${styles[position - 1].bg_light}`}
-          >
-            <div className="text-sm font-semibold text-gray-800">
+        <div className="flex justify-between w-full gap-2 px-1">
+          <div className="bg-gray-50 flex-1 flex flex-col items-center gap-1 px-2 p-2 rounded-tl-[8px] rounded-tr-[8px] rounded-br-[8px] rounded-bl-[12px]">
+            <div className="text-base font-semibold text-gray-600">
               {' '}
+              <Icon name="coins" className="mr-2 size-4 text-gray-500" />
               {calculateUserPoints({ user })}
             </div>
             <div className="text-xs text-gray-500">Points</div>
           </div>
-          <div
-            className={`flex-1 flex flex-col items-center gap-1 px-2 rounded-md p-2 ${styles[position - 1].bg_light}`}
-          >
-            <div className="text-sm font-semibold text-gray-800">
+          <div className="bg-gray-50 flex-1 flex flex-col items-center gap-1 px-2 rounded-tl-[8px] rounded-tr-[8px] rounded-br-[12px] rounded-bl-[8px] p-2">
+            <div className="text-base font-semibold text-gray-600">
               {' '}
+              <Icon name="message-square" className="mr-2 size-4 text-gray-500" />
               {calculateUserNumComments({ user })}
             </div>
             <div className="text-xs text-gray-500">Comments</div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   )
 }
 
