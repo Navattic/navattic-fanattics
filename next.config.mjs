@@ -17,7 +17,13 @@ const nextConfig = {
         protocol: 'https',
         hostname: '*.googleusercontent.com',
       },
+      {
+        protocol: 'https',
+        hostname: 'cdn.brandfetch.io',
+        pathname: '**',
+      },
     ],
+    domains: ['cdn.brandfetch.io'],
   },
 }
 

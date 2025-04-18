@@ -7,48 +7,82 @@ import {
   TableRow,
 } from '@/components/shadcn/ui/table'
 import Avatar from '../Avatar'
+import type { User } from '@/payload-types'
 
 // TODO: Add pagination
 // TODO: Add user modal
 // TODO: Add empty state
 // TODO: fill with real data
 
+type LeaderboardUser = Pick<
+  User,
+  'id' | 'firstName' | 'lastName' | 'email' | 'loginMethod' | 'updatedAt' | 'createdAt'
+>
+
 const LeaderboardTable = () => {
-  const users = [
+  const users: LeaderboardUser[] = [
     {
+      id: 1,
       firstName: 'John',
       lastName: 'Doe',
-      points: 100,
+      email: 'john@example.com',
+      loginMethod: 'email',
+      updatedAt: new Date().toISOString(),
+      createdAt: new Date().toISOString(),
     },
     {
+      id: 2,
       firstName: 'John',
       lastName: 'Doe',
-      points: 100,
+      email: 'john2@example.com',
+      loginMethod: 'email',
+      updatedAt: new Date().toISOString(),
+      createdAt: new Date().toISOString(),
     },
     {
+      id: 3,
       firstName: 'John',
       lastName: 'Doe',
-      points: 100,
+      email: 'john3@example.com',
+      loginMethod: 'email',
+      updatedAt: new Date().toISOString(),
+      createdAt: new Date().toISOString(),
     },
     {
+      id: 4,
       firstName: 'John',
       lastName: 'Doe',
-      points: 100,
+      email: 'john4@example.com',
+      loginMethod: 'email',
+      updatedAt: new Date().toISOString(),
+      createdAt: new Date().toISOString(),
     },
     {
+      id: 5,
       firstName: 'John',
       lastName: 'Doe',
-      points: 100,
+      email: 'john5@example.com',
+      loginMethod: 'email',
+      updatedAt: new Date().toISOString(),
+      createdAt: new Date().toISOString(),
     },
     {
+      id: 6,
       firstName: 'John',
       lastName: 'Doe',
-      points: 100,
+      email: 'john6@example.com',
+      loginMethod: 'email',
+      updatedAt: new Date().toISOString(),
+      createdAt: new Date().toISOString(),
     },
     {
+      id: 7,
       firstName: 'John',
       lastName: 'Doe',
-      points: 100,
+      email: 'john7@example.com',
+      loginMethod: 'email',
+      updatedAt: new Date().toISOString(),
+      createdAt: new Date().toISOString(),
     },
   ]
 
@@ -65,18 +99,18 @@ const LeaderboardTable = () => {
         </TableHeader>
         <TableBody>
           {users.map((user, index) => (
-            <TableRow className="bg-gray-50" key={`${user.firstName}-${user.lastName}-${index}`}>
+            <TableRow className="bg-gray-50" key={user.id}>
               <TableCell className="text-base px-4">{index + 1}</TableCell>
               <TableCell className="font-medium capitalize px-4">
                 <div className="flex items-center gap-2 text-base">
-                  <Avatar user={user ? user : null} size="md" />
+                  <Avatar user={user as User} size="md" />
                   <span className="ml-2">
                     {user.firstName} {user.lastName}
                   </span>
                 </div>
               </TableCell>
               <TableCell className="text-base px-4">3</TableCell>
-              <TableCell className="text-right text-base px-4">{user.points}</TableCell>
+              <TableCell className="text-right text-base px-4">100</TableCell>
             </TableRow>
           ))}
         </TableBody>

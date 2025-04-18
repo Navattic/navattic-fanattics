@@ -115,7 +115,8 @@ export function formatPostDate(isoString: string) {
 
     // More than 1 year
     return formatter.format(-diffInYears, 'year')
-  } catch (e) {
+  } catch (error) {
+    console.error('Error formatting post date:', error)
     return ''
   }
 }

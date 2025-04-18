@@ -12,7 +12,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { firstName, lastName, bio } = await req.json()
+    const { firstName, lastName, bio, company } = await req.json()
 
     const payload = await getPayload({ config })
 
@@ -40,6 +40,7 @@ export async function POST(req: Request) {
         firstName,
         lastName,
         bio,
+        company: company || undefined,
       },
     })
 

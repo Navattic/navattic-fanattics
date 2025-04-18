@@ -20,11 +20,9 @@ import {
   DropdownMenuSeparator,
 } from '@/components/shadcn/ui/dropdown-menu'
 import {
-  SettingsIcon,
   LogOutIcon,
   ShieldUserIcon,
   TrophyIcon,
-  HelpCircleIcon,
   EllipsisIcon,
   LineChartIcon,
   CalendarIcon,

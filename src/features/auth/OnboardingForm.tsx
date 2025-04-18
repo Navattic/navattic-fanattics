@@ -13,6 +13,8 @@ import { Label } from '@/components/shadcn/ui/label'
 import { Session } from 'next-auth'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
+import { CompanySelector } from '@/features/companies/CompanySelector'
+
 const formSchema = z.object({
   firstName: z.string().min(2).max(50),
   lastName: z.string().min(2).max(50),
@@ -20,6 +22,7 @@ const formSchema = z.object({
   username: z.string().min(2).max(50),
   avatar: z.instanceof(File).optional(),
   bio: z.string().max(500).optional(),
+  company: z.number().optional(),
 })
 
 type OnboardingFormProps = {
@@ -51,6 +54,7 @@ export default function OnboardingForm({ session }: OnboardingFormProps) {
       email,
       username: firstName.toLowerCase() + (lastName ? lastName.toLowerCase().charAt(0) : ''),
       bio: '',
+      company: undefined,
     },
   })
 
@@ -76,6 +80,7 @@ export default function OnboardingForm({ session }: OnboardingFormProps) {
           lastName: values.lastName,
           email: values.email,
           bio: values.bio,
+          company: values.company,
           // We'll handle avatar upload separately if needed
         }),
       })
@@ -200,6 +205,12 @@ export default function OnboardingForm({ session }: OnboardingFormProps) {
               </div>
             </FieldSet>
 
+            <CompanySelector
+              name="company"
+              label="Company"
+              description="Select your company or add a new one"
+            />
+
             <FieldSet
               label="Bio"
               description="A short bio about yourself (optional)"
@@ -211,8 +222,7 @@ export default function OnboardingForm({ session }: OnboardingFormProps) {
                 placeholder="Tell us about yourself"
                 className="resize-none"
               />
-              </FieldSet>
-              
+            </FieldSet>
 
             <div className="flex justify-between">
               <Button type="button" variant="outline" size="md" onClick={handlePreviousStep}>

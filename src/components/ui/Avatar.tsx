@@ -7,30 +7,29 @@ export default function Avatar({
   size = 'md',
   className,
 }: {
-  user: User
+  user?: User | null
   size?: 'sm' | 'md' | 'lg' | 'xl'
   className?: string
 }) {
+  const sizes = {
+    sm: {
+      width: 20,
+      src: (user?.avatar as Avatar)?.sizes?.profile?.url || (user?.avatar as Avatar)?.url || '',
+    },
+    md: {
+      width: 32,
+      src: (user?.avatar as Avatar)?.sizes?.profile?.url || (user?.avatar as Avatar)?.url || '',
+    },
+    lg: {
+      width: 56,
+      src: (user?.avatar as Avatar)?.sizes?.thumbnail?.url || (user?.avatar as Avatar)?.url || '',
+    },
+    xl: {
+      width: 112,
+      src: (user?.avatar as Avatar)?.sizes?.thumbnail?.url || (user?.avatar as Avatar)?.url || '',
+    },
+  }
 
-   const sizes = {
-     sm: {
-       width: 20,
-       src: (user.avatar as Avatar)?.sizes?.profile?.url || (user.avatar as Avatar)?.url || '',
-     },
-     md: {
-       width: 32,
-       src: (user.avatar as Avatar)?.sizes?.profile?.url || (user.avatar as Avatar)?.url || '',
-     },
-     lg: {
-       width: 56,
-       src: (user.avatar as Avatar)?.sizes?.thumbnail?.url || (user.avatar as Avatar)?.url || '',
-     },
-     xl: {
-       width: 112,
-       src: (user.avatar as Avatar)?.sizes?.thumbnail?.url || (user.avatar as Avatar)?.url || '',
-     },
-   }
-  
   return (
     <div
       className={cn(
@@ -46,7 +45,7 @@ export default function Avatar({
         className="block shadow-sm aspect-square"
         src={size ? sizes[size].src : sizes.md.src}
         quality={90}
-        alt={`${(user.avatar as Avatar)?.alt || `${user.firstName}'s avatar`}`}
+        alt={`${(user?.avatar as Avatar)?.alt || `${user?.firstName}'s avatar`}`}
         width={size ? sizes[size].width : sizes.md.width}
         height={size ? sizes[size].width : sizes.md.width}
       />
