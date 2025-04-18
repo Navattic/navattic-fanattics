@@ -4,50 +4,52 @@ import { useState } from 'react'
 import Image from 'next/image'
 import { Building } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import type { CompanyLogo as CompanyLogoType } from '@/payload-types'
 
-interface CompanyLogoProps {
-  src: string | null | undefined
+type CompanyLogoProps = {
+  src: string | CompanyLogoType | null | undefined
   alt: string
   size?: number
   className?: string
 }
 
-export function CompanyLogo({ src, alt, size = 20, className = '' }: CompanyLogoProps) {
-  const [error, setError] = useState(false)
+export function CompanyLogo({ src, alt, size = 4, className }: CompanyLogoProps) {
+  const sizeClass = `w-${size} h-${size}`
 
-  // Map size prop to specific Tailwind classes
-  const sizeClasses = {
-    16: 'w-4 h-4',
-    20: 'w-5 h-5',
-    24: 'w-6 h-6',
-    32: 'w-8 h-8',
-    40: 'w-10 h-10',
-    48: 'w-12 h-12',
-    64: 'w-16 h-16',
-  }
-
-  // Get the appropriate size class or default to w-5 h-5
-  const sizeClass = sizeClasses[size as keyof typeof sizeClasses] || 'w-5 h-5'
-
-  // If no source or there was an error loading the image, show the Building icon
-  if (!src || error) {
+  // If no src, show fallback icon
+  if (!src) {
     return <Building className={cn(sizeClass, className)} />
   }
 
-  return (
-    <div className={cn('relative rounded overflow-hidden', sizeClass, className)}>
+  // Get the URL from either string or CompanyLogo object
+  const imageUrl =
+    typeof src === 'string' ? src : src && typeof src === 'object' && 'url' in src ? src.url : null
+
+  if (!imageUrl) {
+    return <Building className={cn(sizeClass, className)} />
+  }
+
+  // Check if it's a Brandfetch CDN URL
+  if (imageUrl.includes('cdn.brandfetch.io')) {
+    return (
       <Image
-        src={src}
+        src={imageUrl}
         alt={alt}
         width={size}
         height={size}
-        className="object-contain"
-        onError={() => {
-          console.error(`[CompanyLogo] Error loading logo: ${src}`)
-          setError(true)
-        }}
-        unoptimized={src.includes('cdn.brandfetch.io') || src.includes('ui-avatars.com')}
+        className={cn('object-contain', className)}
+        unoptimized={true}
       />
-    </div>
+    )
+  }
+
+  return (
+    <Image
+      src={imageUrl}
+      alt={alt}
+      width={size}
+      height={size}
+      className={cn('object-contain', className)}
+    />
   )
 }

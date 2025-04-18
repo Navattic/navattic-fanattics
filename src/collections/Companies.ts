@@ -30,11 +30,11 @@ export const Companies: CollectionConfig = {
     },
     {
       name: 'logoSrc',
-      type: 'text',
+      type: 'relationship',
+      relationTo: 'company-logos',
       required: false,
       admin: {
-        description:
-          'Retrieve the logo from Brandfetch.com. Ideally, this would be replaced with a custom React component that would query the Brandfetch API for the logo, but this is a quick solve for the MVP',
+        description: 'Company logo from Brandfetch or other sources',
       },
     },
   ],

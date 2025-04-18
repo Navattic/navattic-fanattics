@@ -19,6 +19,7 @@ export interface Config {
     media: Media;
     avatars: Avatar;
     companies: Company;
+    'company-logos': CompanyLogo;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
@@ -33,6 +34,7 @@ export interface Config {
     media: MediaSelect<false> | MediaSelect<true>;
     avatars: AvatarsSelect<false> | AvatarsSelect<true>;
     companies: CompaniesSelect<false> | CompaniesSelect<true>;
+    'company-logos': CompanyLogosSelect<false> | CompanyLogosSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
@@ -176,11 +178,51 @@ export interface Company {
    */
   website?: string | null;
   /**
-   * Retrieve the logo from Brandfetch.com. Ideally, this would be replaced with a custom React component that would query the Brandfetch API for the logo, but this is a quick solve for the MVP
+   * Company logo from Brandfetch or other sources
    */
-  logoSrc?: string | null;
+  logoSrc?: (number | null) | CompanyLogo;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "company-logos".
+ */
+export interface CompanyLogo {
+  id: number;
+  alt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  /**
+   * Direct URL to the logo (e.g. from Brandfetch)
+   */
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+  sizes?: {
+    thumbnail?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    small?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+  };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -348,6 +390,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'companies';
         value: number | Company;
+      } | null)
+    | ({
+        relationTo: 'company-logos';
+        value: number | CompanyLogo;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -557,6 +603,48 @@ export interface CompaniesSelect<T extends boolean = true> {
   logoSrc?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "company-logos_select".
+ */
+export interface CompanyLogosSelect<T extends boolean = true> {
+  alt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+  focalX?: T;
+  focalY?: T;
+  sizes?:
+    | T
+    | {
+        thumbnail?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        small?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+      };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

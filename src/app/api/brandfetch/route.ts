@@ -37,14 +37,14 @@ export async function GET(req: NextRequest) {
 
     // Replace this with your Brandfetch API key
     const apiKey = process.env.BRANDFETCH_API_KEY
+    console.log(`[Brandfetch] API Key configured: ${!!apiKey}`)
 
     if (!apiKey) {
-      console.warn('[Brandfetch] API key not configured. Using fallback method.')
-      // Create a fallback based on the company name
+      console.warn('[Brandfetch] API key not configured.')
       return NextResponse.json({
         data: {
           name: companyName,
-          logoSrc: `https://ui-avatars.com/api/?name=${encodeURIComponent(companyName)}&background=random`,
+          logoSrc: null,
           website: null,
         },
       })
@@ -62,27 +62,28 @@ export async function GET(req: NextRequest) {
       },
     })
 
+    console.log(`[Brandfetch] Search response status: ${searchResponse.status}`)
+
     if (!searchResponse.ok) {
       console.error(`[Brandfetch] Search error: ${searchResponse.status}`)
-      // Use UI Avatars as a fallback
       return NextResponse.json({
         data: {
           name: companyName,
-          logoSrc: `https://ui-avatars.com/api/?name=${encodeURIComponent(companyName)}&background=random`,
+          logoSrc: null,
           website: null,
         },
       })
     }
 
     const searchData = await searchResponse.json()
-    console.log(`[Brandfetch] Search results:`, JSON.stringify(searchData, null, 2))
+    console.log(`[Brandfetch] Raw search results:`, searchData)
 
     if (!searchData.length) {
       console.log(`[Brandfetch] No results found for ${companyName}`)
       return NextResponse.json({
         data: {
           name: companyName,
-          logoSrc: `https://ui-avatars.com/api/?name=${encodeURIComponent(companyName)}&background=random`,
+          logoSrc: null,
           website: null,
         },
       })
@@ -90,87 +91,40 @@ export async function GET(req: NextRequest) {
 
     // Get the domain of the first result
     const domain = searchData[0].domain
+    console.log(`[Brandfetch] First result domain: ${domain}`)
 
     if (!domain) {
       console.log(`[Brandfetch] No domain found in search results`)
       return NextResponse.json({
         data: {
           name: companyName,
-          logoSrc: `https://ui-avatars.com/api/?name=${encodeURIComponent(companyName)}&background=random`,
+          logoSrc: null,
           website: null,
         },
       })
     }
 
-    // Use UI Avatars as a more reliable fallback instead of Brandfetch CDN
-    const fallbackLogoUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(companyName)}&background=random`
+    // Generate the Brandfetch CDN URL
+    const logoUrl = `https://cdn.brandfetch.io/${domain}/w/48/h/42/symbol?c=1idjh-kE7Sr91f3HSWS`
+    const website = `https://${domain}`
 
-    console.log(`[Brandfetch] Domain: ${domain}, Fallback logo URL: ${fallbackLogoUrl}`)
-
-    // Then, fetch the brand data using the domain
-    const brandUrl = `https://api.brandfetch.io/v2/brands/${domain}`
-
-    console.log(`[Brandfetch] Brand request URL: ${brandUrl}`)
-
-    const brandResponse = await fetch(brandUrl, {
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiKey}`,
-      },
-    })
-
-    if (!brandResponse.ok) {
-      console.warn(`[Brandfetch] Brand fetch error: ${brandResponse.status}, using fallback logo`)
-      return NextResponse.json({
-        data: {
-          name: companyName,
-          logoSrc: fallbackLogoUrl,
-          website: `https://${domain}`,
-        },
-      })
-    }
-
-    const brandData = await brandResponse.json()
-    console.log(`[Brandfetch] Brand data:`, JSON.stringify(brandData, null, 2))
-
-    // Extract the logo and website
-    let logo = null
-
-    if (brandData.logos && brandData.logos.length > 0) {
-      // First try to get a PNG logo
-      const pngLogo = brandData.logos
-        .find((l: BrandfetchLogo) => l.type === 'logo')
-        ?.formats?.find((f: BrandfetchLogoFormat) => f.format === 'png')
-
-      // If no PNG, try to get any logo
-      if (pngLogo && pngLogo.src) {
-        logo = pngLogo.src
-      } else if (brandData.logos[0].formats && brandData.logos[0].formats.length > 0) {
-        logo = brandData.logos[0].formats[0].src
-      }
-    }
-
-    const website =
-      brandData.links?.find((l: BrandfetchLink) => l.type === 'website')?.url || `https://${domain}`
-
-    console.log(`[Brandfetch] Extracted logo URL: ${logo || '(none)'}`)
-    console.log(`[Brandfetch] Using logo URL: ${logo || fallbackLogoUrl}`)
+    console.log(`[Brandfetch] Generated logo URL: ${logoUrl}`)
+    console.log(`[Brandfetch] Generated website: ${website}`)
 
     return NextResponse.json({
       data: {
-        name: brandData.name || companyName,
-        logoSrc: logo || fallbackLogoUrl,
-        website: website || `https://${domain}`,
+        name: searchData[0].name || companyName,
+        logoSrc: logoUrl,
+        website: website,
       },
     })
   } catch (error) {
     console.error('[Brandfetch] Error fetching from Brandfetch:', error)
-    // Use UI Avatars as a fallback in case of error
-    const companyName = new URL(req.url).searchParams.get('name') || 'Unknown'
+    const searchQuery = new URL(req.url).searchParams.get('name') || 'Unknown'
     return NextResponse.json({
       data: {
-        name: companyName,
-        logoSrc: `https://ui-avatars.com/api/?name=${encodeURIComponent(companyName)}&background=random`,
+        name: searchQuery,
+        logoSrc: null,
         website: null,
       },
     })

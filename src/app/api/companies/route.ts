@@ -21,9 +21,18 @@ export async function GET(req: NextRequest) {
       collection: 'companies',
       where: query
         ? {
-            name: {
-              like: query,
-            },
+            or: [
+              {
+                name: {
+                  contains: query,
+                },
+              },
+              {
+                name: {
+                  contains: query.toLowerCase(),
+                },
+              },
+            ],
           }
         : {},
       limit: 20,

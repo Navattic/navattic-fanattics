@@ -17,6 +17,7 @@ import {
   Companies,
   Events,
   Guide,
+  CompanyLogos,
 } from './collections'
 
 const filename = fileURLToPath(import.meta.url)
@@ -30,7 +31,17 @@ export default buildConfig({
     },
   },
   globals: [Guide],
-  collections: [Challenges, Ledger, Events, Users, Comments, Media, Avatars, Companies],
+  collections: [
+    Challenges,
+    Ledger,
+    Events,
+    Users,
+    Comments,
+    Media,
+    Avatars,
+    Companies,
+    CompanyLogos,
+  ],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   cors: ['*', 'http://localhost:3000'],
