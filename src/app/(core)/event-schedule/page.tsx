@@ -22,7 +22,7 @@ const EventEntry = ({ event, isPastEvent }: { event: Event; isPastEvent?: boolea
             </Button>
           )}
         </div>
-        <div className="flex flex-col gap-3 mt-5">
+        <div className="flex flex-col gap-4 mt-5">
           <div className="flex items-center gap-3">
             <div className="grid place-items-center border border-gray-200 rounded-md aspect-square h-full w-auto min-w-8 min-h-8">
               <Icon name="map-pin" className="size- 4 text-gray-400" />
@@ -74,11 +74,11 @@ const EventEntry = ({ event, isPastEvent }: { event: Event; isPastEvent?: boolea
         </div>
       </div>
       <Image
-        src={(event.image as Media).url ?? ''}
-        alt={(event.image as Media).alt ?? ''}
+        src={(event.image as Media)?.url ?? '/event-placeholder.png'}
+        alt={(event.image as Media)?.alt ?? event.title}
         width={200}
         height={200}
-        className="h-fit min-h-[175px] min-w-[175px] object-cover rounded-xl"
+        className="h-fit min-h-[175px] min-w-[175px] object-cover rounded-xl border border-gray-100"
       />
     </div>
   )

@@ -29,7 +29,7 @@ const Leaderboard = async () => {
               </Button>
             }
           />
-          <div className="grid grid-cols-3 gap-4 mt-6">
+          <div className="grid grid-cols-3 gap-4">
             {usersData && (
               <>
                 <PodiumCard user={usersData[0]} position={1} />

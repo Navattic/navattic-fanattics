@@ -690,23 +690,23 @@
 }
 
 .payload-rich-text > h1 {
-  @apply mt-6 mb-6 text-4xl font-medium text-gray-900;
+  @apply mt-2 mb-6 text-4xl font-medium text-gray-900;
 }
 
 .payload-rich-text > h2 {
-  @apply mt-6 mb-6 text-3xl font-medium text-gray-900;
+  @apply mt-2 mb-6 text-3xl font-medium text-gray-900;
 }
 
 .payload-rich-text > h3 {
-  @apply mt-6 mb-6 text-2xl font-medium text-gray-900;
+  @apply mt-2 mb-6 text-2xl font-medium text-gray-900;
 }
 
 .payload-rich-text > h4 {
-  @apply mt-6 mb-6 text-xl font-medium text-gray-900;
+  @apply mt-2 mb-6 text-xl font-medium text-gray-900;
 }
 
 .payload-rich-text > h5 {
-  @apply mt-6 mb-6 text-lg font-medium text-gray-900;
+  @apply mt-2 mb-6 text-lg font-medium text-gray-900;
 }
 
 .payload-rich-text > h6 {

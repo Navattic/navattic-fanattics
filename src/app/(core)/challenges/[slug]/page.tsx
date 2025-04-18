@@ -14,15 +14,17 @@ const ChallengePage = async ({ params }: { params: Promise<{ slug: string }> }) 
   const { slug } = await params
 
   const session = await getServerSession(authOptions)
-  
-  const sessionUser = (await payload.find({
-    collection: 'users',
-    where: {
-      email: {
-        equals: session?.user?.email,
+
+  const sessionUser = (
+    await payload.find({
+      collection: 'users',
+      where: {
+        email: {
+          equals: session?.user?.email,
+        },
       },
-    },
-  })).docs[0]
+    })
+  ).docs[0]
 
   const challenges = await payload.find({
     collection: 'challenges',
@@ -51,7 +53,6 @@ const ChallengePage = async ({ params }: { params: Promise<{ slug: string }> }) 
   const userChallengeCompletedData = ledger.docs.filter(
     (ledger) => typeof ledger.user_id === 'object' && ledger.user_id?.id === sessionUser.id,
   )
-
 
   return (
     <>
@@ -91,7 +92,7 @@ const ChallengePage = async ({ params }: { params: Promise<{ slug: string }> }) 
                 </div>
               </div>
             </div>
-            <div className="p-8 pt-6 text-base text-gray-600 max-w-prose">
+            <div className="p-8 pb-2 pt-6 text-base text-gray-600 max-w-prose">
               <RichText data={challenge.content} />
             </div>
           </div>

@@ -13,7 +13,7 @@ const GuideContent = ({ guide }: { guide: Guide }) => {
       <div className="space-y-4 border-b border-gray-200 p-8 py-6 pt-7">
         <h1 className="font-medium text-xl">Rules & Guide</h1>
       </div>
-      <div className="p-8 pt-6 text-base text-gray-600 max-w-prose">
+      <div className="p-8 pb-2 pt-6 text-base text-gray-600 max-w-prose">
         <RichText data={guide.introduction} className="payload-rich-text" />
       </div>
       {guide.additionalInfo && guide.additionalInfo.length > 0 && (

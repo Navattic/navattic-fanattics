@@ -2,17 +2,19 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/authOptions'
 import { Container } from '@/components/ui/Container'
 import ChallengesList from '@/components/ui/ChallengesList'
-import Leaderboard from '@/components/ui/Leaderboard'
 import PageHeader from '@/components/ui/PageHeader'
 import { payload } from '@/lib/payloadClient'
+import PageTitle from '@/components/ui/PageTitle'
+import { Button } from '@/components/ui/Button'
+import { Icon } from '@/components/ui'
 
 const Home = async () => {
   const session = await getServerSession(authOptions)
-  
+
   if (!session) {
     return (
       <div className="mx-auto text-center mt-20">
-        <h1 className="text-xl font-medium">Please sign in to view challenges</h1>
+        <h1 className="text-lg font-medium">Please sign in to view challenges</h1>
       </div>
     )
   }
@@ -31,12 +33,6 @@ const Home = async () => {
   const challengesData = (
     await payload.find({
       collection: 'challenges',
-    })
-  ).docs
-
-  const usersData = (
-    await payload.find({
-      collection: 'users',
     })
   ).docs
 
@@ -67,31 +63,40 @@ const Home = async () => {
       .reduce((total, entry) => total + entry.amount, 0)
   }
 
+  const userPoints = calculateUserPoints(sessionUser.id)
+  const userHasPoints = `You have ${userPoints} points (
+    ${
+      challengesData.filter((challenge) =>
+        userLedgerEntries.some(
+          (ledger) =>
+            typeof ledger.challenge_id === 'object' && ledger.challenge_id?.id === challenge.id,
+        ),
+      ).length
+    }{' '}
+    challenge{userLedgerEntries.length === 1 ? '' : 's'} completed)`
+
+  const userPointsDescription =
+    userPoints === 0 ? 'No points yet - complete challenges to start earning!' : userHasPoints
+
   return (
-    <div className="min-h-screen">
-      <PageHeader />
-      <div className="bg-white w-full border-b border-gray-200">
-        <Container className="py-4 max-w-7xl">
-          <h1 className="text-xl font-medium pb-2">
-            Welcome back, <span className="capitalize">{sessionUser.firstName}</span>!
-          </h1>
-          <h2 className="text-base text-gray-500">
-            You have {calculateUserPoints(sessionUser.id)} points (
-            {
-              challengesData.filter((challenge) =>
-                userLedgerEntries.some(
-                  (ledger) =>
-                    typeof ledger.challenge_id === 'object' &&
-                    ledger.challenge_id?.id === challenge.id,
-                ),
-              ).length
-            }{' '}
-            challenge{userLedgerEntries.length === 1 ? '' : 's'} completed)
-          </h2>
-        </Container>
-      </div>
-      <Container>
-        <div className="flex flex-col gap-4 my-20">
+    <>
+      <PageHeader title="Fanattic Portal" />
+      <div className="bg-gray-50 min-h-screen">
+        <Container className="max-w-6xl">
+          <PageTitle
+            title={
+              <>
+                Welcome back, <span className="capitalize">{sessionUser.firstName}</span>!
+              </>
+            }
+            description={userPointsDescription}
+            button={
+              <Button href="/challenges" variant="outline" size="sm">
+                <Icon name="arrow-right" className="size-4" />
+                View challenges
+              </Button>
+            }
+          />
           {challengesData && (
             <ChallengesList
               // sessionUser={sessionUser}
@@ -99,10 +104,9 @@ const Home = async () => {
               userLedgerEntries={userLedgerEntries}
             />
           )}
-          <Leaderboard usersData={usersData} calculateUserPoints={calculateUserPoints} />
-        </div>
-      </Container>
-    </div>
+        </Container>
+      </div>
+    </>
   )
 }
 
