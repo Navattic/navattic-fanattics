@@ -55,6 +55,7 @@ export const Users: CollectionConfig = {
     { name: 'lastName', type: 'text' },
     { name: 'title', type: 'text', admin: { description: 'e.g. CEO, CTO, etc.' } },
     { name: 'email', type: 'email', defaultValue: undefined },
+    { name: 'location', type: 'text' },
     { name: 'bio', type: 'text' },
     {
       name: 'company',

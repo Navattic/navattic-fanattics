@@ -9,6 +9,7 @@ import Avatar from '@/components/ui/Avatar'
 import Statistics from '@/features/profile/Statistics'
 import PageHeader from '@/components/ui/PageHeader'
 import UserEmail from '@/components/ui/UserEmail'
+import Bio from '@/components/ui/Bio'
 const payload = await getPayload({ config })
 
 const ProfilePage = async ({ params }: { params: Promise<{ slug: string }> }) => {
@@ -50,21 +51,23 @@ const ProfilePage = async ({ params }: { params: Promise<{ slug: string }> }) =>
       <PageHeader title={`${user.firstName} ${user.lastName}`} />
       <div className="bg-gray-50 min-h-screen">
         <Container className="pt-10">
-          <div className="flex flex-row gap-8 border-b border-gray-200 pb-8">
+          <div className="flex flex-row items-center gap-8 pb-8">
             <Avatar user={user} size="xl" />
             <div className="relative space-y-2">
               <div className="space-y-0">
                 <h1 className="text-lg font-medium capitalize">
                   {user.firstName} {user.lastName}
                 </h1>
-                <p className="text-sm text-gray-500">{user.title}</p>
               </div>
               <UserEmail email={user.email} />
-              <p className="text-sm text-gray-500">Joined {formatDate(user.createdAt)}</p>
             </div>
           </div>
           <div className="mt-8">
-            <h2 className="text-base font-medium mb-4">Statistics</h2>
+            <h2 className="text-base font-medium mb-2">About</h2>
+            <Bio user={user} />
+          </div>
+          <div className="mt-8">
+            <h2 className="text-base font-medium mb-2">Statistics</h2>
             <Statistics user={user} />
           </div>
         </Container>

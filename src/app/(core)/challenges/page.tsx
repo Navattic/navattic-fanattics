@@ -6,6 +6,8 @@ import { Container } from '@/components/ui/Container'
 import ChallengesList from '@/components/ui/ChallengesList'
 import { authOptions } from '@/lib/authOptions'
 import { getServerSession } from 'next-auth'
+import { Icon } from '@/components/ui'
+import { Button } from '@/components/ui'
 
 const payload = await getPayload({ config })
 
@@ -44,7 +46,15 @@ const Challenges = async () => {
       <PageHeader />
       <div className="bg-gray-50 min-h-screen">
         <Container>
-          <PageTitle title="Challenges" description="Complete challenges to earn points" />
+          <PageTitle
+            title="Challenges"
+            description="Complete challenges to earn points, which you can redeem for rewards"
+            button={
+              <Button href="/gift-shop" size="md" variant="outline">
+                View rewards <Icon name="arrow-right" className="size-4" />
+              </Button>
+            }
+          />
           {challengesData && (
             <ChallengesList challengesData={challengesData} userLedgerEntries={userLedgerEntries} />
           )}

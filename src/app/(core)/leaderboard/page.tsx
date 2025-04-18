@@ -4,6 +4,8 @@ import { Container } from '@/components/ui/Container'
 import PodiumCard from '@/components/ui/Leaderboard/PodiumCard'
 import LeaderboardTable from '@/components/ui/Leaderboard/LeaderboardTable'
 import PageTitle from '@/components/ui/PageTitle'
+import { Button } from '@/components/ui/Button'
+import { Icon } from '@/components/ui'
 
 const Leaderboard = async () => {
   const usersData = (
@@ -12,6 +14,7 @@ const Leaderboard = async () => {
     })
   ).docs
 
+  // TODO: Add logic for the leaderboard
   return (
     <>
       <PageHeader />
@@ -20,6 +23,11 @@ const Leaderboard = async () => {
           <PageTitle
             title="Leaderboard"
             description="See the most active Fanattics and view their profile."
+            button={
+              <Button href="/challenges" size="md" variant="outline">
+                Complete a challenge <Icon name="arrow-right" className="size-4" />
+              </Button>
+            }
           />
           <div className="grid grid-cols-3 gap-4 mt-6">
             {usersData && (

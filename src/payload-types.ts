@@ -139,6 +139,7 @@ export interface User {
    * e.g. CEO, CTO, etc.
    */
   title?: string | null;
+  location?: string | null;
   bio?: string | null;
   company?: (number | null) | Company;
   /**
@@ -451,6 +452,7 @@ export interface UsersSelect<T extends boolean = true> {
   firstName?: T;
   lastName?: T;
   title?: T;
+  location?: T;
   bio?: T;
   company?: T;
   avatar?: T;

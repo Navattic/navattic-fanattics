@@ -20,30 +20,32 @@ const ChallengesList = async ({
           <Link
             key={challenge.id}
             href={`/challenges/${challenge.slug}`}
-            className="bg-white px-8 py-6 rounded-2xl border border-gray-100 shadow-xs space-y-3"
+            className="bg-white px-8 py-6 rounded-2xl border border-gray-100 inset-shadow hover:border-gray-300 transition-all duration-200 space-y-3"
           >
             <div className="space-y-2">
               <h3 className="text-lg font-medium">{challenge.title}</h3>
               <div className="flex items-center gap-2">
                 <Badge size="sm" colorScheme="yellow">
-                  <Icon name="coins" size="xs" className="mr-1" />
+                  <Icon name="coins" size="sm" className="mr-1" />
                   {challenge.points} points
                 </Badge>
                 {isCompleted && (
                   <Badge size="sm" colorScheme="green">
-                    <Icon name="award" size="xs" className="mr-1" />
+                    <Icon name="award" size="sm" className="mr-1" />
                     Completed
                   </Badge>
                 )}
               </div>
             </div>
             <p className="text-sm text-gray-500 text-balance">{challenge.description}</p>
-            <div className="flex gap-5">
-              <div className="flex items-center gap-1">
+            <div className="flex gap-3 mt-5">
+              {/* TODO: add dynamic count */}
+              <div className="flex items-center gap-[6px] inset-shadow rounded-full bg-gray-50 pl-2.5 px-3 py-0.5">
                 <Icon name="message-square" size="sm" className="text-gray-400" />
                 <span className="text-gray-500 text-sm">2</span>
               </div>
-              <div className="flex items-center gap-1">
+              {/* TODO: add dynamic count */}
+              <div className="flex items-center gap-[6px] inset-shadow rounded-full bg-gray-50 pl-2.5 px-3 py-0.5">
                 <Icon name="calendar-clock" size="sm" className="text-gray-400" />
                 <span className="text-gray-500 text-sm">
                   {formatTimeRemaining(challenge.deadline)}

@@ -7,6 +7,7 @@ import Image from 'next/image'
 import { Badge, Button, Icon, Link } from '@/components/ui'
 import { ArrowUpRightIcon } from 'lucide-react'
 import { formatDate } from '@/utils/formatDate'
+import Empty from '@/components/ui/Empty'
 
 const EventEntry = ({ event, isPastEvent }: { event: Event; isPastEvent?: boolean }) => {
   return (
@@ -101,12 +102,18 @@ const EventSchedule = async () => {
       <div className="bg-gray-50 min-h-screen">
         <Container>
           <PageTitle title="Event Schedule" />
-          <div className="mt-8 text-md font-semibold text-gray-700 mb-3">Upcoming Events</div>
-          {upcomingEvents &&
-            upcomingEvents.map((event) => <EventEntry key={event.id} event={event} />)}
-          <div className="mt-8 text-md font-semibold text-gray-700 mb-3">Past Events</div>
-          {pastEvents &&
-            pastEvents.map((event) => <EventEntry key={event.id} isPastEvent event={event} />)}
+          <div className="mt-8 text-md font-semibold text-gray-600 mb-3">Upcoming Events</div>
+          {upcomingEvents.length > 0 ? (
+            upcomingEvents.map((event) => <EventEntry key={event.id} event={event} />)
+          ) : (
+            <Empty title="No upcoming events" iconName="calendar" />
+          )}
+          <div className="mt-8 text-md font-semibold text-gray-600 mb-3">Past Events</div>
+          {pastEvents.length > 0 ? (
+            pastEvents.map((event) => <EventEntry key={event.id} isPastEvent event={event} />)
+          ) : (
+            <Empty title="No past events" iconName="calendar" />
+          )}
         </Container>
       </div>
     </>

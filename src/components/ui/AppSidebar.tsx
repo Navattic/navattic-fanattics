@@ -38,6 +38,7 @@ import { signIn, signOut, useSession } from 'next-auth/react'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { User } from '@/payload-types'
+import React from 'react'
 
 const items = [
   {
@@ -185,11 +186,11 @@ export function AppSidebar({ user }: { user: User }) {
                         </span>
                       </DropdownMenuItem>
                     ) : (
-                      <>
-                        {item.label === 'Admin' && session?.user.roles?.includes('admin') ? (
+                      <React.Fragment key={item.label}>
+                        {item.label === 'Admin Dashboard' &&
+                        session?.user.roles?.includes('admin') ? (
                           <>
                             <DropdownMenuItem
-                              key={item.label}
                               className="hover:bg-gray-100 rounded-lg !h-8 px-3 pr-2.5 py-0"
                               asChild
                             >
@@ -204,7 +205,6 @@ export function AppSidebar({ user }: { user: User }) {
                           </>
                         ) : (
                           <DropdownMenuItem
-                            key={item.label}
                             className="hover:bg-gray-100 rounded-lg !h-8 px-3 pr-2.5 py-0"
                             asChild
                           >
@@ -216,7 +216,7 @@ export function AppSidebar({ user }: { user: User }) {
                             </Link>
                           </DropdownMenuItem>
                         )}
-                      </>
+                      </React.Fragment>
                     ),
                   )}
                 </DropdownMenuContent>

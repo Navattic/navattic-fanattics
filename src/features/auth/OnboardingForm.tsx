@@ -211,7 +211,8 @@ export default function OnboardingForm({ session }: OnboardingFormProps) {
                 placeholder="Tell us about yourself"
                 className="resize-none"
               />
-            </FieldSet>
+              </FieldSet>
+              
 
             <div className="flex justify-between">
               <Button type="button" variant="outline" size="md" onClick={handlePreviousStep}>

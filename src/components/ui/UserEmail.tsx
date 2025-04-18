@@ -18,7 +18,7 @@ export default function UserEmail({ email }: { email: string }) {
 
   return (
     <div
-      className="text-sm text-gray-500 bg-gray-100 hover:bg-gray-200 transition-colors rounded-full px-3 py-1 cursor-pointer inline-flex items-center"
+      className="text-sm text-gray-500 bg-gray-100 hover:bg-gray-200 transition-colors rounded-full inset-shadow px-3 py-1 cursor-pointer inline-flex items-center"
       onClick={handleCopyEmail}
     >
       <Icon

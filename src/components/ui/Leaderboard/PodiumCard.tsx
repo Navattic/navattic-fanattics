@@ -13,7 +13,7 @@ const PodiumCard = ({ user, position }: { user: User; position: number }) => {
       border: 'border-2 border-yellow-200/70',
     },
     {
-      text: 'text-purple-600',
+      text: 'text-purple-700',
       bg: 'bg-purple-50',
       border: 'border-gray-300',
     },
