@@ -93,7 +93,7 @@ const ChallengePage = async ({ params }: { params: Promise<{ slug: string }> }) 
               </div>
             </div>
             <div className="p-8 pb-2 pt-6 text-base text-gray-600 max-w-prose">
-              <RichText data={challenge.content} />
+              <RichText data={challenge.content} className="payload-rich-text" />
             </div>
           </div>
           <Comments user={sessionUser} challenge={challenge} />

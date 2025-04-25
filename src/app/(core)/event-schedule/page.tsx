@@ -11,7 +11,7 @@ import Empty from '@/components/ui/Empty'
 
 const EventEntry = ({ event, isPastEvent }: { event: Event; isPastEvent?: boolean }) => {
   return (
-    <div className="p-4 pl-6 bg-white rounded-3xl border border-gray-100 inset-shadow flex justify-between">
+    <div className="p-4 pl-6 bg-white rounded-3xl border border-gray-100 inset-shadow flex justify-between [:last-child]:mb-20">
       <div className="flex flex-col justify-between p-2 pr-8">
         <div className="space-y-2">
           <div className="text-lg font-semibold text-gray-800">{event.title}</div>
@@ -38,7 +38,9 @@ const EventEntry = ({ event, isPastEvent }: { event: Event; isPastEvent?: boolea
                 {event.location.address ? (
                   event.location.address
                 ) : (
-                  <Badge colorScheme="yellow">Webinar (virtual)</Badge>
+                  <Badge colorScheme="yellow" size="sm">
+                    Webinar (virtual)
+                  </Badge>
                 )}
               </div>
             </div>
@@ -104,13 +106,21 @@ const EventSchedule = async () => {
           <PageTitle title="Event Schedule" />
           <div className="mt-8 text-md font-semibold text-gray-600 mb-3">Upcoming Events</div>
           {upcomingEvents.length > 0 ? (
-            upcomingEvents.map((event) => <EventEntry key={event.id} event={event} />)
+            <div className="flex flex-col gap-4">
+              {upcomingEvents.map((event) => (
+                <EventEntry key={event.id} event={event} />
+              ))}
+            </div>
           ) : (
             <Empty title="No upcoming events" iconName="calendar" />
           )}
           <div className="mt-8 text-md font-semibold text-gray-600 mb-3">Past Events</div>
           {pastEvents.length > 0 ? (
-            pastEvents.map((event) => <EventEntry key={event.id} isPastEvent event={event} />)
+            <div className="flex flex-col gap-4">
+              {pastEvents.map((event) => (
+                <EventEntry key={event.id} isPastEvent event={event} />
+              ))}
+            </div>
           ) : (
             <Empty title="No past events" iconName="calendar" />
           )}

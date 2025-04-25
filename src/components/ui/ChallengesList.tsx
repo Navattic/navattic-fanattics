@@ -2,6 +2,8 @@ import { Challenge, Ledger } from '@/payload-types'
 import { Badge, Icon } from '@/components/ui'
 import { formatTimeRemaining } from '@/utils/formatTimeRemaining'
 import Link from 'next/link'
+import { getPayload } from 'payload'
+import config from '@/payload.config'
 
 const ChallengesList = async ({
   challengesData,
@@ -10,6 +12,28 @@ const ChallengesList = async ({
   challengesData: Challenge[]
   userLedgerEntries: Ledger[]
 }) => {
+  const payload = await getPayload({ config })
+
+  // Fetch comment counts for all challenges in one query
+  const commentCounts = await Promise.all(
+    challengesData.map(async (challenge) => {
+      const comments = await payload.find({
+        collection: 'comments',
+        where: {
+          challenge: { equals: challenge.id },
+          deleted: { equals: false },
+          status: { equals: 'approved' },
+        },
+      })
+      return { challengeId: challenge.id, count: comments.totalDocs }
+    }),
+  )
+
+  // Create a map for easy lookup
+  const commentCountMap = Object.fromEntries(
+    commentCounts.map(({ challengeId, count }) => [challengeId, count]),
+  )
+
   return (
     <div className="flex flex-col gap-4">
       {challengesData?.map((challenge) => {
@@ -41,12 +65,10 @@ const ChallengesList = async ({
               {challenge.description}
             </p>
             <div className="flex gap-3 mt-5">
-              {/* TODO: add dynamic count */}
               <div className="flex items-center gap-[6px] inset-shadow rounded-full bg-gray-50 pl-2.5 px-3 py-0.5">
                 <Icon name="message-square" size="sm" className="text-gray-400" />
-                <span className="text-gray-500 text-sm">2</span>
+                <span className="text-gray-500 text-sm">{commentCountMap[challenge.id] || 0}</span>
               </div>
-              {/* TODO: add dynamic count */}
               <div className="flex items-center gap-[6px] inset-shadow rounded-full bg-gray-50 pl-2.5 px-3 py-0.5">
                 <Icon name="calendar-clock" size="sm" className="text-gray-400" />
                 <span className="text-gray-500 text-sm">
