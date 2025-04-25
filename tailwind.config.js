@@ -10,9 +10,15 @@ const config = {
       fontFamily: {
         sans: ['var(--font-suisse)', 'sans-serif'],
       },
+      containers: {
+        sm: '300px',
+      },
     },
   },
-  plugins: [],
+  plugins: [require('@tailwindcss/container-queries')],
+  corePlugins: {
+    containerQueries: true,
+  },
 }
 
 export default config

@@ -66,13 +66,12 @@ export const Users: CollectionConfig = {
     },
     {
       name: 'avatar',
-      type: 'upload',
-      relationTo: 'avatars',
-      required: false,
+      type: 'relationship',
       admin: {
-        description: 'Upload a profile image (recommended size: 256x256px)',
         position: 'sidebar',
       },
+      relationTo: 'avatars',
+      required: false,
     },
     {
       name: 'loginMethod',

@@ -16,10 +16,10 @@ import Image from 'next/image'
 import { CompanySelector } from '@/features/companies/CompanySelector'
 
 const formSchema = z.object({
-  firstName: z.string().min(2).max(50),
-  lastName: z.string().min(2).max(50),
+  firstName: z.string().min(2).max(30),
+  lastName: z.string().min(2).max(30),
   email: z.string().email(),
-  username: z.string().min(2).max(50),
+  username: z.string().min(2).max(60),
   avatar: z.instanceof(File).optional(),
   bio: z.string().max(500).optional(),
   company: z.number().optional(),
@@ -52,16 +52,48 @@ export default function OnboardingForm({ session }: OnboardingFormProps) {
       firstName,
       lastName,
       email,
+      avatar: undefined,
       username: firstName.toLowerCase() + (lastName ? lastName.toLowerCase().charAt(0) : ''),
       bio: '',
       company: undefined,
     },
   })
 
+  async function uploadAvatar(url: string) {
+    try {
+      // Upload the avatar
+      console.log('[Onboarding] Uploading Google avatar:', url)
+
+      const response = await fetch('/api/auth/upload-avatar', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          url: url,
+          alt: `${firstName} ${lastName}'s avatar`,
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to upload avatar')
+      }
+
+      const data = await response.json()
+      console.log('[Onboarding] Successfully uploaded avatar:', data)
+    } catch (error) {
+      console.error('[Onboarding] Error uploading Google avatar:', error)
+      // Don't set error state as this is not a critical failure
+      // User can still proceed with onboarding
+    }
+  }
+
   // Set avatar preview if available from Google
   useEffect(() => {
     if (avatarUrl) {
-      setAvatarPreview(avatarUrl)
+      const highResGoogleAvatarUrl = avatarUrl.replace('s96-c', 's192-c')
+      setAvatarPreview(highResGoogleAvatarUrl)
+      uploadAvatar(highResGoogleAvatarUrl)
     }
   }, [avatarUrl])
 
@@ -69,7 +101,7 @@ export default function OnboardingForm({ session }: OnboardingFormProps) {
     setIsSubmitting(true)
 
     try {
-      // Send the form data to update the user profile
+      // Then update the profile with all data including the avatar ID
       const response = await fetch('/api/auth/update-profile', {
         method: 'POST',
         headers: {
@@ -81,7 +113,6 @@ export default function OnboardingForm({ session }: OnboardingFormProps) {
           email: values.email,
           bio: values.bio,
           company: values.company,
-          // We'll handle avatar upload separately if needed
         }),
       })
 
@@ -176,22 +207,22 @@ export default function OnboardingForm({ session }: OnboardingFormProps) {
               state={form.formState.errors.avatar ? 'error' : 'default'}
             >
               <div className="flex items-center gap-4">
-                <div className="relative w-24 h-24 rounded-full border border-border flex items-center justify-center bg-muted overflow-hidden">
+                <div className="border-border bg-muted relative flex h-24 w-24 items-center justify-center overflow-hidden rounded-full border">
                   {avatarPreview ? (
                     <Image
                       src={avatarPreview}
                       alt="Avatar preview"
-                      className="w-full h-full object-cover"
+                      className="h-full w-full object-cover"
                       width={96}
                       height={96}
                     />
                   ) : (
-                    <Icon name="user" className="w-10 h-10 text-muted-foreground" />
+                    <Icon name="user" className="text-muted-foreground h-10 w-10" />
                   )}
                 </div>
                 <Label
                   htmlFor="avatar-upload"
-                  className="cursor-pointer inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
+                  className="ring-offset-background focus-visible:ring-ring border-input bg-background hover:bg-accent hover:text-accent-foreground inline-flex h-10 cursor-pointer items-center justify-center rounded-md border px-4 py-2 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50"
                 >
                   {avatarPreview ? 'Change Photo' : 'Upload Photo'}
                 </Label>

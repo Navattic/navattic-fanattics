@@ -6,10 +6,12 @@ export default function Avatar({
   user,
   size = 'md',
   className,
+  showCompany = true,
 }: {
   user?: User | null
   size?: 'sm' | 'md' | 'lg' | 'xl'
   className?: string
+  showCompany?: boolean
 }) {
   const sizes = {
     sm: {
@@ -30,10 +32,12 @@ export default function Avatar({
     },
   }
 
+  const fallbackInitials = (user?.firstName?.charAt(0) || '') + (user?.lastName?.charAt(0) || '')
+
   return (
     <div
       className={cn(
-        'block rounded-full shadow-sm aspect-square overflow-hidden',
+        'inset-shadow grid aspect-square place-items-center overflow-hidden rounded-full',
         size === 'sm' && 'size-5',
         size === 'md' && 'size-8',
         size === 'lg' && 'size-14',
@@ -41,14 +45,28 @@ export default function Avatar({
         className,
       )}
     >
-      <Image
-        className="block shadow-sm aspect-square"
-        src={size ? sizes[size].src : sizes.md.src}
-        quality={90}
-        alt={`${(user?.avatar as Avatar)?.alt || `${user?.firstName}'s avatar`}`}
-        width={size ? sizes[size].width : sizes.md.width}
-        height={size ? sizes[size].width : sizes.md.width}
-      />
+      {user?.avatar ? (
+        <Image
+          className="block aspect-square size-full object-cover"
+          src={size ? sizes[size].src : sizes.md.src}
+          quality={90}
+          alt={`${(user?.avatar as Avatar)?.alt || `${user?.firstName}'s avatar`}`}
+          width={size ? sizes[size].width : sizes.md.width}
+          height={size ? sizes[size].width : sizes.md.width}
+        />
+      ) : (
+        <div
+          className={cn(
+            'flex h-full w-full items-center justify-center rounded-full bg-gradient-to-b from-gray-100 to-gray-200 text-gray-500 [text-shadow:-1px_1px_0px_rgba(255,255,255,0.5)]',
+            size === 'sm' && 'text-xs',
+            size === 'md' && 'text-xs',
+            size === 'lg' && 'text-md',
+            size === 'xl' && 'text-sm',
+          )}
+        >
+          {fallbackInitials}
+        </div>
+      )}
     </div>
   )
 }

@@ -144,9 +144,6 @@ export interface User {
   location?: string | null;
   bio?: string | null;
   company?: (number | null) | Company;
-  /**
-   * Upload a profile image (recommended size: 256x256px)
-   */
   avatar?: (number | null) | Avatar;
   loginMethod: 'google' | 'email';
   roles?: ('admin' | 'user')[] | null;

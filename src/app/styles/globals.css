@@ -1,4 +1,6 @@
 @import 'tailwindcss';
+/* Components */
+@import './components/payload-rich-text.css';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -682,59 +684,5 @@
   }
   body {
     @apply bg-background text-foreground;
-  }
-}
-
-.payload-rich-text {
-  & > img {
-    @apply rounded-xl shadow-sm;
-  }
-
-  & > h1 {
-    @apply mt-2 mb-6 text-4xl font-medium text-gray-900;
-  }
-
-  & > h2 {
-    @apply mt-2 mb-6 text-3xl font-medium text-gray-900;
-  }
-
-  & > h3 {
-    @apply mt-2 mb-6 text-2xl font-medium text-gray-900;
-  }
-
-  & > h4 {
-    @apply mt-2 mb-6 text-xl font-medium text-gray-900;
-  }
-
-  & > h5 {
-    @apply mt-2 mb-6 text-lg font-medium text-gray-900;
-  }
-
-  & > h6 {
-    @apply mt-2 mb-6 text-md leading-relaxed;
-  }
-
-  & > p {
-    @apply mb-4 text-base leading-relaxed;
-  }
-
-  & * > a {
-    @apply text-blue-500 underline-offset-2 hover:underline;
-  }
-
-  & > ul {
-    @apply list-disc list-inside mb-4;
-  }
-
-  & > ol {
-    @apply list-decimal list-inside mb-4;
-  }
-
-  & > ul > li {
-    @apply text-base leading-relaxed;
-  }
-
-  & > ul > li > a {
-    @apply text-blue-500 underline-offset-2 hover:underline;
   }
 }

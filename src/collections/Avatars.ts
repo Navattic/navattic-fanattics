@@ -13,7 +13,9 @@ export const Avatars: CollectionConfig = {
     },
   ],
   upload: {
+    staticDir: 'media/avatars',
     adminThumbnail: 'thumbnail',
+    mimeTypes: ['image/jpeg', 'image/png', 'image/webp'],
     imageSizes: [
       {
         name: 'thumbnail',
@@ -26,5 +28,14 @@ export const Avatars: CollectionConfig = {
         height: 256,
       },
     ],
+    pasteURL: {
+      allowList: [
+        {
+          hostname: 'lh3.googleusercontent.com',
+          pathname: '/a/*',
+          protocol: 'https',
+        },
+      ],
+    },
   },
 }

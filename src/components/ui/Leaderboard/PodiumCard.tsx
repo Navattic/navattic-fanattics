@@ -1,11 +1,18 @@
 import type { User } from '@/payload-types'
 import Avatar from '../Avatar'
-import { calculateUserPoints } from '@/lib/users/points'
 import { calculateUserNumComments } from '@/lib/users/numComments'
-import { Badge } from '../Badge'
+// import { Badge } from '../Badge'
 import { Icon } from '../Icon'
 
-const PodiumCard = ({ user, position }: { user: User; position: number }) => {
+const PodiumCard = async ({
+  user,
+  position,
+  points,
+}: {
+  user: User
+  position: number
+  points: number
+}) => {
   const styles = [
     {
       text: 'text-yellow-700',
@@ -24,11 +31,13 @@ const PodiumCard = ({ user, position }: { user: User; position: number }) => {
     },
   ]
 
+  const numComments = await calculateUserNumComments({ user })
+
   return (
     <>
-      <div className="p-[6px] pb-[10px] bg-white rounded-2xl inset-shadow flex flex-col gap-4">
+      <div className="inset-shadow @container flex flex-col gap-4 rounded-2xl bg-white p-[6px] pb-[10px]">
         <div
-          className={`${styles[position - 1].bg} p-4 py-1 pt-2 text-sm font-medium rounded-t-[12px] rounded-b-[4px]`}
+          className={`${styles[position - 1].bg} rounded-t-[12px] rounded-b-[4px] p-4 py-1 pt-2 text-sm font-medium`}
         >
           <span className={`${styles[position - 1].text}`}>
             <Icon name="award" className={`mr-2 size-4 ${styles[position - 1].text}`} />
@@ -36,31 +45,33 @@ const PodiumCard = ({ user, position }: { user: User; position: number }) => {
             {position === 1 ? 'st' : position === 2 ? 'nd' : 'rd'} Place
           </span>
         </div>
-        <div className="flex items-center ml-1 px-4">
-          <Avatar user={user} size="lg" />
-          <div className="ml-4">
+        <div className="flex flex-col items-center pr-1 pl-4 @[300px]:flex-row">
+          <Avatar user={user} size="lg" showCompany={true} />
+          <div className="mt-2 ml-0 text-center @[300px]:mt-0 @[300px]:ml-3 @[300px]:text-left">
             <div className="text-base font-semibold text-gray-800 capitalize">
               {user.firstName} {user.lastName}
             </div>
-            <div className="text-xs text-gray-500">placeholder@email.com</div>
+            {user.email && <div className="text-xs text-gray-500">{user.email}</div>}
           </div>
         </div>
-        <div className="flex justify-between w-full gap-2 px-1">
-          <div className="bg-gray-50 flex-1 flex flex-col items-center gap-1 px-2 p-2 rounded-tl-[8px] rounded-tr-[8px] rounded-br-[8px] rounded-bl-[12px]">
+        <div className="flex w-full justify-between gap-2 px-1">
+          <div className="flex flex-1 flex-col items-center gap-1 rounded-tl-[8px] rounded-tr-[8px] rounded-br-[8px] rounded-bl-[12px] bg-gray-50 p-2 px-2">
             <div className="text-base font-semibold text-gray-600">
               {' '}
               <Icon name="coins" className="mr-2 size-4 text-gray-500" />
-              {calculateUserPoints({ user })}
+              {points}
             </div>
             <div className="text-xs text-gray-500">Points</div>
           </div>
-          <div className="bg-gray-50 flex-1 flex flex-col items-center gap-1 px-2 rounded-tl-[8px] rounded-tr-[8px] rounded-br-[12px] rounded-bl-[8px] p-2">
+          <div className="flex flex-1 flex-col items-center gap-1 rounded-tl-[8px] rounded-tr-[8px] rounded-br-[12px] rounded-bl-[8px] bg-gray-50 p-2 px-2">
             <div className="text-base font-semibold text-gray-600">
               {' '}
               <Icon name="message-square" className="mr-2 size-4 text-gray-500" />
-              {calculateUserNumComments({ user })}
+              {numComments}
             </div>
-            <div className="text-xs text-gray-500">Comments</div>
+            <div className="text-xs text-gray-500">
+              {numComments === 1 ? 'Comment' : 'Comments'}
+            </div>
           </div>
         </div>
       </div>
