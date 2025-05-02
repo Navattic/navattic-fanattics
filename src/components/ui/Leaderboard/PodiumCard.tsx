@@ -35,15 +35,15 @@ const PodiumCard = async ({
 
   return (
     <>
-      <div className="inset-shadow @container flex flex-col gap-4 rounded-2xl bg-white p-[6px] pb-[10px]">
+      <div className="inset-shadow @container flex flex-col gap-4 rounded-2xl bg-white p-1.5 pb-2.5">
         <div
-          className={`${styles[position - 1].bg} rounded-t-[12px] rounded-b-[4px] p-4 py-1 pt-2 text-sm font-medium`}
+          className={`${styles[position - 1].bg} rounded-t-[12px] rounded-b-[4px] p-4 py-1 pt-1.5 text-sm font-medium`}
         >
-          <span className={`${styles[position - 1].text}`}>
+          <div className={`${styles[position - 1].text} flex items-center`}>
             <Icon name="award" className={`mr-2 size-4 ${styles[position - 1].text}`} />
             {position}
             {position === 1 ? 'st' : position === 2 ? 'nd' : 'rd'} Place
-          </span>
+          </div>
         </div>
         <div className="flex flex-col items-center pr-1 pl-4 @[300px]:flex-row">
           <Avatar user={user} size="lg" showCompany={true} />

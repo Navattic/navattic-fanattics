@@ -2,7 +2,7 @@
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Button } from '@/components/ui/Button'
 import { Form } from '@/components/shadcn/ui/form'
 import { Input } from '@/components/shadcn/ui/input'
@@ -14,6 +14,7 @@ import { Session } from 'next-auth'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { CompanySelector } from '@/features/companies/CompanySelector'
+import LoadingSpinner from '@/components/ui/icons/LoadingSpinner'
 
 const formSchema = z.object({
   firstName: z.string().min(2).max(30),
@@ -34,6 +35,11 @@ export default function OnboardingForm({ session }: OnboardingFormProps) {
   const [step, setStep] = useState(1)
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isAvatarUploading, setIsAvatarUploading] = useState(false)
+  const [avatarId, setAvatarId] = useState<number | null>(null)
+
+  // Add a ref to store the upload promise
+  const avatarUploadPromise = useRef<Promise<number | null> | null>(null)
 
   // Split the name from the session
   const nameParts = session.user?.name?.split(' ') || []
@@ -61,8 +67,7 @@ export default function OnboardingForm({ session }: OnboardingFormProps) {
 
   async function uploadAvatar(url: string) {
     try {
-      // Upload the avatar
-      console.log('[Onboarding] Uploading Google avatar:', url)
+      setIsAvatarUploading(true)
 
       const response = await fetch('/api/auth/upload-avatar', {
         method: 'POST',
@@ -81,19 +86,23 @@ export default function OnboardingForm({ session }: OnboardingFormProps) {
 
       const data = await response.json()
       console.log('[Onboarding] Successfully uploaded avatar:', data)
+      setAvatarId(data.id)
+      return data.id
     } catch (error) {
       console.error('[Onboarding] Error uploading Google avatar:', error)
-      // Don't set error state as this is not a critical failure
-      // User can still proceed with onboarding
+      return null
+    } finally {
+      setIsAvatarUploading(false)
     }
   }
 
   // Set avatar preview if available from Google
   useEffect(() => {
     if (avatarUrl) {
-      const highResGoogleAvatarUrl = avatarUrl.replace('s96-c', 's192-c')
+      const highResGoogleAvatarUrl = avatarUrl.replace('s96-c', 's192-c') // get higher res avatar
       setAvatarPreview(highResGoogleAvatarUrl)
-      uploadAvatar(highResGoogleAvatarUrl)
+      // Store the promise for later use
+      avatarUploadPromise.current = uploadAvatar(highResGoogleAvatarUrl)
     }
   }, [avatarUrl])
 
@@ -101,7 +110,11 @@ export default function OnboardingForm({ session }: OnboardingFormProps) {
     setIsSubmitting(true)
 
     try {
-      // Then update the profile with all data including the avatar ID
+      // If there's an ongoing upload, wait for it
+      if (avatarUploadPromise.current) {
+        await avatarUploadPromise.current
+      }
+
       const response = await fetch('/api/auth/update-profile', {
         method: 'POST',
         headers: {
@@ -120,7 +133,6 @@ export default function OnboardingForm({ session }: OnboardingFormProps) {
         throw new Error('Failed to update profile')
       }
 
-      // Redirect to the dashboard after successful submission
       router.push('/')
     } catch (error) {
       console.error('Error updating profile:', error)
@@ -222,9 +234,9 @@ export default function OnboardingForm({ session }: OnboardingFormProps) {
                 </div>
                 <Label
                   htmlFor="avatar-upload"
-                  className="ring-offset-background focus-visible:ring-ring border-input bg-background hover:bg-accent hover:text-accent-foreground inline-flex h-10 cursor-pointer items-center justify-center rounded-md border px-4 py-2 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50"
+                  className="ring-offset-background focus-visible:ring-ring border-input bg-background hover:bg-accent hover:text-accent-foreground inline-flex h-8 cursor-pointer items-center justify-center rounded-md border px-3 py-1 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50"
                 >
-                  {avatarPreview ? 'Change Photo' : 'Upload Photo'}
+                  {avatarPreview ? 'Change photo' : 'Upload photo'}
                 </Label>
                 <Input
                   id="avatar-upload"
@@ -237,6 +249,7 @@ export default function OnboardingForm({ session }: OnboardingFormProps) {
             </FieldSet>
 
             <CompanySelector
+              userEmail={email} // Used to associate a user with the creation of a company (for admin purposes)
               name="company"
               label="Company"
               description="Select your company or add a new one"
@@ -260,7 +273,8 @@ export default function OnboardingForm({ session }: OnboardingFormProps) {
                 Back
               </Button>
               <Button type="submit" variant="solid" size="md" disabled={isSubmitting}>
-                {isSubmitting ? 'Saving...' : 'Enter portal'} <Icon name="arrow-right" />
+                {isSubmitting ? 'Saving...' : 'Enter portal'}
+                {isSubmitting ? <LoadingSpinner /> : <Icon name="arrow-right" />}
               </Button>
             </div>
           </>

@@ -24,12 +24,13 @@ import { Icon } from '@/components/ui'
 import { CompanyLogo as CompanyLogoComponent } from './CompanyLogo'
 
 type CompanySelectorProps = {
+  userEmail: string
   name: string
   label: string
   description?: string
 }
 
-export function CompanySelector({ name, label, description }: CompanySelectorProps) {
+export function CompanySelector({ userEmail, name, label, description }: CompanySelectorProps) {
   const form = useFormContext()
   const [open, setOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
@@ -217,20 +218,79 @@ export function CompanySelector({ name, label, description }: CompanySelectorPro
     setSelectedCompany(null)
   }
 
+  // Handle logo upload
+  const handleLogoUpload = async (file: File) => {
+    if (!selectedCompany) return
+
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('companyId', selectedCompany.id.toString())
+
+      const response = await fetch('/api/companies/upload-logo', {
+        method: 'POST',
+        body: formData,
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to upload logo')
+      }
+
+      const { company } = await response.json()
+      setSelectedCompany(company)
+    } catch (error) {
+      console.error('[CompanySelector] Error uploading logo:', error)
+    }
+  }
+
+  // Handle logo removal
+  const handleLogoRemove = async () => {
+    if (!selectedCompany) return
+
+    try {
+      const response = await fetch(`/api/companies/${selectedCompany.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          logoSrc: {
+            uploadedLogo: null,
+          },
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to remove logo')
+      }
+
+      const { doc: company } = await response.json()
+      setSelectedCompany(company)
+    } catch (error) {
+      console.error('[CompanySelector] Error removing logo:', error)
+    }
+  }
+
   const getLogoUrl = (logoSrc: Company['logoSrc']) => {
     if (!logoSrc) return null
 
     // If it's a CompanyLogo object
     if (typeof logoSrc === 'object') {
-      // First try the url field
-      if ('url' in logoSrc && logoSrc.url) {
-        return logoSrc.url
+      // First try the uploaded logo
+      if ('uploadedLogo' in logoSrc && logoSrc.uploadedLogo) {
+        const uploadedLogo = logoSrc.uploadedLogo
+        if (typeof uploadedLogo === 'object' && 'url' in uploadedLogo) {
+          return uploadedLogo.url
+        }
       }
-      // Then try the upload url
-      return logoSrc.url || null
+      // Then try the default URL
+      if ('defaultUrl' in logoSrc && logoSrc.defaultUrl) {
+        return logoSrc.defaultUrl
+      }
+      return null
     }
 
-    // If it's a string (direct URL)
+    // If it's a string (direct URL), treat it as defaultUrl
     if (typeof logoSrc === 'string') {
       return logoSrc
     }
@@ -259,11 +319,11 @@ export function CompanySelector({ name, label, description }: CompanySelectorPro
                   size="md"
                   aria-expanded={open}
                   className={cn(
-                    'w-full justify-between text-base text-gray-300 h-[36px]',
+                    'h-[36px] w-full justify-between text-base text-gray-300',
                     !field.value && 'text-gray-300',
                   )}
                 >
-                  <div className="flex justify-between items-center w-full">
+                  <div className="flex w-full items-center justify-between">
                     {selectedCompany ? (
                       <div className="flex items-center gap-2">
                         <CompanyLogoComponent
@@ -281,7 +341,7 @@ export function CompanySelector({ name, label, description }: CompanySelectorPro
                 </Button>
               </FormControl>
             </PopoverTrigger>
-            <PopoverContent className="p-0 w-[350px]">
+            <PopoverContent className="w-[350px] p-0">
               {!showNewCompanyForm ? (
                 <Command>
                   <CommandInput
@@ -294,24 +354,41 @@ export function CompanySelector({ name, label, description }: CompanySelectorPro
                       <div className="flex items-center justify-center p-4">
                         <Icon
                           name="spinner"
-                          className="w-4 h-4 animate-spin text-muted-foreground"
+                          className="text-muted-foreground h-4 w-4 animate-spin"
                         />
-                        <span className="ml-2 text-sm text-muted-foreground">Loading...</span>
+                        <span className="text-muted-foreground ml-2 text-sm">Loading...</span>
                       </div>
                     ) : (
                       <>
                         <CommandEmpty>
-                          <p className="py-2 px-4 text-sm text-center text-muted-foreground">
-                            No companies found.
-                          </p>
+                          <div className="flex flex-col items-center gap-3 px-4">
+                            <p className="text-muted-foreground pb-2 text-center text-sm text-balance">
+                              No companies found with that name. Be the first to add it!
+                            </p>
+                            <Button
+                              variant="solid"
+                              size="md"
+                              onClick={() => {
+                                setShowNewCompanyForm(true)
+                                setNewCompanyName(searchQuery)
+                                if (searchQuery) {
+                                  fetchBrandfetchData(searchQuery)
+                                }
+                              }}
+                              className="w-full"
+                            >
+                              <PlusCircle className="mr-2 h-4 w-4" />
+                              Create new company
+                            </Button>
+                          </div>
                         </CommandEmpty>
-                        <CommandGroup heading="Companies">
+                        <CommandGroup heading="Existing companies">
                           {companies.map((company) => (
                             <CommandItem
                               key={company.id}
                               value={company.name}
                               onSelect={() => handleSelectCompany(company)}
-                              className="flex items-center gap-2"
+                              className="flex cursor-pointer items-center gap-2"
                             >
                               <CompanyLogoComponent
                                 src={getLogoUrl(company.logoSrc)}
@@ -338,10 +415,10 @@ export function CompanySelector({ name, label, description }: CompanySelectorPro
                                 fetchBrandfetchData(searchQuery)
                               }
                             }}
-                            className="text-blue-600"
+                            className="cursor-pointer text-blue-600"
                           >
                             <PlusCircle className="mr-2 h-4 w-4" />
-                            Add new company
+                            Enter your company
                           </CommandItem>
                         </CommandGroup>
                       </>
@@ -349,9 +426,9 @@ export function CompanySelector({ name, label, description }: CompanySelectorPro
                   </CommandList>
                 </Command>
               ) : (
-                <div className="p-4 space-y-4">
+                <div className="space-y-4 p-4">
                   <div className="flex items-center justify-between">
-                    <h4 className="font-medium text-sm">Add new company</h4>
+                    <h4 className="text-sm font-medium">Add new company</h4>
                     <Button
                       variant="ghost"
                       size="sm"
@@ -381,8 +458,8 @@ export function CompanySelector({ name, label, description }: CompanySelectorPro
 
                   {isFetchingBrandfetch && (
                     <div className="flex items-center justify-center py-2">
-                      <Icon name="spinner" className="w-4 h-4 animate-spin text-muted-foreground" />
-                      <span className="ml-2 text-sm text-muted-foreground">
+                      <Icon name="spinner" className="text-muted-foreground h-4 w-4 animate-spin" />
+                      <span className="text-muted-foreground ml-2 text-sm">
                         Searching for company...
                       </span>
                     </div>
@@ -405,7 +482,7 @@ export function CompanySelector({ name, label, description }: CompanySelectorPro
                         <Label>Company logo</Label>
                         {newCompanyLogo ? (
                           <div className="flex items-center gap-2">
-                            <div className="relative w-10 h-10 border border-gray-200 rounded overflow-hidden">
+                            <div className="relative h-10 w-10 overflow-hidden rounded border border-gray-200">
                               <CompanyLogoComponent
                                 src={newCompanyLogo}
                                 alt="Company logo"
@@ -425,8 +502,8 @@ export function CompanySelector({ name, label, description }: CompanySelectorPro
                             </Button>
                           </div>
                         ) : (
-                          <div className="flex items-center justify-center h-16 border border-dashed border-gray-300 rounded-md">
-                            <span className="text-sm text-muted-foreground">
+                          <div className="flex h-16 items-center justify-center rounded-md border border-dashed border-gray-300">
+                            <span className="text-muted-foreground text-sm">
                               {isLogoManuallyRemoved ? 'No logo selected' : 'No logo found'}
                             </span>
                           </div>
@@ -496,7 +573,7 @@ export function CompanySelector({ name, label, description }: CompanySelectorPro
                 variant="ghost"
                 size="xs"
                 onClick={handleClearSelection}
-                className="h-6 px-2 text-muted-foreground hover:text-destructive"
+                className="text-muted-foreground hover:text-destructive h-6 px-2"
               >
                 <Icon name="x" className="size-4" />
                 Clear selection

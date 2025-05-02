@@ -2,9 +2,9 @@
 
 import { useState } from 'react'
 import Image from 'next/image'
-import { Building } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { CompanyLogo as CompanyLogoType } from '@/payload-types'
+import { Icon } from '@/components/ui'
 
 type CompanyLogoProps = {
   src: string | CompanyLogoType | null | undefined
@@ -14,11 +14,9 @@ type CompanyLogoProps = {
 }
 
 export function CompanyLogo({ src, alt, size = 4, className }: CompanyLogoProps) {
-  const sizeClass = `w-${size} h-${size}`
-
   // If no src, show fallback icon
   if (!src) {
-    return <Building className={cn(sizeClass, className)} />
+    return <Icon name="building" />
   }
 
   // Get the URL from either string or CompanyLogo object
@@ -26,7 +24,7 @@ export function CompanyLogo({ src, alt, size = 4, className }: CompanyLogoProps)
     typeof src === 'string' ? src : src && typeof src === 'object' && 'url' in src ? src.url : null
 
   if (!imageUrl) {
-    return <Building className={cn(sizeClass, className)} />
+    return <Icon name="building" />
   }
 
   // Check if it's a Brandfetch CDN URL

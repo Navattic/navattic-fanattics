@@ -12,28 +12,21 @@ export const CompanyLogos: CollectionConfig = {
       required: false,
     },
     {
-      name: 'url',
+      name: 'defaultUrl',
       type: 'text',
       required: false,
       admin: {
-        description: 'Direct URL to the logo (e.g. from Brandfetch)',
+        description: 'Default logo URL (e.g. from Brandfetch or Navattic logo API)',
+      },
+    },
+    {
+      name: 'uploadedLogo',
+      type: 'upload',
+      relationTo: 'media',
+      required: false,
+      admin: {
+        description: 'Custom uploaded logo (optional)',
       },
     },
   ],
-  upload: {
-    staticDir: 'company-logos',
-    mimeTypes: ['image/png', 'image/jpeg', 'image/webp', 'image/svg+xml'],
-    imageSizes: [
-      {
-        name: 'thumbnail',
-        width: 48,
-        height: 48,
-      },
-      {
-        name: 'small',
-        width: 96,
-        height: 96,
-      },
-    ],
-  },
 }

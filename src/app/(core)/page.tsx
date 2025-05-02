@@ -11,14 +11,6 @@ import { Icon } from '@/components/ui'
 const Home = async () => {
   const session = await getServerSession(authOptions)
 
-  if (!session) {
-    return (
-      <div className="mx-auto text-center mt-20">
-        <h1 className="text-lg font-medium">Please sign in to view challenges</h1>
-      </div>
-    )
-  }
-
   const sessionUser = (
     await payload.find({
       collection: 'users',
@@ -29,6 +21,14 @@ const Home = async () => {
       },
     })
   ).docs[0]
+
+  if (!session || !sessionUser) {
+    return (
+      <div className="mx-auto mt-20 text-center">
+        <h1 className="text-lg font-medium">Please sign in to view challenges</h1>
+      </div>
+    )
+  }
 
   const challengesData = (
     await payload.find({
@@ -42,16 +42,18 @@ const Home = async () => {
     })
   ).docs
 
-  const userLedgerEntries = (
-    await payload.find({
-      collection: 'ledger',
-      where: {
-        user_id: {
-          equals: sessionUser.id,
+  const userLedgerEntries =
+    sessionUser &&
+    (
+      await payload.find({
+        collection: 'ledger',
+        where: {
+          user_id: {
+            equals: sessionUser.id,
+          },
         },
-      },
-    })
-  ).docs
+      })
+    ).docs
 
   // Helper function to calculate points for a user
   const calculateUserPoints = (userId: number) => {
@@ -81,7 +83,7 @@ const Home = async () => {
   return (
     <>
       <PageHeader title="Fanattic Portal" />
-      <div className="bg-gray-50 min-h-screen">
+      <div className="min-h-screen bg-gray-50">
         <Container className="max-w-6xl">
           <PageTitle
             title={

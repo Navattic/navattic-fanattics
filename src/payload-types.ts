@@ -175,6 +175,10 @@ export interface Company {
    */
   website?: string | null;
   /**
+   * Who added the company
+   */
+  author?: (number | null) | User;
+  /**
    * Company logo from Brandfetch or other sources
    */
   logoSrc?: (number | null) | CompanyLogo;
@@ -188,11 +192,26 @@ export interface Company {
 export interface CompanyLogo {
   id: number;
   alt?: string | null;
+  /**
+   * Default logo URL (e.g. from Brandfetch or Navattic logo API)
+   */
+  defaultUrl?: string | null;
+  /**
+   * Custom uploaded logo (optional)
+   */
+  uploadedLogo?: (number | null) | Media;
   updatedAt: string;
   createdAt: string;
-  /**
-   * Direct URL to the logo (e.g. from Brandfetch)
-   */
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "media".
+ */
+export interface Media {
+  id: number;
+  alt: string;
+  updatedAt: string;
+  createdAt: string;
   url?: string | null;
   thumbnailURL?: string | null;
   filename?: string | null;
@@ -202,24 +221,6 @@ export interface CompanyLogo {
   height?: number | null;
   focalX?: number | null;
   focalY?: number | null;
-  sizes?: {
-    thumbnail?: {
-      url?: string | null;
-      width?: number | null;
-      height?: number | null;
-      mimeType?: string | null;
-      filesize?: number | null;
-      filename?: string | null;
-    };
-    small?: {
-      url?: string | null;
-      width?: number | null;
-      height?: number | null;
-      mimeType?: string | null;
-      filesize?: number | null;
-      filename?: string | null;
-    };
-  };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -311,25 +312,6 @@ export interface Event {
   };
   updatedAt: string;
   createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "media".
- */
-export interface Media {
-  id: number;
-  alt: string;
-  updatedAt: string;
-  createdAt: string;
-  url?: string | null;
-  thumbnailURL?: string | null;
-  filename?: string | null;
-  mimeType?: string | null;
-  filesize?: number | null;
-  width?: number | null;
-  height?: number | null;
-  focalX?: number | null;
-  focalY?: number | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -597,6 +579,7 @@ export interface AvatarsSelect<T extends boolean = true> {
 export interface CompaniesSelect<T extends boolean = true> {
   name?: T;
   website?: T;
+  author?: T;
   logoSrc?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -607,41 +590,10 @@ export interface CompaniesSelect<T extends boolean = true> {
  */
 export interface CompanyLogosSelect<T extends boolean = true> {
   alt?: T;
+  defaultUrl?: T;
+  uploadedLogo?: T;
   updatedAt?: T;
   createdAt?: T;
-  url?: T;
-  thumbnailURL?: T;
-  filename?: T;
-  mimeType?: T;
-  filesize?: T;
-  width?: T;
-  height?: T;
-  focalX?: T;
-  focalY?: T;
-  sizes?:
-    | T
-    | {
-        thumbnail?:
-          | T
-          | {
-              url?: T;
-              width?: T;
-              height?: T;
-              mimeType?: T;
-              filesize?: T;
-              filename?: T;
-            };
-        small?:
-          | T
-          | {
-              url?: T;
-              width?: T;
-              height?: T;
-              mimeType?: T;
-              filesize?: T;
-              filename?: T;
-            };
-      };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

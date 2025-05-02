@@ -24,7 +24,7 @@ interface UserWithStats {
 
 const LeaderboardTable = ({ users }: { users: UserWithStats[] }) => {
   return (
-    <div className="mt-10 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xs">
+    <div className="mt-10 overflow-hidden rounded-xl border border-gray-100 bg-white shadow-xs">
       <Table>
         <TableHeader>
           <TableRow>
@@ -51,9 +51,9 @@ const LeaderboardTable = ({ users }: { users: UserWithStats[] }) => {
                 <span
                   className={cn(
                     'inline-flex w-12 items-center justify-center gap-1 rounded-full px-2 py-1 text-sm',
-                    index === 0 && 'bg-yellow-100 text-yellow-700',
-                    index === 1 && 'bg-purple-50/50 text-purple-500',
-                    index === 2 && 'bg-orange-100/70 text-orange-600',
+                    index === 0 && 'inset-shadow bg-yellow-100 text-yellow-700',
+                    index === 1 && 'inset-shadow bg-purple-50/50 text-purple-500',
+                    index === 2 && 'inset-shadow bg-orange-100/70 text-orange-600',
                   )}
                 >
                   {index <= 2 && <Icon name="award" size="sm" />}

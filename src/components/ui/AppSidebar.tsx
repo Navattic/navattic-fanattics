@@ -37,6 +37,7 @@ import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { User } from '@/payload-types'
 import React from 'react'
+import Avatar from './Avatar'
 
 const items = [
   {
@@ -104,24 +105,24 @@ export function AppSidebar({ user }: { user: User }) {
 
   return (
     <Sidebar>
-      <SidebarHeader className="p-5 mb-10">
+      <SidebarHeader className="mb-10 p-5">
         <Link href="/">
           <NavatticLogo className="w-24" />
         </Link>
       </SidebarHeader>
       <SidebarContent className="flex flex-col gap-2">
         {items.map((item) => (
-          <SidebarGroup key={item.group} className="px-2 py-0 flex flex-col">
-            <SidebarGroupLabel className="px-2.5 py-3 text-xs font-medium leading-none text-gray-500/90">
+          <SidebarGroup key={item.group} className="flex flex-col px-2 py-0">
+            <SidebarGroupLabel className="px-2.5 py-3 text-xs leading-none font-medium text-gray-500/90">
               {item.group}
             </SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu className="flex flex-col gap-[1px]">
                 {item.items.map((item) => (
-                  <SidebarMenuItem key={item.label} className="hover:bg-gray-100 rounded-lg">
+                  <SidebarMenuItem key={item.label} className="rounded-lg hover:bg-gray-100">
                     <SidebarMenuButton
                       asChild
-                      className="rounded-lg !h-8 px-3 pr-2.5 py-0"
+                      className="!h-8 rounded-lg px-3 py-0 pr-2.5"
                       isActive={pathname === item.href}
                     >
                       <Link href={item.href} className="flex items-center gap-2">
@@ -147,16 +148,10 @@ export function AppSidebar({ user }: { user: User }) {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <SidebarMenuButton>
-                    <div className="w-full flex justify-between items-center">
+                    <div className="flex w-full items-center justify-between">
                       <div className="flex items-center gap-2 text-sm font-medium text-gray-600 capitalize">
                         {user?.avatar && typeof user.avatar !== 'number' && (
-                          <Image
-                            src={user.avatar.sizes?.thumbnail?.url ?? ''}
-                            alt="User"
-                            width={28}
-                            height={28}
-                            className="rounded-full"
-                          />
+                          <Avatar user={user} size="sm" showCompany={true} />
                         )}
                         {user?.firstName} {user?.lastName}
                       </div>
@@ -176,7 +171,7 @@ export function AppSidebar({ user }: { user: User }) {
                       <DropdownMenuItem
                         key={item.label}
                         onSelect={() => signOut()}
-                        className="hover:bg-gray-100 rounded-lg !h-8 px-3 pr-2.5 py-0 flex items-center gap-2 cursor-pointer"
+                        className="flex !h-8 cursor-pointer items-center gap-2 rounded-lg px-3 py-0 pr-2.5 hover:bg-gray-100"
                       >
                         <item.icon className="size-4 text-gray-500" />
                         <span className="text-sm leading-none font-medium text-gray-600">
@@ -189,7 +184,7 @@ export function AppSidebar({ user }: { user: User }) {
                         session?.user.roles?.includes('admin') ? (
                           <>
                             <DropdownMenuItem
-                              className="hover:bg-gray-100 rounded-lg !h-8 px-3 pr-2.5 py-0"
+                              className="!h-8 rounded-lg px-3 py-0 pr-2.5 hover:bg-gray-100"
                               asChild
                             >
                               <Link href={item.href ?? ''} className="flex items-center gap-2">
@@ -203,7 +198,7 @@ export function AppSidebar({ user }: { user: User }) {
                           </>
                         ) : (
                           <DropdownMenuItem
-                            className="hover:bg-gray-100 rounded-lg !h-8 px-3 pr-2.5 py-0"
+                            className="!h-8 rounded-lg px-3 py-0 pr-2.5 hover:bg-gray-100"
                             asChild
                           >
                             <Link href={item.href ?? ''} className="flex items-center gap-2">

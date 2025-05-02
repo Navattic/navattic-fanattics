@@ -29,6 +29,15 @@ export const Companies: CollectionConfig = {
       },
     },
     {
+      name: 'author',
+      type: 'relationship',
+      relationTo: 'users',
+      required: false,
+      admin: {
+        description: 'Who added the company',
+      },
+    },
+    {
       name: 'logoSrc',
       type: 'relationship',
       relationTo: 'company-logos',

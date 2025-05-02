@@ -8,6 +8,24 @@ export const Comments: CollectionConfig = {
     update: () => true,
     delete: () => true,
   },
+  hooks: {
+    beforeDelete: [
+      async ({ req, id }) => {
+        // Update child comments to remove parent reference
+        await req.payload.update({
+          collection: 'comments',
+          where: {
+            parent: {
+              equals: id,
+            },
+          },
+          data: {
+            parent: null, // TODO: verify that this doesn't break the parent-child relationship and that comments still render if the parent user is deleted
+          },
+        })
+      },
+    ],
+  },
   fields: [
     {
       name: 'content',
@@ -19,6 +37,28 @@ export const Comments: CollectionConfig = {
       type: 'relationship',
       relationTo: 'users',
       required: true,
+      hooks: {
+        beforeChange: [
+          async ({ value, req }) => {
+            // If the user is being deleted, mark their comments as deleted
+            if (!value && req.user?.id) {
+              await req.payload.update({
+                collection: 'comments',
+                where: {
+                  user: {
+                    equals: req.user.id,
+                  },
+                },
+                data: {
+                  deleted: true,
+                  content: "[User's account was deleted]",
+                },
+              })
+            }
+            return value
+          },
+        ],
+      },
     },
     {
       name: 'challenge',

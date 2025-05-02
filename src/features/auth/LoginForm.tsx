@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/Button'
 import { signIn } from 'next-auth/react'
 import Link from 'next/link'
 import Image from 'next/image'
+import LoadingSpinner from '@/components/ui/icons/LoadingSpinner'
 
 export default function LoginForm() {
   const [isLoading, setIsLoading] = useState(false)
@@ -37,20 +38,7 @@ export default function LoginForm() {
       >
         {isLoading ? (
           <span className="flex items-center justify-center">
-            <svg
-              className="animate-spin -ml-1 mr-3 h-5 w-5 text-gray-700"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48l2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48l2.83-2.83"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
+            <LoadingSpinner />
             Signing in...
           </span>
         ) : (

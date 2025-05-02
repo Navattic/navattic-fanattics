@@ -6,7 +6,7 @@ import { cva } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui'
 import { Icon, IconName } from '@/components/ui/Icon'
-import { Tooltip } from '@/components/ui/ Tooltip'
+import { Tooltip } from '@/components/ui/Tooltip'
 
 export interface FieldSetProps
   extends Omit<React.ComponentPropsWithoutRef<'fieldset'>, 'children'> {
@@ -167,7 +167,7 @@ export const Label = ({
         </Tooltip>
       )
     } else if (isOptional) {
-      return <span className={cn('text-sm font-normal leading-none text-gray-500')}>optional</span>
+      return <span className={cn('text-sm leading-none font-normal text-gray-500')}>optional</span>
     } else {
       return null
     }

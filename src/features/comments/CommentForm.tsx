@@ -11,6 +11,8 @@ interface CommentFormProps {
   challenge: Challenge
 }
 
+// TOOD: make sure deleted comments get moved to the bottom of the list
+
 function CommentForm({ user, challenge }: CommentFormProps) {
   const [comment, setComment] = useState('')
   const [status, setStatus] = useState<'idle' | 'executing' | 'error'>('idle')
@@ -47,11 +49,11 @@ function CommentForm({ user, challenge }: CommentFormProps) {
   return (
     <div className="flex gap-3">
       <div>
-        <Avatar user={user} />
+        <Avatar user={user} showCompany={true} />
       </div>
-      <form className="flex flex-col gap-3 w-full" onSubmit={handleSubmit}>
+      <form className="flex w-full flex-col gap-3" onSubmit={handleSubmit}>
         <textarea
-          className="w-full bg-white border rounded-lg p-3 h-24 resize-none"
+          className="h-24 w-full resize-none rounded-lg border bg-white p-3"
           placeholder="Add a comment"
           value={comment}
           onChange={(e) => setComment(e.target.value)}

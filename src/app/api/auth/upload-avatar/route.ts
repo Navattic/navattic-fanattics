@@ -35,7 +35,7 @@ export async function POST(req: Request) {
       }),
     )
 
-    // 3. Upload to Payload's REST API
+    // 3. Upload to Payload
     const uploadedAvatar = await payload.create({
       collection: 'avatars',
       data: {
