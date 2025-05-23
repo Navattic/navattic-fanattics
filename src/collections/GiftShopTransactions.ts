@@ -5,7 +5,7 @@ export const GiftShopTransactions: CollectionConfig = {
   admin: {
     useAsTitle: 'id',
     defaultColumns: ['user', 'product', 'status', 'createdAt'],
-    group: 'Gift Shop',
+    group: 'Transactions',
   },
   access: {
     read: () => true, // You might want to restrict this based on your requirements
@@ -76,32 +76,32 @@ export const GiftShopTransactions: CollectionConfig = {
         {
           name: 'name',
           type: 'text',
-          required: true,
+          required: false,
         },
         {
           name: 'address',
           type: 'text',
-          required: true,
+          required: false,
         },
         {
           name: 'city',
           type: 'text',
-          required: true,
+          required: false,
         },
         {
           name: 'state',
           type: 'text',
-          required: true,
+          required: false,
         },
         {
           name: 'zipCode',
           type: 'text',
-          required: true,
+          required: false,
         },
         {
           name: 'country',
           type: 'text',
-          required: true,
+          required: false,
         },
       ],
       admin: {
@@ -148,13 +148,6 @@ export const GiftShopTransactions: CollectionConfig = {
       type: 'date',
       admin: {
         description: 'Date when the product was fulfilled',
-      },
-    },
-    {
-      name: 'cancellationReason',
-      type: 'textarea',
-      admin: {
-        description: 'Reason for cancellation, if applicable',
       },
     },
   ],

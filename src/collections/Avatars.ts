@@ -2,6 +2,9 @@ import type { CollectionConfig } from 'payload'
 
 export const Avatars: CollectionConfig = {
   slug: 'avatars',
+  admin: {
+    group: 'Data',
+  },
   access: {
     read: () => true,
   },

@@ -397,13 +397,13 @@ export interface GiftShopTransaction {
   /**
    * Shipping address for the redeemed product
    */
-  shippingAddress: {
-    name: string;
-    address: string;
-    city: string;
-    state: string;
-    zipCode: string;
-    country: string;
+  shippingAddress?: {
+    name?: string | null;
+    address?: string | null;
+    city?: string | null;
+    state?: string | null;
+    zipCode?: string | null;
+    country?: string | null;
   };
   /**
    * Shipping tracking information
@@ -425,10 +425,6 @@ export interface GiftShopTransaction {
    * Date when the product was fulfilled
    */
   fulfillmentDate?: string | null;
-  /**
-   * Reason for cancellation, if applicable
-   */
-  cancellationReason?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -748,7 +744,6 @@ export interface GiftShopTransactionsSelect<T extends boolean = true> {
   adminNotes?: T;
   userNotes?: T;
   fulfillmentDate?: T;
-  cancellationReason?: T;
   updatedAt?: T;
   createdAt?: T;
 }

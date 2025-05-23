@@ -8,6 +8,7 @@ export const Ledger: CollectionConfig = {
   },
   admin: {
     useAsTitle: 'user_id',
+    group: 'Transactions',
   },
   access: {
     read: () => true, // You may want to restrict this based on your requirements
@@ -48,4 +49,3 @@ export const Ledger: CollectionConfig = {
     },
   ],
 }
-

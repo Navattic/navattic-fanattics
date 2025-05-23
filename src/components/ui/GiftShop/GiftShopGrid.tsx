@@ -5,7 +5,7 @@ import Image from 'next/image'
 import { Button, Badge, Icon } from '@/components/ui'
 import { useState } from 'react'
 import RedeemProductModal from './RedeemProductModal'
-import { redeemProduct } from '@/app/(core)/gift-shop/actions'
+import { redeemProduct } from '@/features/giftShop/actions'
 
 const ProductCard = ({
   product,

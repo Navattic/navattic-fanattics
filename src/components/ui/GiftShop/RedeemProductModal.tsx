@@ -6,7 +6,6 @@ import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import ReactConfetti from 'react-confetti'
 import { useWindowSize } from 'react-use'
-import { revalidatePath } from 'next/cache'
 
 interface RedeemProductModalProps {
   isOpen: boolean
@@ -60,7 +59,6 @@ function RedeemProductModal({
   }
 
   const handleBackToShop = () => {
-    revalidatePath('/gift-shop')
     onClose()
   }
 

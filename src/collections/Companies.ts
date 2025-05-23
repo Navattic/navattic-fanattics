@@ -3,6 +3,7 @@ import type { CollectionConfig } from 'payload'
 export const Companies: CollectionConfig = {
   slug: 'companies',
   admin: {
+    group: 'Data',
     useAsTitle: 'name',
   },
   access: {

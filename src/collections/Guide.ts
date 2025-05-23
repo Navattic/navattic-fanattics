@@ -3,6 +3,9 @@ import type { GlobalConfig } from 'payload'
 export const Guide: GlobalConfig = {
   slug: 'guide',
   label: 'Rules & Guide',
+  admin: {
+    group: 'Collections',
+  },
   access: {
     read: () => true,
     update: () => true,
