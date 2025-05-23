@@ -21,16 +21,16 @@ const Challenges = async () => {
     })
   ).docs
 
-  const sessionUser = (
-    await payload.find({
-      collection: 'users',
-      where: {
-        email: {
-          equals: session?.user?.email,
+    const sessionUser = (
+      await payload.find({
+        collection: 'users',
+        where: {
+          email: {
+            equals: session?.user?.email,
+          },
         },
-      },
-    })
-  ).docs[0]
+      })
+    ).docs[0]
 
   const userLedgerEntries = (
     await payload.find({

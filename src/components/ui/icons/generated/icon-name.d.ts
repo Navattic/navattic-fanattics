@@ -56,6 +56,7 @@ export type IconName =
   | 'flag'
   | 'fullscreen'
   | 'gallery-vertical-end'
+  | 'gift'
   | 'globe-lock'
   | 'globe'
   | 'hand-coins'

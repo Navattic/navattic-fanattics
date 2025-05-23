@@ -3,6 +3,7 @@ import Avatar from '../Avatar'
 import { calculateUserNumComments } from '@/lib/users/numComments'
 // import { Badge } from '../Badge'
 import { Icon } from '../Icon'
+import OpenProfileDrawer from '../UserProfilePreviewModal/OpenProfileDrawer'
 
 const PodiumCard = async ({
   user,
@@ -45,7 +46,10 @@ const PodiumCard = async ({
             {position === 1 ? 'st' : position === 2 ? 'nd' : 'rd'} Place
           </div>
         </div>
-        <div className="flex flex-col items-center pr-1 pl-4 @[300px]:flex-row">
+        <OpenProfileDrawer
+          user={user}
+          className="flex flex-col items-center pr-1 pl-4 @[300px]:flex-row"
+        >
           <Avatar user={user} size="lg" showCompany={true} />
           <div className="mt-2 ml-0 text-center @[300px]:mt-0 @[300px]:ml-3 @[300px]:text-left">
             <div className="text-base font-semibold text-gray-800 capitalize">
@@ -53,7 +57,7 @@ const PodiumCard = async ({
             </div>
             {user.email && <div className="text-xs text-gray-500">{user.email}</div>}
           </div>
-        </div>
+        </OpenProfileDrawer>
         <div className="flex w-full justify-between gap-2 px-1">
           <div className="flex flex-1 flex-col items-center gap-1 rounded-tl-[8px] rounded-tr-[8px] rounded-br-[8px] rounded-bl-[12px] bg-gray-50 p-2 px-2">
             <div className="text-base font-semibold text-gray-600">

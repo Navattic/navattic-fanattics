@@ -25,7 +25,7 @@ const buttonVariants = cva(
         xs: 'h-6 rounded-lg text-xs gap-x-1.5 px-2.5', // 24px
         sm: 'h-7 rounded-lg text-sm gap-x-1.5 px-2.5', // 28px
         md: 'h-8 rounded-lg text-sm gap-x-1.5 px-3', // 32px
-        lg: 'h-10 rounded-[10px] text-md gap-x-2 px-3.5', // 40px
+        lg: 'h-10 rounded-[10px] text-sm gap-x-2 px-3.5', // 40px
       },
     },
     defaultVariants: {

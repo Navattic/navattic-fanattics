@@ -20,6 +20,7 @@ export interface Config {
     avatars: Avatar;
     companies: Company;
     'company-logos': CompanyLogo;
+    Products: Product;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
@@ -35,6 +36,7 @@ export interface Config {
     avatars: AvatarsSelect<false> | AvatarsSelect<true>;
     companies: CompaniesSelect<false> | CompaniesSelect<true>;
     'company-logos': CompanyLogosSelect<false> | CompanyLogosSelect<true>;
+    Products: ProductsSelect<false> | ProductsSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
@@ -333,6 +335,43 @@ export interface Comment {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "Products".
+ */
+export interface Product {
+  id: number;
+  /**
+   * The name of the product
+   */
+  title: string;
+  /**
+   * Product description (max 185 characters)
+   */
+  description: string;
+  /**
+   * Short description of the product for checkout (max 55 characters)
+   */
+  shortDescription: string;
+  /**
+   * Price of the product in points (10 points = 1$)
+   */
+  price: number;
+  /**
+   * Ideally with a transparent background
+   */
+  image: number | Media;
+  /**
+   * Users who have redeemed the product
+   */
+  redeemedBy?: (number | User)[] | null;
+  /**
+   * Check if the product is currently available
+   */
+  isActive?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
@@ -373,6 +412,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'company-logos';
         value: number | CompanyLogo;
+      } | null)
+    | ({
+        relationTo: 'Products';
+        value: number | Product;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -592,6 +635,21 @@ export interface CompanyLogosSelect<T extends boolean = true> {
   alt?: T;
   defaultUrl?: T;
   uploadedLogo?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "Products_select".
+ */
+export interface ProductsSelect<T extends boolean = true> {
+  title?: T;
+  description?: T;
+  shortDescription?: T;
+  price?: T;
+  image?: T;
+  redeemedBy?: T;
+  isActive?: T;
   updatedAt?: T;
   createdAt?: T;
 }

@@ -18,6 +18,7 @@ import {
   Events,
   Guide,
   CompanyLogos,
+  Products,
 } from './collections'
 
 const filename = fileURLToPath(import.meta.url)
@@ -41,6 +42,7 @@ export default buildConfig({
     Avatars,
     Companies,
     CompanyLogos,
+    Products,
   ],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',

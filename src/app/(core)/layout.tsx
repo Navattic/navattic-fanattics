@@ -39,24 +39,23 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     redirect('/login')
   }
 
-  const userData = await payload.find({
-    collection: 'users',
-    where: {
-      email: {
-        equals: session?.user.email,
+  const currentUser = (
+    await payload.find({
+      collection: 'users',
+      where: {
+        email: {
+          equals: session?.user.email,
+        },
       },
-    },
-  })
-
-  const user = userData.docs[0]
-
+    })
+  ).docs[0]
 
   return (
     <html lang="en" className={`${suisse.variable} font-sans`}>
       <body>
-        <Providers>
-          <AppSidebar user={user} />
-          <main className="w-full mx-auto">{children}</main>
+        <Providers user={currentUser}>
+          <AppSidebar />
+          <main className="mx-auto w-full">{children}</main>
         </Providers>
       </body>
     </html>

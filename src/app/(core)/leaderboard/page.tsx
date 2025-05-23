@@ -7,6 +7,7 @@ import PageTitle from '@/components/ui/PageTitle'
 import { Button } from '@/components/ui/Button'
 import { Icon } from '@/components/ui'
 import { User } from '@/payload-types'
+import OpenProfileDrawer from '@/components/ui/UserProfilePreviewModal/OpenProfileDrawer'
 
 interface UserWithStats {
   user: User

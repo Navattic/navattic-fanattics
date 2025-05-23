@@ -9,6 +9,7 @@ import { Container } from '@/components/ui/Container'
 import { formatDate } from '@/utils/formatDate'
 import { Badge, Icon } from '@/components/ui'
 import { formatTimeRemaining } from '@/utils/formatTimeRemaining'
+import { useUser } from '@/components/Providers'
 
 const ChallengePage = async ({ params }: { params: Promise<{ slug: string }> }) => {
   const { slug } = await params

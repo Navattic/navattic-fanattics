@@ -33,11 +33,10 @@ import {
 import { NavatticLogo } from './NavatticLogo'
 import Link from 'next/link'
 import { signIn, signOut, useSession } from 'next-auth/react'
-import Image from 'next/image'
 import { usePathname } from 'next/navigation'
-import { User } from '@/payload-types'
 import React from 'react'
 import Avatar from './Avatar'
+import { useUser } from '../Providers'
 
 const items = [
   {
@@ -82,9 +81,10 @@ const items = [
   },
 ]
 
-export function AppSidebar({ user }: { user: User }) {
+export function AppSidebar() {
   const { data: session } = useSession()
   const pathname = usePathname()
+  const user = useUser()
 
   const footerItems = [
     {
@@ -151,7 +151,7 @@ export function AppSidebar({ user }: { user: User }) {
                     <div className="flex w-full items-center justify-between">
                       <div className="flex items-center gap-2 text-sm font-medium text-gray-600 capitalize">
                         {user?.avatar && typeof user.avatar !== 'number' && (
-                          <Avatar user={user} size="sm" showCompany={true} />
+                          <Avatar user={user} size="sm" showCompany={false} />
                         )}
                         {user?.firstName} {user?.lastName}
                       </div>

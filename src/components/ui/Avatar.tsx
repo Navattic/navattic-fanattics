@@ -43,14 +43,6 @@ export default function Avatar({
   // Check if the URL is a valid Brandfetch URL
   const isValidBrandfetchUrl = companyLogoSrc?.includes('cdn.brandfetch.io')
 
-  console.log('Company logo debug:', {
-    company,
-    logoSrc,
-    companyLogoSrc,
-    isValidBrandfetchUrl,
-    type: typeof companyLogoSrc,
-  })
-
   return (
     <div
       className={cn(
