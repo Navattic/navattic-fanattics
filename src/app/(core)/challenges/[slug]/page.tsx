@@ -9,7 +9,7 @@ import { Container } from '@/components/ui/Container'
 import { formatDate } from '@/utils/formatDate'
 import { Badge, Icon } from '@/components/ui'
 import { formatTimeRemaining } from '@/utils/formatTimeRemaining'
-import { useUser } from '@/components/Providers'
+import { calculateUserPoints } from '@/lib/users/points'
 
 const ChallengePage = async ({ params }: { params: Promise<{ slug: string }> }) => {
   const { slug } = await params
@@ -55,9 +55,11 @@ const ChallengePage = async ({ params }: { params: Promise<{ slug: string }> }) 
     (ledger) => typeof ledger.user_id === 'object' && ledger.user_id?.id === sessionUser.id,
   )
 
+  const userPoints = await calculateUserPoints({ user: sessionUser })
+
   return (
     <>
-      <PageHeader />
+      <PageHeader userPoints={userPoints} />
       <div className="bg-gray-50 min-h-screen">
         <Container className="pt-10">
           <div className="content-container">

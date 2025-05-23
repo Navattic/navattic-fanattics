@@ -19,6 +19,7 @@ import {
   Guide,
   CompanyLogos,
   Products,
+  GiftShopTransactions,
 } from './collections'
 
 const filename = fileURLToPath(import.meta.url)
@@ -43,6 +44,7 @@ export default buildConfig({
     Companies,
     CompanyLogos,
     Products,
+    GiftShopTransactions,
   ],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',

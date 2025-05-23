@@ -21,8 +21,7 @@ const StatisticCard = ({
   )
 }
 
-const Statistics = async ({ user }: { user: User }) => {
-  const userPoints = await calculateUserPoints({ user })
+const Statistics = async ({ user, userPoints }: { user: User, userPoints: number }) => {
   // TODO: use real data
 
   const StatisticData = [

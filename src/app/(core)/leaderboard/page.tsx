@@ -7,7 +7,10 @@ import PageTitle from '@/components/ui/PageTitle'
 import { Button } from '@/components/ui/Button'
 import { Icon } from '@/components/ui'
 import { User } from '@/payload-types'
-import OpenProfileDrawer from '@/components/ui/UserProfilePreviewModal/OpenProfileDrawer'
+// import OpenProfileDrawer from '@/components/ui/UserProfilePreviewModal/OpenProfileDrawer'
+import { calculateUserPoints } from '@/lib/users/points'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/authOptions'
 
 interface UserWithStats {
   user: User
@@ -97,9 +100,24 @@ const Leaderboard = async () => {
     return 0
   })
 
+  const session = await getServerSession(authOptions)
+  
+  const sessionUser = (
+    await payload.find({
+      collection: 'users',
+      where: {
+        email: {
+          equals: session?.user?.email,
+        },
+      },
+    })
+  ).docs[0] 
+
+  const currentUserPoints = await calculateUserPoints({ user: sessionUser })
+
   return (
     <>
-      <PageHeader />
+      <PageHeader userPoints={currentUserPoints} />
       <div className="min-h-screen bg-gray-50">
         <Container className="max-w-6xl">
           <PageTitle

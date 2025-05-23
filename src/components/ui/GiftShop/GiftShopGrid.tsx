@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { Button, Badge, Icon } from '@/components/ui'
 import { useState } from 'react'
 import RedeemProductModal from './RedeemProductModal'
+import { redeemProduct } from '@/app/(core)/gift-shop/actions'
 
 const ProductCard = ({
   product,
@@ -17,16 +18,33 @@ const ProductCard = ({
 }) => {
   const image = product.image as Media
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isRedeeming, setIsRedeeming] = useState(false)
   const hasEnoughPoints = userPoints >= product.price
 
   const handleRedeem = () => {
     setIsModalOpen(true)
   }
 
-  const handleConfirmRedeem = () => {
-    // TODO: Implement redemption logic
-    // Remove the setTimeout that was automatically closing the modal
-    // The modal will now stay open until user clicks close
+  const handleConfirmRedeem = async () => {
+    try {
+      setIsRedeeming(true)
+      const result = await redeemProduct({
+        productId: product.id,
+        userId: user.id,
+        points: product.price,
+        productTitle: product.title,
+      })
+
+      if (!result.success) {
+        throw new Error(result.error)
+      }
+
+      // The modal will handle the flip animation
+    } catch (error) {
+      console.error('Error redeeming product:', error)
+    } finally {
+      setIsRedeeming(false)
+    }
   }
 
   return (
@@ -73,6 +91,7 @@ const ProductCard = ({
         user={user}
         userPoints={userPoints}
         onConfirm={handleConfirmRedeem}
+        isRedeeming={isRedeeming}
       />
     </>
   )

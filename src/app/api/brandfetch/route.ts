@@ -8,15 +8,15 @@ type BrandfetchLogoFormat = {
   src: string
 }
 
-type BrandfetchLogo = {
-  type: string
-  formats: Array<BrandfetchLogoFormat>
-}
+// type BrandfetchLogo = {
+//   type: string
+//   formats: Array<BrandfetchLogoFormat>
+// }
 
-type BrandfetchLink = {
-  type: string
-  url: string
-}
+// type BrandfetchLink = {
+//   type: string
+//   url: string
+// }
 
 export async function GET(req: NextRequest) {
   try {

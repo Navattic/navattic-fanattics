@@ -8,10 +8,13 @@ import { Badge, Button, Icon, Link } from '@/components/ui'
 import { ArrowUpRightIcon } from 'lucide-react'
 import { formatDate } from '@/utils/formatDate'
 import Empty from '@/components/ui/Empty'
+import { calculateUserPoints } from '@/lib/users/points'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/authOptions'
 
 const EventEntry = ({ event, isPastEvent }: { event: Event; isPastEvent?: boolean }) => {
   return (
-    <div className="p-4 pl-6 bg-white rounded-3xl border border-gray-100 inset-shadow flex justify-between [:last-child]:mb-20">
+    <div className="inset-shadow flex justify-between rounded-3xl border border-gray-100 bg-white p-4 pl-6 [:last-child]:mb-20">
       <div className="flex flex-col justify-between p-2 pr-8">
         <div className="space-y-2">
           <div className="text-lg font-semibold text-gray-800">{event.title}</div>
@@ -22,16 +25,16 @@ const EventEntry = ({ event, isPastEvent }: { event: Event; isPastEvent?: boolea
             </Button>
           )}
         </div>
-        <div className="flex flex-col gap-4 mt-5">
+        <div className="mt-5 flex flex-col gap-4">
           <div className="flex items-center gap-3">
-            <div className="grid place-items-center border border-gray-200 rounded-md aspect-square h-full w-auto min-w-8 min-h-8">
+            <div className="grid aspect-square h-full min-h-8 w-auto min-w-8 place-items-center rounded-md border border-gray-200">
               <Icon name="map-pin" className="size- 4 text-gray-400" />
             </div>
             <div className="text-sm text-gray-500">
-              <div className="text-gray-800 font-semibold">
+              <div className="font-semibold text-gray-800">
                 <Link href={event.location.link ?? ''} target="_blank" className="group flex">
                   {event.location.name}
-                  <ArrowUpRightIcon className="size-4 opacity-50 group-hover:opacity-100 transition-all duration-200 group-hover:scale-[104%] group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                  <ArrowUpRightIcon className="size-4 opacity-50 transition-all duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:scale-[104%] group-hover:opacity-100" />
                 </Link>
               </div>
               <div className="whitespace-nowrap">
@@ -46,11 +49,11 @@ const EventEntry = ({ event, isPastEvent }: { event: Event; isPastEvent?: boolea
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <div className="grid place-items-center border border-gray-200 rounded-md aspect-square h-full w-auto min-w-8 min-h-8">
+            <div className="grid aspect-square h-full min-h-8 w-auto min-w-8 place-items-center rounded-md border border-gray-200">
               <Icon name="calendar" className="size-4 text-gray-400" />
             </div>
             <div className="text-sm text-gray-500">
-              <div className="text-gray-800 font-semibold">{event.date.displayDate}</div>
+              <div className="font-semibold text-gray-800">{event.date.displayDate}</div>
               <div className="whitespace-nowrap">
                 {formatDate(event.date.startTime, {
                   includeMonth: false,
@@ -80,7 +83,7 @@ const EventEntry = ({ event, isPastEvent }: { event: Event; isPastEvent?: boolea
         alt={(event.image as Media)?.alt ?? event.title}
         width={200}
         height={200}
-        className="h-fit min-h-[175px] min-w-[175px] object-cover rounded-xl border border-gray-100"
+        className="h-fit min-h-[175px] min-w-[175px] rounded-xl border border-gray-100 object-cover"
       />
     </div>
   )
@@ -98,13 +101,27 @@ const EventSchedule = async () => {
     (event) => new Date(event.date.endTime ?? event.date.startTime) < new Date(),
   )
 
+  const session = await getServerSession(authOptions)
+  const sessionUser = (
+    await payload.find({
+      collection: 'users',
+      where: {
+        email: {
+          equals: session?.user?.email,
+        },
+      },
+    })
+  ).docs[0]
+
+  const userPoints = await calculateUserPoints({ user: sessionUser })
+
   return (
     <>
-      <PageHeader title="Event Schedule" />
-      <div className="bg-gray-50 min-h-screen">
+      <PageHeader title="Event Schedule" userPoints={userPoints} />
+      <div className="min-h-screen bg-gray-50">
         <Container>
           <PageTitle title="Event Schedule" />
-          <div className="mt-8 text-md font-semibold text-gray-600 mb-3">Upcoming Events</div>
+          <div className="text-md mt-8 mb-3 font-semibold text-gray-600">Upcoming Events</div>
           {upcomingEvents.length > 0 ? (
             <div className="flex flex-col gap-4">
               {upcomingEvents.map((event) => (
@@ -114,7 +131,7 @@ const EventSchedule = async () => {
           ) : (
             <Empty title="No upcoming events" iconName="calendar" />
           )}
-          <div className="mt-8 text-md font-semibold text-gray-600 mb-3">Past Events</div>
+          <div className="text-md mt-8 mb-3 font-semibold text-gray-600">Past Events</div>
           {pastEvents.length > 0 ? (
             <div className="flex flex-col gap-4">
               {pastEvents.map((event) => (

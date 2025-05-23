@@ -37,11 +37,9 @@ const GiftShop = async () => {
 
   const userPoints = await calculateUserPoints({ user: sessionUser })
 
-  console.log(userPoints)
-
   return (
     <>
-      <PageHeader title="Gift Shop" />
+      <PageHeader title="Gift Shop" userPoints={userPoints} />
       <div className="min-h-screen bg-gray-50">
         <Container>
           <PageTitle

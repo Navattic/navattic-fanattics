@@ -1,4 +1,4 @@
-import type { User, Avatar, Company, CompanyLogo } from '@/payload-types'
+import type { User, Avatar } from '@/payload-types'
 import Image from 'next/image'
 import { cn } from '@/lib/utils'
 import clsx from 'clsx'

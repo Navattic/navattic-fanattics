@@ -1,15 +1,14 @@
 'use client'
 
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
-import { MessageSquareIcon } from 'lucide-react'
 import { usePathname } from 'next/navigation'
 
-const PageHeader = ({ title }: { title?: string }) => {
+const PageHeader = ({ title, userPoints }: { title?: string; userPoints: number }) => {
   const pathname = usePathname()
 
   return (
-    <div className="w-full sticky top-0 z-10 bg-white border-b border-gray-100">
-      <div className="flex items-center justify-between w-full max-w-6xl mx-auto px-8 py-3">
+    <div className="sticky top-0 z-10 w-full border-b border-gray-100 bg-white">
+      <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-8 py-3">
         {pathname === '/' ? (
           title ? (
             <span className="text-sm font-medium text-gray-800 capitalize" aria-current="page">
@@ -17,16 +16,13 @@ const PageHeader = ({ title }: { title?: string }) => {
             </span>
           ) : (
             <span className="text-sm font-medium text-gray-800 capitalize" aria-current="page">
-              'Home'
+              &ldquo;Home&rdquo;
             </span>
           )
         ) : (
           <Breadcrumbs title={title} />
         )}
-        <div className="flex items-center gap-2 text-sm text-gray-600">
-          <MessageSquareIcon className="h-4 w-4 text-gray-400" />
-          Feedback
-        </div>
+        <div className="text-sm font-medium text-gray-800">Current Balance: {userPoints}</div>
       </div>
     </div>
   )

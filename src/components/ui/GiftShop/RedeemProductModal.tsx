@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import ReactConfetti from 'react-confetti'
 import { useWindowSize } from 'react-use'
+import { revalidatePath } from 'next/cache'
 
 interface RedeemProductModalProps {
   isOpen: boolean
@@ -14,6 +15,7 @@ interface RedeemProductModalProps {
   user: User
   onConfirm: () => void
   userPoints: number
+  isRedeeming: boolean
 }
 
 function RedeemProductModal({
@@ -23,6 +25,7 @@ function RedeemProductModal({
   user,
   onConfirm,
   userPoints,
+  isRedeeming,
 }: RedeemProductModalProps) {
   const [isFlipped, setIsFlipped] = useState(false)
   const [showConfetti, setShowConfetti] = useState(false)
@@ -54,6 +57,11 @@ function RedeemProductModal({
     setIsFlipped(true)
     setShowConfetti(true)
     onConfirm()
+  }
+
+  const handleBackToShop = () => {
+    revalidatePath('/gift-shop')
+    onClose()
   }
 
   return (
@@ -134,8 +142,21 @@ function RedeemProductModal({
                   >
                     Cancel
                   </Button>
-                  <Button variant="solid" colorScheme="brand" onClick={handleConfirm}>
-                    Confirm redemption <Icon name="gift" />
+                  <Button
+                    variant="solid"
+                    colorScheme="brand"
+                    onClick={handleConfirm}
+                    disabled={isRedeeming}
+                  >
+                    {isRedeeming ? (
+                      <>
+                        Processing... <Icon name="spinner" />
+                      </>
+                    ) : (
+                      <>
+                        Confirm redemption <Icon name="gift" />
+                      </>
+                    )}
                   </Button>
                 </div>
               </div>
@@ -157,7 +178,7 @@ function RedeemProductModal({
                   </p>
                 </div>
               </div>
-              <Button variant="ghost" onClick={onClose}>
+              <Button variant="ghost" onClick={handleBackToShop}>
                 Back to Gift Shop <Icon name="arrow-right" />
               </Button>
             </div>

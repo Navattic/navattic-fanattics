@@ -21,6 +21,7 @@ export interface Config {
     companies: Company;
     'company-logos': CompanyLogo;
     Products: Product;
+    'gift-shop-transactions': GiftShopTransaction;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
@@ -37,6 +38,7 @@ export interface Config {
     companies: CompaniesSelect<false> | CompaniesSelect<true>;
     'company-logos': CompanyLogosSelect<false> | CompanyLogosSelect<true>;
     Products: ProductsSelect<false> | ProductsSelect<true>;
+    'gift-shop-transactions': GiftShopTransactionsSelect<false> | GiftShopTransactionsSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
@@ -372,6 +374,66 @@ export interface Product {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "gift-shop-transactions".
+ */
+export interface GiftShopTransaction {
+  id: number;
+  /**
+   * User who redeemed the product
+   */
+  user: number | User;
+  /**
+   * Product that was redeemed
+   */
+  product: number | Product;
+  /**
+   * Reference to the ledger entry for this redemption
+   */
+  ledgerEntry: number | Ledger;
+  /**
+   * Current status of the redemption
+   */
+  status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
+  /**
+   * Shipping address for the redeemed product
+   */
+  shippingAddress: {
+    name: string;
+    address: string;
+    city: string;
+    state: string;
+    zipCode: string;
+    country: string;
+  };
+  /**
+   * Shipping tracking information
+   */
+  trackingInfo?: {
+    carrier?: string | null;
+    trackingNumber?: string | null;
+    estimatedDelivery?: string | null;
+  };
+  /**
+   * Internal notes for admins
+   */
+  adminNotes?: string | null;
+  /**
+   * Notes from the user (e.g., special requests)
+   */
+  userNotes?: string | null;
+  /**
+   * Date when the product was fulfilled
+   */
+  fulfillmentDate?: string | null;
+  /**
+   * Reason for cancellation, if applicable
+   */
+  cancellationReason?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
@@ -416,6 +478,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'Products';
         value: number | Product;
+      } | null)
+    | ({
+        relationTo: 'gift-shop-transactions';
+        value: number | GiftShopTransaction;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -650,6 +716,39 @@ export interface ProductsSelect<T extends boolean = true> {
   image?: T;
   redeemedBy?: T;
   isActive?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "gift-shop-transactions_select".
+ */
+export interface GiftShopTransactionsSelect<T extends boolean = true> {
+  user?: T;
+  product?: T;
+  ledgerEntry?: T;
+  status?: T;
+  shippingAddress?:
+    | T
+    | {
+        name?: T;
+        address?: T;
+        city?: T;
+        state?: T;
+        zipCode?: T;
+        country?: T;
+      };
+  trackingInfo?:
+    | T
+    | {
+        carrier?: T;
+        trackingNumber?: T;
+        estimatedDelivery?: T;
+      };
+  adminNotes?: T;
+  userNotes?: T;
+  fulfillmentDate?: T;
+  cancellationReason?: T;
   updatedAt?: T;
   createdAt?: T;
 }

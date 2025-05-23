@@ -53,6 +53,7 @@ export async function POST(req: Request) {
       collection: 'company-logos',
       data: {
         alt: `${companyName || 'Company'} logo`,
+        // @ts-ignore
         url: url,
       },
       file: {
@@ -64,6 +65,7 @@ export async function POST(req: Request) {
     })
 
     return NextResponse.json({
+      // @ts-ignore
       url: uploadedLogo.url,
       id: uploadedLogo.id,
     })

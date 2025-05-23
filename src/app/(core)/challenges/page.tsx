@@ -9,7 +9,7 @@ import { getServerSession } from 'next-auth'
 import { Icon } from '@/components/ui'
 import { Button } from '@/components/ui'
 import Empty from '@/components/ui/Empty'
-
+import { calculateUserPoints } from '@/lib/users/points'
 const payload = await getPayload({ config })
 
 const Challenges = async () => {
@@ -21,16 +21,16 @@ const Challenges = async () => {
     })
   ).docs
 
-    const sessionUser = (
-      await payload.find({
-        collection: 'users',
-        where: {
-          email: {
-            equals: session?.user?.email,
-          },
+  const sessionUser = (
+    await payload.find({
+      collection: 'users',
+      where: {
+        email: {
+          equals: session?.user?.email,
         },
-      })
-    ).docs[0]
+      },
+    })
+  ).docs[0]
 
   const userLedgerEntries = (
     await payload.find({
@@ -53,10 +53,12 @@ const Challenges = async () => {
     .filter((challenge) => new Date(challenge.deadline) <= new Date())
     .sort((a, b) => new Date(b.deadline).getTime() - new Date(a.deadline).getTime())
 
+  const userPoints = await calculateUserPoints({ user: sessionUser })
+
   return (
     <>
-      <PageHeader />
-      <div className="bg-gray-50 min-h-screen">
+      <PageHeader userPoints={userPoints} />
+      <div className="min-h-screen bg-gray-50">
         <Container>
           <PageTitle
             title="Challenges"
@@ -67,7 +69,7 @@ const Challenges = async () => {
               </Button>
             }
           />
-          <div className="mt-8 text-md font-semibold text-gray-600 mb-3">Recent Challenges</div>
+          <div className="text-md mt-8 mb-3 font-semibold text-gray-600">Active Challenges</div>
           {upcomingChallenges.length > 0 ? (
             <ChallengesList
               challengesData={upcomingChallenges}
@@ -80,7 +82,7 @@ const Challenges = async () => {
               iconName="award"
             />
           )}
-          <div className="mt-8 text-md font-semibold text-gray-600 mb-3">Previous Challenges</div>
+          <div className="text-md mt-8 mb-3 font-semibold text-gray-600">Past Challenges</div>
           {pastChallenges.length > 0 ? (
             <ChallengesList challengesData={pastChallenges} userLedgerEntries={userLedgerEntries} />
           ) : (

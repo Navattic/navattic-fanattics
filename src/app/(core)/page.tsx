@@ -7,6 +7,7 @@ import { payload } from '@/lib/payloadClient'
 import PageTitle from '@/components/ui/PageTitle'
 import { Button } from '@/components/ui/Button'
 import { Icon } from '@/components/ui'
+import { calculateUserPoints } from '@/lib/users/points'
 
 const Home = async () => {
   const session = await getServerSession(authOptions)
@@ -36,11 +37,6 @@ const Home = async () => {
     })
   ).docs
 
-  const ledgerData = (
-    await payload.find({
-      collection: 'ledger',
-    })
-  ).docs
 
   const userLedgerEntries =
     sessionUser &&
@@ -55,34 +51,23 @@ const Home = async () => {
       })
     ).docs
 
-  // Helper function to calculate points for a user
-  const calculateUserPoints = (userId: number) => {
-    return ledgerData
-      .filter((entry) => {
-        const entryUserId = typeof entry.user_id === 'number' ? entry.user_id : entry.user_id.id
-        return entryUserId === userId
-      })
-      .reduce((total, entry) => total + entry.amount, 0)
-  }
+  const userPoints = await calculateUserPoints({ user: sessionUser })
 
-  const userPoints = calculateUserPoints(sessionUser.id)
-  const userHasPoints = `You have ${userPoints} points (
-    ${
-      challengesData.filter((challenge) =>
-        userLedgerEntries.some(
-          (ledger) =>
-            typeof ledger.challenge_id === 'object' && ledger.challenge_id?.id === challenge.id,
-        ),
-      ).length
-    }{' '}
-    challenge{userLedgerEntries.length === 1 ? '' : 's'} completed)`
+  const completedChallengesCount = challengesData.filter((challenge) =>
+    userLedgerEntries.some(
+      (ledger) =>
+        typeof ledger.challenge_id === 'object' && ledger.challenge_id?.id === challenge.id,
+    ),
+  ).length
+
+  const userHasPoints = `You have ${userPoints} points (${completedChallengesCount} challenge${completedChallengesCount === 1 ? '' : 's'} completed)`
 
   const userPointsDescription =
     userPoints === 0 ? 'No points yet - complete challenges to start earning!' : userHasPoints
 
   return (
     <>
-      <PageHeader title="Fanattic Portal" />
+      <PageHeader title="Fanattic Portal" userPoints={userPoints} />
       <div className="min-h-screen bg-gray-50">
         <Container className="max-w-6xl">
           <PageTitle

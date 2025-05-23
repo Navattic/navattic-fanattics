@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 
-export async function POST(req: Request) {
+export async function POST() {
   try {
     // const { email, password } = await req.json()
     return NextResponse.json({ message: 'User registered' })
@@ -9,4 +9,3 @@ export async function POST(req: Request) {
     return NextResponse.json({ message: 'Error registering user' }, { status: 500 })
   }
 }
-

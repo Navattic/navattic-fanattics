@@ -23,7 +23,7 @@ export function CompanyLogo({ src, alt, size = 4, className }: CompanyLogoProps)
   const imageUrl =
     typeof src === 'string' ? src : src && typeof src === 'object' && 'url' in src ? src.url : null
 
-  if (!imageUrl) {
+  if (!imageUrl || typeof imageUrl !== 'string') {
     return <Icon name="building" />
   }
 
