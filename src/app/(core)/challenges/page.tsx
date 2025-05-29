@@ -1,5 +1,4 @@
-import { getPayload } from 'payload'
-import config from '@/payload.config'
+import { payload } from '@/lib/payloadClient'
 import PageHeader from '@/components/ui/PageHeader'
 import PageTitle from '@/components/ui/PageTitle'
 import { Container } from '@/components/ui/Container'
@@ -10,50 +9,75 @@ import { Icon } from '@/components/ui'
 import { Button } from '@/components/ui'
 import Empty from '@/components/ui/Empty'
 import { calculateUserPoints } from '@/lib/users/points'
-const payload = await getPayload({ config })
+import { Challenge, Ledger, Comment } from '@/payload-types'
+
+interface PopulatedChallenge extends Challenge {
+  comments?: Comment[]
+  ledger?: Ledger[]
+}
 
 const Challenges = async () => {
   const session = await getServerSession(authOptions)
 
+  // Single query to get all challenges with their related data
   const challengesData = (
     await payload.find({
       collection: 'challenges',
-    })
-  ).docs
-
-  const sessionUser = (
-    await payload.find({
-      collection: 'users',
-      where: {
-        email: {
-          equals: session?.user?.email,
+      depth: 2,
+      populate: {
+        comments: {
+          status: true,
+          deleted: true,
+        },
+        ledger: {
+          user_id: true,
+          amount: true,
         },
       },
     })
-  ).docs[0]
+  ).docs as PopulatedChallenge[]
 
-  const userLedgerEntries = (
-    await payload.find({
-      collection: 'ledger',
-      where: {
-        user_id: {
-          equals: sessionUser.id,
-        },
-      },
-    })
-  ).docs
+  // Filter comments in memory
+  const filteredChallenges = challengesData.map((challenge) => ({
+    ...challenge,
+    comments: challenge.comments?.filter(
+      (comment) => comment.status === 'approved' && !comment.deleted,
+    ),
+  }))
 
-  // Sort challenges by deadline (expiring soonest appear first)
-  const upcomingChallenges = challengesData
+  // Get session user in a single query
+  const sessionUser = session?.user?.email
+    ? (
+        await payload.find({
+          collection: 'users',
+          where: {
+            email: { equals: session.user.email },
+          },
+          depth: 1,
+        })
+      ).docs[0]
+    : null
+
+  // Process challenges in memory
+  const upcomingChallenges = filteredChallenges
     .filter((challenge) => new Date(challenge.deadline) > new Date())
     .sort((a, b) => new Date(a.deadline).getTime() - new Date(b.deadline).getTime())
 
-  // Sort past challenges by deadline (oldest last)
   const pastChallenges = challengesData
     .filter((challenge) => new Date(challenge.deadline) <= new Date())
     .sort((a, b) => new Date(b.deadline).getTime() - new Date(a.deadline).getTime())
 
-  const userPoints = await calculateUserPoints({ user: sessionUser })
+  // Get user points if logged in
+  const userPoints = sessionUser ? await calculateUserPoints({ user: sessionUser }) : 0
+
+  // Get user's ledger entries from the populated data
+  const userLedgerEntries = sessionUser
+    ? challengesData
+        .flatMap((challenge) => challenge.ledger || [])
+        .filter(
+          (ledger) => typeof ledger.user_id === 'object' && ledger.user_id.id === sessionUser.id,
+        )
+    : []
 
   return (
     <>

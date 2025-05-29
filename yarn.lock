@@ -930,11 +930,6 @@
   dependencies:
     "@jridgewell/trace-mapping" "0.3.9"
 
-"@date-fns/tz@1.2.0":
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/@date-fns/tz/-/tz-1.2.0.tgz#81cb3211693830babaf3b96aff51607e143030a6"
-  integrity sha512-LBrd7MiJZ9McsOgxqWX7AaxrDjcFVjWH/tIKJd7pnR7McaslGYOP1QmmiBXdJH/H/yLCT+rcQ7FaPBUxRGUtrg==
-
 "@dnd-kit/accessibility@^3.0.0":
   version "3.1.1"
   resolved "https://registry.yarnpkg.com/@dnd-kit/accessibility/-/accessibility-3.1.1.tgz#3b4202bd6bb370a0730f6734867785919beac6af"
@@ -959,7 +954,7 @@
     "@dnd-kit/utilities" "^3.2.0"
     tslib "^2.0.0"
 
-"@dnd-kit/utilities@3.2.2", "@dnd-kit/utilities@^3.2.0", "@dnd-kit/utilities@^3.2.1":
+"@dnd-kit/utilities@^3.2.0", "@dnd-kit/utilities@^3.2.1":
   version "3.2.2"
   resolved "https://registry.yarnpkg.com/@dnd-kit/utilities/-/utilities-3.2.2.tgz#5a32b6af356dc5f74d61b37d6f7129a4040ced7b"
   integrity sha512-+MKAJEOfaBe5SmV6t34p80MMKhjvUz0vRrvVJbPT0WElzaOJ/1xs+D+KDv+tD/NE5ujfrChEcshd4fLn0wpiqg==
@@ -1508,11 +1503,6 @@
     focus-trap "7.5.4"
     react-transition-group "4.4.5"
 
-"@faceless-ui/scroll-info@2.0.0":
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/@faceless-ui/scroll-info/-/scroll-info-2.0.0.tgz#fd6d0145de52e833ce27f4ea5cd6e01101941430"
-  integrity sha512-BkyJ9OQ4bzpKjE3UhI8BhcG36ZgfB4run8TmlaR4oMFUbl59dfyarNfjveyimrxIso9RhFEja/AJ5nQmbcR9hw==
-
 "@faceless-ui/scroll-info@2.0.0-beta.0":
   version "2.0.0-beta.0"
   resolved "https://registry.yarnpkg.com/@faceless-ui/scroll-info/-/scroll-info-2.0.0-beta.0.tgz#ac2d86a8b221f7a8d75452b9f0024da94e1d18bf"
@@ -1522,11 +1512,6 @@
   version "3.0.0-beta.0"
   resolved "https://registry.yarnpkg.com/@faceless-ui/window-info/-/window-info-3.0.0-beta.0.tgz#628c2c46b2fdddd17916153ca41c4dbe1340c1cf"
   integrity sha512-Qs8xRA+fl4sU2aFVe9xawxfi5TVZ9VTPuhdQpx9aSv7U5a2F0AXwT61lJfnaJ9Flm8tOcxzq67p8cVZsXNCVeQ==
-
-"@faceless-ui/window-info@3.0.1":
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/@faceless-ui/window-info/-/window-info-3.0.1.tgz#be66f8b27631c03a5a1c46e6c7e0b29b5777cc76"
-  integrity sha512-uPjdJYE/j7hqVNelE9CRUNOeXuXDdPxR4DMe+oz3xwyZi2Y4CxsfpfdPTqqwmNAZa1P33O+ZiCyIkBEeNed0kw==
 
 "@fastify/busboy@^2.0.0":
   version "2.1.1"
@@ -2008,26 +1993,12 @@
   dependencies:
     state-local "^1.0.6"
 
-"@monaco-editor/loader@^1.5.0":
-  version "1.5.0"
-  resolved "https://registry.yarnpkg.com/@monaco-editor/loader/-/loader-1.5.0.tgz#dcdbc7fe7e905690fb449bed1c251769f325c55d"
-  integrity sha512-hKoGSM+7aAc7eRTRjpqAZucPmoNOC4UUbknb/VNoTkEIkCPhqV8LfbsgM1webRM7S/z21eHEx9Fkwx8Z/C/+Xw==
-  dependencies:
-    state-local "^1.0.6"
-
 "@monaco-editor/react@4.6.0":
   version "4.6.0"
   resolved "https://registry.yarnpkg.com/@monaco-editor/react/-/react-4.6.0.tgz#bcc68671e358a21c3814566b865a54b191e24119"
   integrity sha512-RFkU9/i7cN2bsq/iTkurMWOEErmYcY6JiQI3Jn+WeR/FGISH8JbHERjpS9oRuSOPvDMJI0Z8nJeKkbOs9sBYQw==
   dependencies:
     "@monaco-editor/loader" "^1.4.0"
-
-"@monaco-editor/react@4.7.0":
-  version "4.7.0"
-  resolved "https://registry.yarnpkg.com/@monaco-editor/react/-/react-4.7.0.tgz#35a1ec01bfe729f38bfc025df7b7bac145602a60"
-  integrity sha512-cyzXQCtO47ydzxpQtCGSQGOC8Gk3ZUeBXFAxD+CWXYFo5OqZyZUonFl0DwUlTyAfRHntBfw2p3w4s9R6oe1eCA==
-  dependencies:
-    "@monaco-editor/loader" "^1.5.0"
 
 "@next/env@15.1.5":
   version "15.1.5"
@@ -2117,7 +2088,7 @@
   resolved "https://registry.yarnpkg.com/@panva/hkdf/-/hkdf-1.2.1.tgz#cb0d111ef700136f4580349ff0226bf25c853f23"
   integrity sha512-6oclG6Y3PiDFcoyk8srjLfVKyMfVCKJ27JwNPViuXziFpmdz+MZnZN/aKY0JGXgYuO/VghU0jcOAZgWXZ1Dmrw==
 
-"@payloadcms/db-postgres@latest":
+"@payloadcms/db-postgres@3.19.0":
   version "3.19.0"
   resolved "https://registry.yarnpkg.com/@payloadcms/db-postgres/-/db-postgres-3.19.0.tgz#8b3e6b03e66d159210843a36186d04ce289ccc5c"
   integrity sha512-u66Y6F+dIrN/OVi4tO7U8ldTh4P7ktGqlqa1SxjkchVZIHFHohYhoFQqBN2Lmd/dg9gb6F/iaYdfgE8VpsxEPw==
@@ -2150,7 +2121,7 @@
   dependencies:
     nodemailer "6.9.16"
 
-"@payloadcms/email-resend@latest":
+"@payloadcms/email-resend@3.19.0":
   version "3.19.0"
   resolved "https://registry.yarnpkg.com/@payloadcms/email-resend/-/email-resend-3.19.0.tgz#141c8d01b00d328d7a597f2a8a63e061890c81d1"
   integrity sha512-CrXEFj7Iqgo2CqIv1e+3T7JzRKRTmUX+Bio5csW5RcJVmPNoCg6UpCNIeeQHvZNZocWnoILAM5a9EG/Ab9n1pw==
@@ -2165,7 +2136,7 @@
     ts-essentials "10.0.3"
     tsx "4.19.2"
 
-"@payloadcms/next@latest":
+"@payloadcms/next@3.19.0":
   version "3.19.0"
   resolved "https://registry.yarnpkg.com/@payloadcms/next/-/next-3.19.0.tgz#eebda70012295de6075f49d3162e940bc58a6318"
   integrity sha512-ZeSvnKkgT57kmItoY5Iy9ry7p4GC1aFMGh5rtOat0SgI3inw43KmvzOKZH9X9OOZf+2gQq9ger1JeFOObuUlSA==
@@ -2186,7 +2157,7 @@
     sonner "^1.7.0"
     uuid "10.0.0"
 
-"@payloadcms/payload-cloud@latest":
+"@payloadcms/payload-cloud@3.19.0":
   version "3.19.0"
   resolved "https://registry.yarnpkg.com/@payloadcms/payload-cloud/-/payload-cloud-3.19.0.tgz#9a828320ee442133331630156b380db73095c6be"
   integrity sha512-JF27xYIa+B+RVwZtCs1q4aM7vmkTlPjg73+MoFVNYs6Z76Urt7k6jas055+hHoQQQ3DF7pv+bchL+PGQPZ6C5w==
@@ -2199,16 +2170,15 @@
     amazon-cognito-identity-js "^6.1.2"
     nodemailer "6.9.16"
 
-"@payloadcms/plugin-cloud-storage@3.39.1":
-  version "3.39.1"
-  resolved "https://registry.yarnpkg.com/@payloadcms/plugin-cloud-storage/-/plugin-cloud-storage-3.39.1.tgz#4086b0a9f2c84b836292a2de0c474f89f77e5ed6"
-  integrity sha512-LoL5/2BjyspAKETwEE5laMoAjcARz/fGE+ZPKQHHE6B1Jf4t00OuxG4KuDhG3mIccIO+mSeaC4+xckNMeMf7KA==
+"@payloadcms/plugin-cloud-storage@3.19.0":
+  version "3.19.0"
+  resolved "https://registry.yarnpkg.com/@payloadcms/plugin-cloud-storage/-/plugin-cloud-storage-3.19.0.tgz#678706483dcc1d57d8e4177564f061af6f8001a7"
+  integrity sha512-RyTl+0B6nkYnOLpqeQj4ZC4+/5crKdafy/hOqgfTttJNIeyTVKE6aFn/TlIxyc5qVZM0lnZCWKvchcKcDclPJA==
   dependencies:
-    "@payloadcms/ui" "3.39.1"
     find-node-modules "^2.1.3"
     range-parser "^1.2.1"
 
-"@payloadcms/richtext-lexical@latest":
+"@payloadcms/richtext-lexical@3.19.0":
   version "3.19.0"
   resolved "https://registry.yarnpkg.com/@payloadcms/richtext-lexical/-/richtext-lexical-3.19.0.tgz#17f36672ae86ba8f6820541a67985667dd62745b"
   integrity sha512-zhcYu25JR7nuJRlSLJZi4DbpuAubO31EgLBXJHjApvageBh3u5B7ElJvA8fwCbFBYqzKTOUSjM5s/fviqyF0sw==
@@ -2238,25 +2208,18 @@
     ts-essentials "10.0.3"
     uuid "10.0.0"
 
-"@payloadcms/storage-vercel-blob@^3.39.1":
-  version "3.39.1"
-  resolved "https://registry.yarnpkg.com/@payloadcms/storage-vercel-blob/-/storage-vercel-blob-3.39.1.tgz#569b3804e0983e3ee046c8f96ee1e35152d667f3"
-  integrity sha512-+Yhh7mm3hMX8BGjw9qhl6VoJT5vUOJrD3QOGrYaDFv0YjXEv6HdFPpK3V57hXywMydvIMP0QgP8NH1S6sZaLKQ==
+"@payloadcms/storage-vercel-blob@3.19.0":
+  version "3.19.0"
+  resolved "https://registry.yarnpkg.com/@payloadcms/storage-vercel-blob/-/storage-vercel-blob-3.19.0.tgz#d8362da31b20600dd7540821c94cc5b311e5b7af"
+  integrity sha512-AKjJn/F5Sf/7aJ0CVTh3Z1oe2ncVSgDmEnZvzZBhqqSPIz0e5h19orFBXDUwKRFE9L7f/8hAO3v5RiNZSPzQpA==
   dependencies:
-    "@payloadcms/plugin-cloud-storage" "3.39.1"
+    "@payloadcms/plugin-cloud-storage" "3.19.0"
     "@vercel/blob" "^0.22.3"
 
 "@payloadcms/translations@3.19.0":
   version "3.19.0"
   resolved "https://registry.yarnpkg.com/@payloadcms/translations/-/translations-3.19.0.tgz#fad59d3b387132d68b7edcd273e83c450f2e233d"
   integrity sha512-aVJFEcR65ax7yL2lquMa3QfpPxuerkHWp9vU4rqpJoEHEobnGHHn8cy+n+LUp47H1Ui0/Ki5UskUbl5/z1Tj9w==
-  dependencies:
-    date-fns "4.1.0"
-
-"@payloadcms/translations@3.39.1":
-  version "3.39.1"
-  resolved "https://registry.yarnpkg.com/@payloadcms/translations/-/translations-3.39.1.tgz#a8bc1c7e9ac5a8f5a51a534f66e49a1e00ed3829"
-  integrity sha512-GwU6lwpi5hEijaE64dRNPIF1x8J2aN4loR+Z7Hqk2DP5UqtHTRmNx6LLTzanUfwvOiyR1nnFpCsHyAC57c8gtw==
   dependencies:
     date-fns "4.1.0"
 
@@ -2273,35 +2236,6 @@
     "@monaco-editor/react" "4.6.0"
     "@payloadcms/translations" "3.19.0"
     body-scroll-lock "4.0.0-beta.0"
-    bson-objectid "2.0.4"
-    date-fns "4.1.0"
-    dequal "2.0.3"
-    md5 "2.3.0"
-    object-to-formdata "4.5.1"
-    qs-esm "7.0.2"
-    react-datepicker "7.6.0"
-    react-image-crop "10.1.8"
-    react-select "5.9.0"
-    scheduler "0.25.0"
-    sonner "^1.7.2"
-    ts-essentials "10.0.3"
-    use-context-selector "2.0.0"
-    uuid "10.0.0"
-
-"@payloadcms/ui@3.39.1":
-  version "3.39.1"
-  resolved "https://registry.yarnpkg.com/@payloadcms/ui/-/ui-3.39.1.tgz#5a7efed81f56c71b130b22ea050ad2ea4f803d3e"
-  integrity sha512-kjnLYSFgmqdyTPF4ecqqRUyHFb4hQalZ6Z/6qs6Sz9XYZHgY5hwN6MJIL6L/MDh0Tv7acaRUlTCQNWjzjEU79g==
-  dependencies:
-    "@date-fns/tz" "1.2.0"
-    "@dnd-kit/core" "6.0.8"
-    "@dnd-kit/sortable" "7.0.2"
-    "@dnd-kit/utilities" "3.2.2"
-    "@faceless-ui/modal" "3.0.0-beta.2"
-    "@faceless-ui/scroll-info" "2.0.0"
-    "@faceless-ui/window-info" "3.0.1"
-    "@monaco-editor/react" "4.7.0"
-    "@payloadcms/translations" "3.39.1"
     bson-objectid "2.0.4"
     date-fns "4.1.0"
     dequal "2.0.3"
@@ -7443,7 +7377,7 @@ path-type@^4.0.0:
   resolved "https://registry.yarnpkg.com/path-type/-/path-type-4.0.0.tgz#84ed01c0a7ba380afe09d90a8c180dcd9d03043b"
   integrity sha512-gDKb8aZMDeD/tZWs9P6+q0J9Mwkdl6xMV8TjnGP3qJVJ06bdMgkbBlLU8IdfOsIsFz2BW1rNVT3XuNEl8zPAvw==
 
-payload@latest:
+payload@3.19.0:
   version "3.19.0"
   resolved "https://registry.yarnpkg.com/payload/-/payload-3.19.0.tgz#65b08f8f2c352c6fd078857446ac15dc36aa0748"
   integrity sha512-SaHVIpeo+4P57V2jA7pRpSjdde/QaF8wTZVWz5UBSC5UzcgrXItqe1wIiB562qSTCkY/LOc60CH4ybnfQ3dqAA==
