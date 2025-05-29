@@ -6,7 +6,7 @@ import LeaderboardTable from '@/components/ui/Leaderboard/LeaderboardTable'
 import PageTitle from '@/components/ui/PageTitle'
 import { Button } from '@/components/ui/Button'
 import { Icon } from '@/components/ui'
-import { User } from '@/payload-types'
+import { User, Ledger, Comment } from '@/payload-types'
 // import OpenProfileDrawer from '@/components/ui/UserProfilePreviewModal/OpenProfileDrawer'
 import { calculateUserPoints } from '@/lib/users/points'
 import { getServerSession } from 'next-auth'
@@ -19,101 +19,56 @@ interface UserWithStats {
   lastCommentDate: string | null
 }
 
+interface PopulatedUser extends User {
+  ledger?: Ledger[]
+  comments?: Comment[]
+}
+
 const Leaderboard = async () => {
-  // Fetch all users
+  // Fetch users with their points and comments in a single query using population
   const users = (
     await payload.find({
       collection: 'users',
+      limit: 100,
+      depth: 2,
     })
-  ).docs
+  ).docs as PopulatedUser[]
 
-  // Fetch points for each user from ledger
-  const userPoints = await Promise.all(
-    users.map(async (user) => {
-      const ledger = await payload.find({
-        collection: 'ledger',
-        where: {
-          user_id: {
-            equals: user.id,
-          },
-        },
-      })
-      return ledger.docs.reduce((total, entry) => total + (entry.amount || 0), 0)
-    }),
-  )
-
-  // Fetch comments for each user
-  const userComments = await Promise.all(
-    users.map(async (user) => {
-      const comments = await payload.find({
-        collection: 'comments',
-        where: {
-          user: {
-            equals: user.id,
-          },
-          status: {
-            equals: 'approved',
-          },
-          deleted: {
-            equals: false,
-          },
-        },
-        sort: '-createdAt',
-      })
-      return {
-        count: comments.docs.length,
-        lastCommentDate: comments.docs[0]?.createdAt || null,
-      }
-    }),
-  )
-
-  // Combine user data with their stats
-  const usersWithStats: UserWithStats[] = users.map((user, index) => ({
+  // Process user stats in memory
+  const usersWithStats: UserWithStats[] = users.map((user) => ({
     user,
-    points: userPoints[index],
-    commentCount: userComments[index].count,
-    lastCommentDate: userComments[index].lastCommentDate,
+    points:
+      user.ledger?.reduce((total: number, entry: Ledger) => total + (entry.amount || 0), 0) || 0,
+    commentCount:
+      user.comments?.filter((comment) => comment.status === 'approved' && !comment.deleted)
+        .length || 0,
+    lastCommentDate:
+      user.comments
+        ?.filter((comment) => comment.status === 'approved' && !comment.deleted)
+        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0]
+        ?.createdAt || null,
   }))
 
   // Sort users based on points, comment count, and most recent comment
   const sortedUsers = usersWithStats.sort((a, b) => {
-    // First, compare points
-    if (a.points !== b.points) {
-      return b.points - a.points
-    }
-
-    // If points are equal, compare comment count
-    if (a.commentCount !== b.commentCount) {
-      return b.commentCount - a.commentCount
-    }
-
-    // If comment count is equal, compare last comment date
+    if (a.points !== b.points) return b.points - a.points
+    if (a.commentCount !== b.commentCount) return b.commentCount - a.commentCount
     if (a.lastCommentDate && b.lastCommentDate) {
       return new Date(b.lastCommentDate).getTime() - new Date(a.lastCommentDate).getTime()
     }
-
-    // If one user has no comments, prioritize the user with comments
     if (a.lastCommentDate) return -1
     if (b.lastCommentDate) return 1
-
-    // If neither has comments, maintain stable sort
     return 0
   })
 
   const session = await getServerSession(authOptions)
-  
-  const sessionUser = (
-    await payload.find({
-      collection: 'users',
-      where: {
-        email: {
-          equals: session?.user?.email,
-        },
-      },
-    })
-  ).docs[0] 
 
-  const currentUserPoints = await calculateUserPoints({ user: sessionUser })
+  // Only fetch current user points if logged in
+  const currentUserPoints = session?.user?.email
+    ? await calculateUserPoints({
+        user: users.find((u) => u.email === session.user.email) as User,
+      })
+    : 0
 
   return (
     <>
