@@ -44,12 +44,15 @@ const getChallengeData = unstable_cache(
 // Add revalidation since challenges are mostly static
 export const revalidate = 3600 // 1h
 
-const ChallengePage = async ({
-  params,
-}: {
-  params: { slug: string }
+// Add this interface for the page props
+interface ChallengePageProps {
+  params: {
+    slug: string
+  }
   searchParams?: { [key: string]: string | string[] | undefined }
-}) => {
+}
+
+const ChallengePage = async ({ params }: ChallengePageProps) => {
   const session = await getServerSession(authOptions)
 
   // Single query for both challenge and session user data
@@ -134,9 +137,9 @@ const ChallengePage = async ({
               <RichText data={challenge.content} className="payload-rich-text" />
             </div>
           </div>
-          <Comments 
-            user={sessionUser} 
-            challenge={challenge as Challenge & { comments: Comment[] }} 
+          <Comments
+            user={sessionUser}
+            challenge={challenge as Challenge & { comments: Comment[] }}
           />
         </Container>
       </div>
