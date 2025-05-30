@@ -41,32 +41,28 @@ const getChallengeData = unstable_cache(
   { revalidate: 60 * 5 }, // Cache for 5 minutes
 )
 
-// Cache the user data fetch
-const getUserData = unstable_cache(
-  async (email: string | null | undefined) => {
-    if (!email) return null
-    return await payload.find({
-      collection: 'users',
-      where: { email: { equals: email } },
-    })
-  },
-  ['user-data'],
-  { revalidate: 60 }, // Cache for 1 minute
-)
+// Add revalidation since challenges are mostly static
+export const revalidate = 3600 // 1h
 
-const ChallengePage = async ({ params }: { params: Promise<{ slug: string }> }) => {
-  const { slug } = await params
+const ChallengePage = async ({ params }: { params: { slug: string } }) => {
   const session = await getServerSession(authOptions)
 
-  // Use cached functions
-  const [challengeData] = await Promise.all([
-    getChallengeData(slug),
-    getUserData(session?.user?.email),
+  // Single query for both challenge and session user data
+  const [challengeData, userData] = await Promise.all([
+    getChallengeData(params.slug),
+    session?.user?.email
+      ? payload.find({
+          collection: 'users',
+          where: { email: { equals: session.user.email } },
+          depth: 1,
+        })
+      : Promise.resolve(null),
   ])
 
-  if (challengeData.totalDocs === 0) {
-    return notFound()
-  }
+  if (challengeData.totalDocs === 0) return notFound()
+
+  const sessionUser = userData?.docs[0]
+  const userPoints = sessionUser ? await calculateUserPoints({ user: sessionUser }) : 0
 
   const challenge = {
     ...(challengeData.docs[0] as PopulatedChallenge),
@@ -75,25 +71,11 @@ const ChallengePage = async ({ params }: { params: Promise<{ slug: string }> }) 
     ),
   } as PopulatedChallenge
 
-  // Get session user in a single query
-  const sessionUser = (
-    await payload.find({
-      collection: 'users',
-      where: {
-        email: {
-          equals: session?.user?.email,
-        },
-      },
-    })
-  ).docs[0]
-
   // Filter user's ledger entries from the populated data
   const userChallengeCompletedData =
     challenge.ledger?.filter(
       (ledger) => typeof ledger.user_id === 'object' && ledger.user_id?.id === sessionUser?.id,
     ) || []
-
-  const userPoints = sessionUser ? await calculateUserPoints({ user: sessionUser }) : 0
 
   if (!sessionUser) {
     return (
@@ -146,7 +128,7 @@ const ChallengePage = async ({ params }: { params: Promise<{ slug: string }> }) 
               <RichText data={challenge.content} className="payload-rich-text" />
             </div>
           </div>
-          <Comments user={sessionUser} challenge={challenge} />
+          <Comments user={sessionUser} challenge={{ ...challenge, comments: challenge.comments ?? [] }} />
         </Container>
       </div>
     </>

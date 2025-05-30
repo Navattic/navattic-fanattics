@@ -41,7 +41,7 @@ function CommentTree({
         const replyUser = reply.user as User
         return (
           <div className={cn('relative flex pl-4')} key={reply.id}>
-            <div className="border-b-2 border-l-2 rounded-bl-2xl border-gray-200 h-9 w-[20px]"></div>
+            <div className="h-9 w-[20px] rounded-bl-2xl border-b-2 border-l-2 border-gray-200"></div>
             <CommentTree
               key={reply.id}
               comment={reply}
@@ -56,22 +56,14 @@ function CommentTree({
   )
 }
 
-const CommentSection = async ({ challenge }: { challenge: Challenge }) => {
-  const allComments = (
-    await payload.find({
-      collection: 'comments',
-      where: {
-        challenge: { equals: challenge.id }
-      },
-      depth: 1, // Ensures we get the necessary relationship data
-      limit: 1000,
-      sort: '-createdAt' // Optional: sort by newest first
-    })
-  ).docs
+const CommentSection = ({ challenge }: { challenge: Challenge & { comments: Comment[] } }) => {
+  const allComments = challenge.comments.filter(
+    (comment) => comment.status === 'approved' && !comment.deleted,
+  )
 
-  // Then separate them in memory (more efficient than multiple DB queries)
-  const topLevelComments = allComments.filter(comment => !comment.parent)
-  const replies = allComments.filter(comment => comment.parent)
+  // Then separate them in memory
+  const topLevelComments = allComments.filter((comment) => !comment.parent)
+  const replies = allComments.filter((comment) => comment.parent)
 
   // Build replies map from the replies query
   const repliesMap = replies.reduce(

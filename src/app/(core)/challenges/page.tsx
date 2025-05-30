@@ -9,54 +9,47 @@ import { Icon } from '@/components/ui'
 import { Button } from '@/components/ui'
 import Empty from '@/components/ui/Empty'
 import { calculateUserPoints } from '@/lib/users/points'
-import { Challenge, Ledger, Comment } from '@/payload-types'
+import { Ledger } from '@/payload-types'
 
-interface PopulatedChallenge extends Challenge {
-  comments?: Comment[]
-  ledger?: Ledger[]
-}
-
-
-// Add revalidation to ensure fresh data
-export const revalidate = 0
+export const revalidate = 3600 // 1h
 
 const Challenges = async () => {
   const session = await getServerSession(authOptions)
   const now = new Date()
 
   try {
-    const [upcomingChallengesData, pastChallengesData, sessionUser] = await Promise.all([
+    const [challengesData, sessionUser] = await Promise.all([
       payload.find({
         collection: 'challenges',
         where: {
-          deadline: {
-            greater_than: now,
-          },
+          or: [
+            {
+              deadline: {
+                greater_than: now,
+              },
+            },
+            {
+              deadline: {
+                less_than_equal: now,
+              },
+            },
+          ],
         },
-        sort: 'deadline',
-        depth: 1,
-        // Only populate what's needed for the list view
+        sort: '-deadline', // String format: '-' prefix for descending
         populate: {
           ledger: {
             user_id: true,
             amount: true,
           },
-        },
-      }),
-      payload.find({
-        collection: 'challenges',
-        where: {
-          deadline: {
-            less_than_equal: now,
-          },
-        },
-        sort: '-deadline', // Note the - for descending
-        depth: 1,
-        populate: {
-          ledger: {
-            user_id: true,
-            amount: true,
-          },
+          // Add user population if session exists
+          ...(session?.user?.email && {
+            user: {
+              where: {
+                email: { equals: session.user.email },
+              },
+              depth: 1,
+            },
+          }),
         },
       }),
       session?.user?.email
@@ -76,7 +69,7 @@ const Challenges = async () => {
 
     // Improve type safety for ledger filtering
     const userLedgerEntries = sessionUser
-      ? [...upcomingChallengesData.docs, ...pastChallengesData.docs]
+      ? challengesData.docs
           .flatMap((challenge) => (challenge.ledger || []) as Ledger[])
           .filter(
             (ledger): ledger is Ledger =>
@@ -102,9 +95,9 @@ const Challenges = async () => {
               }
             />
             <div className="text-md mt-8 mb-3 font-semibold text-gray-600">Active Challenges</div>
-            {upcomingChallengesData.docs.length > 0 ? (
+            {challengesData.docs.length > 0 ? (
               <ChallengesList
-                challengesData={upcomingChallengesData.docs}
+                challengesData={challengesData.docs}
                 userLedgerEntries={userLedgerEntries}
               />
             ) : (
@@ -113,15 +106,6 @@ const Challenges = async () => {
                 description="Check back soon for updates."
                 iconName="award"
               />
-            )}
-            <div className="text-md mt-8 mb-3 font-semibold text-gray-600">Past Challenges</div>
-            {pastChallengesData.docs.length > 0 ? (
-              <ChallengesList
-                challengesData={pastChallengesData.docs}
-                userLedgerEntries={userLedgerEntries}
-              />
-            ) : (
-              <Empty title="No previous challenges!" iconName="award" />
             )}
           </Container>
         </div>
