@@ -2,8 +2,7 @@ import { Challenge, Ledger } from '@/payload-types'
 import { Badge, Icon } from '@/components/ui'
 import { formatTimeRemaining } from '@/utils/formatTimeRemaining'
 import Link from 'next/link'
-import { getPayload } from 'payload'
-import config from '@/payload.config'
+import { payload } from '@/lib/payloadClient'
 
 const ChallengesList = async ({
   challengesData,
@@ -12,7 +11,6 @@ const ChallengesList = async ({
   challengesData: Challenge[]
   userLedgerEntries: Ledger[]
 }) => {
-  const payload = await getPayload({ config })
 
   // Fetch comment counts for all challenges in one query
   const commentCounts = await Promise.all(

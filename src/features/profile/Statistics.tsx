@@ -1,6 +1,6 @@
 import { User } from '@/payload-types'
 import { CoinsIcon, HandCoinsIcon, BicepsFlexed, MessageCircleReplyIcon } from 'lucide-react'
-import { calculateUserPoints } from '@/lib/users/points'
+
 const StatisticCard = ({
   icon,
   label,

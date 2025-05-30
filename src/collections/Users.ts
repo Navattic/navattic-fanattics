@@ -125,5 +125,12 @@ export const Users: CollectionConfig = {
         ],
       },
     },
+    {
+      name: 'userComments',
+      type: 'join',
+      collection: 'comments',
+      on: 'user',
+      hasMany: true,
+    },
   ],
 }

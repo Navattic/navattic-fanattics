@@ -29,6 +29,7 @@ import {
   BookOpenTextIcon,
   HandCoinsIcon,
   UserIcon,
+  LucideIcon,
 } from 'lucide-react'
 import { NavatticLogo } from './NavatticLogo'
 import Link from 'next/link'
@@ -37,6 +38,12 @@ import { usePathname } from 'next/navigation'
 import React from 'react'
 import Avatar from './Avatar'
 import { useUser } from '../Providers'
+
+interface FooterItem {
+  label: string
+  href?: string
+  icon: LucideIcon
+}
 
 const items = [
   {
@@ -82,12 +89,13 @@ const items = [
 ]
 
 export function AppSidebar() {
-  const { data: session } = useSession()
+  const { data: session, status: authStatus } = useSession()
   const pathname = usePathname()
   const user = useUser()
+  const isLoading = authStatus === 'loading'
 
   const footerItems = [
-    {
+    session?.user.roles?.includes('admin') && {
       label: 'Admin Dashboard',
       href: '/admin',
       icon: ShieldUserIcon,
@@ -101,7 +109,7 @@ export function AppSidebar() {
       label: 'Sign out',
       icon: LogOutIcon,
     },
-  ]
+  ].filter((item): item is FooterItem => Boolean(item))
 
   return (
     <Sidebar>
@@ -142,18 +150,27 @@ export function AppSidebar() {
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
-            {!session ? (
-              <button onClick={() => signIn()}>Sign in</button>
+            {isLoading ? (
+              <SidebarMenuButton>
+                <div className="flex w-full items-center gap-2">
+                  <div className="h-8 w-8 animate-pulse rounded-full bg-gray-200" />
+                  <div className="h-4 w-24 animate-pulse rounded bg-gray-200" />
+                </div>
+              </SidebarMenuButton>
+            ) : !session ? (
+              <SidebarMenuButton onClick={() => signIn()} className="w-full">
+                <span className="text-sm font-medium text-gray-600">Sign in</span>
+              </SidebarMenuButton>
             ) : (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <SidebarMenuButton>
-                    <div className="flex w-full items-center justify-between">
-                      <div className="flex items-center gap-2 text-sm font-medium text-gray-600 capitalize">
-                        {user?.avatar && typeof user.avatar !== 'number' && (
-                          <Avatar user={user} size="sm" showCompany={false} />
-                        )}
-                        {user?.firstName} {user?.lastName}
+                    <div className="flex w-full items-center justify-between cursor-pointer">
+                      <div className="flex items-center gap-2 text-sm font-medium text-gray-600">
+                        <Avatar user={user} size="sm" showCompany={false} />
+                        <span className="capitalize">
+                          {user?.firstName} {user?.lastName}
+                        </span>
                       </div>
                       <EllipsisIcon className="size-4 text-gray-500" />
                     </div>
@@ -166,52 +183,32 @@ export function AppSidebar() {
                   alignOffset={10}
                   className="w-[220px] rounded-xl"
                 >
-                  {footerItems.map((item) =>
-                    item.label === 'Sign out' ? (
+                  {footerItems.map((item) => (
+                    <div key={item.label}>
                       <DropdownMenuItem
-                        key={item.label}
-                        onSelect={() => signOut()}
-                        className="flex !h-8 cursor-pointer items-center gap-2 rounded-lg px-3 py-0 pr-2.5 hover:bg-gray-100"
+                        className="!h-8 rounded-lg px-3 py-0 pr-2.5 hover:bg-gray-100 cursor-pointer"
+                        asChild={!item.label.includes('Sign out')}
+                        onSelect={() => item.label.includes('Sign out') && signOut()}
                       >
-                        <item.icon className="size-4 text-gray-500" />
-                        <span className="text-sm leading-none font-medium text-gray-600">
-                          {item.label}
-                        </span>
-                      </DropdownMenuItem>
-                    ) : (
-                      <React.Fragment key={item.label}>
-                        {item.label === 'Admin Dashboard' &&
-                        session?.user.roles?.includes('admin') ? (
-                          <>
-                            <DropdownMenuItem
-                              className="!h-8 rounded-lg px-3 py-0 pr-2.5 hover:bg-gray-100"
-                              asChild
-                            >
-                              <Link href={item.href ?? ''} className="flex items-center gap-2">
-                                <item.icon className="size-4 text-gray-500" />
-                                <span className="text-sm leading-none font-medium text-gray-600">
-                                  {item.label}
-                                </span>
-                              </Link>
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                          </>
+                        {item.label.includes('Sign out') ? (
+                          <div className="flex items-center gap-2">
+                            <item.icon className="size-4 text-gray-500" />
+                            <span className="text-sm leading-none font-medium text-gray-600">
+                              {item.label}
+                            </span>
+                          </div>
                         ) : (
-                          <DropdownMenuItem
-                            className="!h-8 rounded-lg px-3 py-0 pr-2.5 hover:bg-gray-100"
-                            asChild
-                          >
-                            <Link href={item.href ?? ''} className="flex items-center gap-2">
-                              <item.icon className="size-4 text-gray-500" />
-                              <span className="text-sm leading-none font-medium text-gray-600">
-                                {item.label}
-                              </span>
-                            </Link>
-                          </DropdownMenuItem>
+                          <Link href={item.href ?? ''} className="flex items-center gap-2">
+                            <item.icon className="size-4 text-gray-500" />
+                            <span className="text-sm leading-none font-medium text-gray-600">
+                              {item.label}
+                            </span>
+                          </Link>
                         )}
-                      </React.Fragment>
-                    ),
-                  )}
+                      </DropdownMenuItem>
+                      {item.label === 'Admin Dashboard' && <DropdownMenuSeparator />}
+                    </div>
+                  ))}
                 </DropdownMenuContent>
               </DropdownMenu>
             )}

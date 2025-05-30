@@ -95,6 +95,15 @@ const ChallengePage = async ({ params }: { params: Promise<{ slug: string }> }) 
 
   const userPoints = sessionUser ? await calculateUserPoints({ user: sessionUser }) : 0
 
+  if (!sessionUser) {
+    return (
+      <>
+        <PageHeader userPoints={0} />
+        <p>Please login to view this challenge</p>
+      </>
+    )
+  }
+
   return (
     <>
       <PageHeader userPoints={userPoints} />

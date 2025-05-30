@@ -66,7 +66,7 @@ export function CommentBlock({
             ) : (
               <OpenProfileDrawer
                 user={user}
-                className="text-base font-semibold text-gray-800 capitalize"
+                className="text-base font-semibold text-gray-800 capitalize hover:underline cursor-pointer"
               >
                 {user.firstName} {user.lastName}
               </OpenProfileDrawer>

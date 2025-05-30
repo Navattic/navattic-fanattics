@@ -47,7 +47,7 @@ export default function Avatar({
     <div
       className={cn(
         'inset-shadow relative grid aspect-square place-items-center rounded-full',
-        size === 'sm' && 'size-5',
+        size === 'sm' && 'size-6',
         size === 'md' && 'size-8',
         size === 'lg' && 'size-14',
         size === 'xl' && 'size-28',

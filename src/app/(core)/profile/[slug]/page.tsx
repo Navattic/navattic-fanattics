@@ -1,6 +1,4 @@
 import { notFound } from 'next/navigation'
-import { getPayload } from 'payload'
-import config from '@/payload.config'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/authOptions'
 import { Container } from '@/components/ui/Container'
@@ -10,7 +8,7 @@ import PageHeader from '@/components/ui/PageHeader'
 import UserEmail from '@/components/ui/UserEmail'
 import Bio from '@/components/ui/Bio'
 import { calculateUserPoints } from '@/lib/users/points'
-const payload = await getPayload({ config })
+import { payload } from '@/lib/payloadClient'
 
 const ProfilePage = async ({ params }: { params: Promise<{ slug: string }> }) => {
   const { slug } = await params
@@ -20,7 +18,7 @@ const ProfilePage = async ({ params }: { params: Promise<{ slug: string }> }) =>
 
   if (!session) {
     return (
-      <div className="mx-auto text-center mt-20">
+      <div className="mx-auto mt-20 text-center">
         <h1 className="text-xl font-medium">Please sign in to view profile</h1>
       </div>
     )
@@ -51,7 +49,7 @@ const ProfilePage = async ({ params }: { params: Promise<{ slug: string }> }) =>
     <>
       {/* TODO: make /profile not clickable in breadcrumbs here */}
       <PageHeader title={`${user.firstName} ${user.lastName}`} userPoints={userPoints} />
-      <div className="bg-gray-50 min-h-screen">
+      <div className="min-h-screen bg-gray-50">
         <Container className="pt-10">
           <div className="flex flex-row items-center gap-8 pb-8">
             <Avatar user={user} size="xl" />
@@ -65,11 +63,11 @@ const ProfilePage = async ({ params }: { params: Promise<{ slug: string }> }) =>
             </div>
           </div>
           <div className="mt-8">
-            <h2 className="text-base font-medium mb-2">About</h2>
+            <h2 className="mb-2 text-base font-medium">About</h2>
             <Bio user={user} />
           </div>
           <div className="mt-8">
-            <h2 className="text-base font-medium mb-2">Statistics</h2>
+            <h2 className="mb-2 text-base font-medium">Statistics</h2>
             <Statistics user={user} userPoints={userPoints} />
           </div>
         </Container>

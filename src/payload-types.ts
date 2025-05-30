@@ -26,7 +26,11 @@ export interface Config {
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
   };
-  collectionsJoins: {};
+  collectionsJoins: {
+    users: {
+      userComments: 'comments';
+    };
+  };
   collectionsSelect: {
     challenges: ChallengesSelect<false> | ChallengesSelect<true>;
     ledger: LedgerSelect<false> | LedgerSelect<true>;
@@ -154,6 +158,10 @@ export interface User {
   roles?: ('admin' | 'user')[] | null;
   slug?: string | null;
   user_id?: string | null;
+  userComments?: {
+    docs?: (number | Comment)[] | null;
+    hasNextPage?: boolean | null;
+  } | null;
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -266,6 +274,24 @@ export interface Avatar {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "comments".
+ */
+export interface Comment {
+  id: number;
+  content: string;
+  user: number | User;
+  challenge: number | Challenge;
+  parent?: (number | null) | Comment;
+  status?: ('pending' | 'approved' | 'rejected') | null;
+  deleted?: boolean | null;
+  likes?: number | null;
+  likedBy?: (number | User)[] | null;
+  flaggedReports?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "Events".
  */
 export interface Event {
@@ -315,24 +341,6 @@ export interface Event {
     endTime: string;
     timeZone: 'CDT' | 'CST' | 'EDT' | 'EST' | 'PDT' | 'PST';
   };
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "comments".
- */
-export interface Comment {
-  id: number;
-  content: string;
-  user: number | User;
-  challenge: number | Challenge;
-  parent?: (number | null) | Comment;
-  status?: ('pending' | 'approved' | 'rejected') | null;
-  deleted?: boolean | null;
-  likes?: number | null;
-  likedBy?: (number | User)[] | null;
-  flaggedReports?: number | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -592,6 +600,7 @@ export interface UsersSelect<T extends boolean = true> {
   roles?: T;
   slug?: T;
   user_id?: T;
+  userComments?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;
