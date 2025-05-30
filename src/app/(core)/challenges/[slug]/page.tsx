@@ -1,7 +1,7 @@
 import { payload } from '@/lib/payloadClient'
 import { notFound } from 'next/navigation'
 import { RichText } from '@payloadcms/richtext-lexical/react'
-import { getServerSession, User } from 'next-auth'
+import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/authOptions'
 import { Comments } from '@/components/ui/Comments'
 import PageHeader from '@/components/ui/PageHeader'
@@ -44,20 +44,13 @@ const getChallengeData = unstable_cache(
 // Add revalidation since challenges are mostly static
 export const revalidate = 3600 // 1h
 
-// Add this interface for the page props
-interface ChallengePageProps {
-  params: {
-    slug: string
-  }
-  searchParams?: { [key: string]: string | string[] | undefined }
-}
-
-const ChallengePage = async ({ params }: ChallengePageProps) => {
+const ChallengePage = async ({ params }: { params: Promise<{ slug: string }> }) => {
+  const { slug } = await params
   const session = await getServerSession(authOptions)
 
-  // Single query for both challenge and session user data
+  // Update the challenge data fetch to use slug
   const [challengeData, userData] = await Promise.all([
-    getChallengeData(params.slug),
+    getChallengeData(slug), // Use slug instead of params.slug
     session?.user?.email
       ? payload.find({
           collection: 'users',
