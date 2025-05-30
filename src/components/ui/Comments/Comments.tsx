@@ -9,6 +9,7 @@ import { formatPostDate } from '@/utils/formatDate'
 import { CommentEditForm } from '@/features/comments/CommentEditForm'
 import { softDeleteComment } from '@/features/comments/actions'
 import { Icon } from '../Icon'
+import OpenProfileDrawer from '../UserProfilePreviewModal/OpenProfileDrawer'
 
 export function CommentBlock({
   comment: initialComment,
@@ -47,12 +48,12 @@ export function CommentBlock({
     <>
       <div key={comment.id} className="flex flex-col">
         {!noBorder && sideBorder && (
-          <div className="absolute left-4 top-0 h-full w-0.5 bg-gray-300" />
+          <div className="absolute top-0 left-4 h-full w-0.5 bg-gray-300" />
         )}
-        <div className="flex items-center mt-[22px]">
+        <div className="mt-[22px] flex items-center">
           <div className="mr-3">
             {comment.deleted ? (
-              <div className="w-8 h-8 rounded-full bg-gray-100 border border-gray-300 flex items-center justify-center">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full border border-gray-300 bg-gray-100">
                 <Icon name="user" size="md" className="text-gray-600" />
               </div>
             ) : (
@@ -61,20 +62,23 @@ export function CommentBlock({
           </div>
           <div className="flex items-center gap-2">
             {comment.deleted ? (
-              <div className="text-base font-medium text-gray-600 capitalize">[removed]</div>
+              <div className="text-base font-medium text-gray-600">[removed]</div>
             ) : (
-              <div className="text-base font-semibold text-gray-800 capitalize">
+              <OpenProfileDrawer
+                user={user}
+                className="text-base font-semibold text-gray-800 capitalize"
+              >
                 {user.firstName} {user.lastName}
-              </div>
+              </OpenProfileDrawer>
             )}
             <div className="text-sm text-gray-400">• {formatPostDate(comment.createdAt)}</div>
           </div>
         </div>
         <div className="relative flex items-stretch">
-          <div className="px-4 mr-3 self-stretch">
-            {!noBorder && regularBorder && <div className="w-0.5 bg-gray-300 h-full" />}
+          <div className="mr-3 self-stretch px-4">
+            {!noBorder && regularBorder && <div className="h-full w-0.5 bg-gray-300" />}
           </div>
-          <div className="flex-col w-full">
+          <div className="w-full flex-col">
             {isEditing ? (
               <CommentEditForm
                 commentId={comment.id}
@@ -86,7 +90,7 @@ export function CommentBlock({
                 }}
               />
             ) : comment.deleted ? (
-              <div className="text-base text-gray-500 py-2">[comment deleted]</div>
+              <div className="py-2 text-base text-gray-500">[comment deleted]</div>
             ) : (
               <div className="text-base text-gray-800">{comment.content}</div>
             )}

@@ -57,32 +57,24 @@ function CommentTree({
 }
 
 const CommentSection = async ({ challenge }: { challenge: Challenge }) => {
-  // Query for top-level comments only
-  const topLevelComments = (
+  const allComments = (
     await payload.find({
       collection: 'comments',
       where: {
-        challenge: { equals: challenge.id },
-        parent: { equals: null },
+        challenge: { equals: challenge.id }
       },
-      limit: 100,
+      depth: 1, // Ensures we get the necessary relationship data
+      limit: 1000,
+      sort: '-createdAt' // Optional: sort by newest first
     })
   ).docs
 
-  // Query for all replies in the challenge
-  const allReplies = (
-    await payload.find({
-      collection: 'comments',
-      where: {
-        challenge: { equals: challenge.id },
-        parent: { exists: true },
-      },
-      limit: 1000, // Higher limit for replies since they're often numerous
-    })
-  ).docs
+  // Then separate them in memory (more efficient than multiple DB queries)
+  const topLevelComments = allComments.filter(comment => !comment.parent)
+  const replies = allComments.filter(comment => comment.parent)
 
   // Build replies map from the replies query
-  const repliesMap = allReplies.reduce(
+  const repliesMap = replies.reduce(
     (acc, comment) => {
       if (comment.parent && typeof comment.parent === 'object') {
         const parentId = comment.parent.id

@@ -65,6 +65,7 @@ function CommentForm({ user, challenge }: CommentFormProps) {
             variant="outline"
             colorScheme="gray"
             type="button"
+            size='md'
             onClick={handleCancel}
             disabled={status === 'executing'}
           >
@@ -74,9 +75,10 @@ function CommentForm({ user, challenge }: CommentFormProps) {
             variant="solid"
             colorScheme="brand"
             type="submit"
+            size="md"
             disabled={!comment.trim() || status === 'executing'}
           >
-            Post Comment
+            Post comment
           </Button>
         </div>
       </form>
