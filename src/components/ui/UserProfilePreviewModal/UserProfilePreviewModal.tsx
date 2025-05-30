@@ -6,12 +6,10 @@ import {
   Drawer,
   DrawerHeader,
   DrawerContent,
-  DrawerFooter,
   DrawerTitle,
   DrawerDescription,
   DrawerClose,
 } from '../../shadcn/ui/drawer'
-import { Button } from '../../shadcn/ui/button'
 import Avatar from '../Avatar'
 import UserEmail from '../UserEmail'
 import { Icon } from '../Icon'
@@ -25,7 +23,7 @@ function UserProfilePreviewModal() {
   return (
     <Drawer open={open} onOpenChange={setOpen} direction="right">
       <DrawerContent
-        className="fixed top-1/2 right-5 bottom-10 z-100 m-10 flex w-screen border-none bg-transparent outline-transparent md:max-w-[50vw]"
+        className="fixed top-1/2 right-5 bottom-1/2 z-100 m-10 flex w-screen border-none bg-transparent outline-transparent md:max-w-[50vw]"
         // The gap between the edge of the screen and the drawer is 40px in this case.
         style={{ '--initial-transform': 'calc(100% + 20px)' } as React.CSSProperties}
       >
@@ -36,17 +34,14 @@ function UserProfilePreviewModal() {
                 <Avatar user={user} size="lg" showCompany={true} />
                 <div className="flex flex-col">
                   {user?.firstName} {user?.lastName}
-                  {user?.email && <UserEmail email={user.email} />}
+                  {user?.email && <UserEmail email={user.email} size="sm" />}
                 </div>
               </DrawerTitle>
               <DrawerDescription className="mt-4 flex flex-col gap-4">
                 <div>
                   <div className="text-md mb-2 text-gray-800">About</div>
                   <div className="flex w-full flex-col gap-4 rounded-lg border border-gray-100 bg-gray-50 p-5">
-                    {/* {user?.bio && user.bio} */}
-                    <div className="text-sm text-gray-700">
-                      Design engineer at Navattic. I made this thing!
-                    </div>
+                    {user?.bio && <div className="text-sm text-gray-700">{user.bio}</div>}
                     <div className="flex flex-col gap-2">
                       {company?.name && (
                         <div className="flex items-center gap-2 text-sm text-gray-500">
@@ -57,7 +52,14 @@ function UserProfilePreviewModal() {
                       {company?.website && (
                         <div className="flex items-center gap-2 text-sm text-gray-500">
                           <Icon name="building" className="size-4 text-gray-400" />
-                          {company.website}
+                          <a
+                            href={company.website}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-500 hover:underline"
+                          >
+                            {company.website}
+                          </a>
                         </div>
                       )}
                       {user?.createdAt && (

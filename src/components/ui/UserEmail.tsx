@@ -2,29 +2,43 @@
 
 import { Icon } from '@/components/ui/Icon'
 import { useState } from 'react'
+import clsx from 'clsx'
 
-export default function UserEmail({ email }: { email: string }) {
+interface UserEmailProps {
+  email: string
+  size?: 'sm' | 'md'
+}
+
+export default function UserEmail({ email, size = 'md' }: UserEmailProps) {
   const [copied, setCopied] = useState(false)
 
   const handleCopyEmail = async () => {
     try {
       await navigator.clipboard.writeText(email)
       setCopied(true)
-      setTimeout(() => setCopied(false), 2000) // Reset after 2 seconds
+      setTimeout(() => setCopied(false), 2000)
     } catch (error) {
       console.error('Failed to copy email:', error)
     }
   }
 
+  const sizeClasses = {
+    sm: 'text-xs px-2 py-0.5',
+    md: 'text-sm px-3 py-1',
+  }
+
   return (
     <div
-      className="text-sm text-gray-500 bg-gray-100 hover:bg-gray-200 transition-colors rounded-full inset-shadow px-3 py-1 cursor-pointer inline-flex items-center"
+      className={`${sizeClasses[size]} inset-shadow inline-flex max-w-[30ch] cursor-pointer items-center truncate rounded-full bg-gray-100 text-gray-500 transition-colors hover:bg-gray-200`}
       onClick={handleCopyEmail}
     >
       <Icon
         name={copied ? 'check' : 'copy'}
-        size="sm"
-        className={`mr-2 ${copied ? 'text-gray-600' : 'text-gray-400'}`}
+        size={size === 'sm' ? 'xs' : 'sm'}
+        className={clsx(
+          size === 'sm' ? 'mr-1' : 'mr-2',
+          copied ? 'text-gray-600' : 'text-gray-400',
+        )}
       />
       {copied ? 'Email copied!' : email}
     </div>

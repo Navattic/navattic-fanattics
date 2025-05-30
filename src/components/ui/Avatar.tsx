@@ -72,7 +72,7 @@ export default function Avatar({
               size === 'sm' && 'text-xs',
               size === 'md' && 'text-xs',
               size === 'lg' && 'text-md',
-              size === 'xl' && 'text-sm',
+              size === 'xl' && 'text-lg',
             )}
           >
             {fallbackInitials}

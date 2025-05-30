@@ -50,11 +50,14 @@ export function CommentActions({
   const handleLike = async () => {
     if (!user) return
 
-    const currentLikes = comment.likes || 0
-    const newLikes = isLiked ? currentLikes - 1 : currentLikes + 1
+    // Calculate new likes count without modifying other users' likes
+    const currentLikedBy = (comment.likedBy as User[]) || []
     const newLikedBy = isLiked
-      ? (comment.likedBy as User[]).filter((u) => u.id !== user.id)
-      : [...((comment.likedBy as User[]) || []), user]
+      ? currentLikedBy.filter((u) => u.id !== user.id)
+      : [...currentLikedBy, user]
+
+    // Update likes count based on the likedBy array length
+    const newLikes = newLikedBy.length
 
     // Optimistic update
     setComment((prev) => ({
@@ -78,7 +81,7 @@ export function CommentActions({
   const isCurrentUserComment = user?.id === (comment.user as User)?.id
 
   return (
-    <div className="flex gap-1 my-3">
+    <div className="my-3 flex gap-1">
       <Button variant="ghost" size="sm" onClick={handleLike}>
         <Icon
           name={isLiked ? 'thumbs-up-filled' : 'thumbs-up'}
@@ -101,7 +104,7 @@ export function CommentActions({
           {user?.roles?.includes('admin') && (
             <DropdownMenuItem
               onClick={() => console.log('Award points')}
-              className="hover:bg-gray-100 rounded-lg !h-8 px-3 pr-2.5 py-0"
+              className="!h-8 rounded-lg px-3 py-0 pr-2.5 hover:bg-gray-100"
             >
               <Icon name="coins" size="sm" className="mr-1 text-gray-500" />
               Award Points
@@ -110,7 +113,7 @@ export function CommentActions({
           {!isCurrentUserComment && (
             <DropdownMenuItem
               onClick={() => console.log('Report comment')}
-              className="hover:bg-gray-100 rounded-lg !h-8 px-3 pr-2.5 py-0"
+              className="!h-8 rounded-lg px-3 py-0 pr-2.5 hover:bg-gray-100"
             >
               <Icon name="flag" size="sm" className="mr-1" />
               Report Comment
@@ -120,7 +123,7 @@ export function CommentActions({
             <>
               <DropdownMenuItem
                 onClick={() => setIsEditing(true)}
-                className="hover:bg-gray-100 rounded-lg !h-8 px-3 pr-2.5 py-0"
+                className="!h-8 rounded-lg px-3 py-0 pr-2.5 hover:bg-gray-100"
               >
                 <Icon name="pencil" size="sm" className="mr-1 text-gray-500" />
                 Edit Comment
@@ -130,24 +133,26 @@ export function CommentActions({
                 <DialogTrigger asChild>
                   <DropdownMenuItem
                     onSelect={(e) => e.preventDefault()}
-                    className="text-red-600 focus:text-red-600 focus:bg-red-50 hover:bg-red-50 rounded-t-sm rounded-b-lg !h-8 px-3 pr-2.5 py-0"
+                    className="!h-8 rounded-t-sm rounded-b-lg px-3 py-0 pr-2.5 text-red-600 hover:bg-red-50 focus:bg-red-50 focus:text-red-600"
                   >
                     <Icon name="trash" size="sm" className="mr-1 text-red-500" />
                     Delete Comment
                   </DropdownMenuItem>
                 </DialogTrigger>
-                <DialogContent className='rounded-xl'>
+                <DialogContent className="rounded-xl">
                   <DialogHeader>
                     <DialogTitle className="text-base text-gray-800">Delete Comment</DialogTitle>
-                    <DialogDescription className="text-balance text-base">
+                    <DialogDescription className="text-base text-balance">
                       Are you sure you want to delete this comment? This action cannot be undone.
                     </DialogDescription>
                   </DialogHeader>
                   <DialogFooter>
                     <DialogClose asChild>
-                      <Button size='md' variant="outline">Cancel</Button>
+                      <Button size="md" variant="outline">
+                        Cancel
+                      </Button>
                     </DialogClose>
-                    <Button size='md' variant="solid" colorScheme='red' onClick={onDelete}>
+                    <Button size="md" variant="solid" colorScheme="red" onClick={onDelete}>
                       Delete
                     </Button>
                   </DialogFooter>

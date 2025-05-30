@@ -52,10 +52,12 @@ const PodiumCard = async ({
         >
           <Avatar user={user} size="lg" showCompany={true} />
           <div className="mt-2 ml-0 text-center @[300px]:mt-0 @[300px]:ml-3 @[300px]:text-left">
-            <div className="text-base font-semibold text-gray-800 capitalize">
+            <div className="max-w-[30ch] cursor-pointer truncate text-base font-semibold text-gray-800 capitalize hover:underline">
               {user.firstName} {user.lastName}
             </div>
-            {user.email && <div className="text-xs text-gray-500">{user.email}</div>}
+            {user.email && (
+              <div className="max-w-[30ch] truncate text-xs text-gray-500">{user.email}</div>
+            )}
           </div>
         </OpenProfileDrawer>
         <div className="flex w-full justify-between gap-2 px-1">

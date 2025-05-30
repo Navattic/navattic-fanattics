@@ -49,5 +49,11 @@ export const Challenges: CollectionConfig = {
         beforeValidate: [formatSlug('title')],
       },
     },
+    {
+      name: 'ledger',
+      type: 'relationship',
+      relationTo: 'ledger',
+      hasMany: true,
+    },
   ],
 }

@@ -131,7 +131,7 @@ const EventSchedule = async () => {
           ) : (
             <Empty title="No upcoming events" iconName="calendar" />
           )}
-          <div className="text-md mt-8 mb-3 font-semibold text-gray-600">Past Events</div>
+          <div className="text-md mt-28 mb-3 font-semibold text-gray-600">Past Events</div>
           {pastEvents.length > 0 ? (
             <div className="flex flex-col gap-4">
               {pastEvents.map((event) => (

@@ -105,6 +105,7 @@ export interface Challenge {
     [k: string]: unknown;
   };
   slug?: string | null;
+  ledger?: (number | Ledger)[] | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -532,6 +533,7 @@ export interface ChallengesSelect<T extends boolean = true> {
   points?: T;
   content?: T;
   slug?: T;
+  ledger?: T;
   updatedAt?: T;
   createdAt?: T;
 }

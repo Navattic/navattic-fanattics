@@ -10,6 +10,7 @@ import Avatar from '../Avatar'
 import type { User } from '@/payload-types'
 import { Icon } from '../Icon'
 import { cn } from '@/lib/utils'
+import OpenProfileDrawer from '../UserProfilePreviewModal/OpenProfileDrawer'
 
 // TODO: Add pagination
 // TODO: Add user modal
@@ -61,12 +62,15 @@ const LeaderboardTable = ({ users }: { users: UserWithStats[] }) => {
                 </span>
               </TableCell>
               <TableCell className="px-4 font-medium capitalize">
-                <div className="flex items-center gap-2 text-sm">
+                <OpenProfileDrawer
+                  user={userWithStats.user}
+                  className="group flex items-center gap-2 text-sm"
+                >
                   <Avatar user={userWithStats.user} size="md" />
-                  <span className="ml-1">
+                  <div className="ml-1 cursor-pointer hover:underline">
                     {userWithStats.user.firstName} {userWithStats.user.lastName}
-                  </span>
-                </div>
+                  </div>
+                </OpenProfileDrawer>
               </TableCell>
               <TableCell
                 className={cn(
