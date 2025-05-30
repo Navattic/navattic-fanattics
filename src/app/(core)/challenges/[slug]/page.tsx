@@ -44,7 +44,12 @@ const getChallengeData = unstable_cache(
 // Add revalidation since challenges are mostly static
 export const revalidate = 3600 // 1h
 
-const ChallengePage = async ({ params }: { params: { slug: string } }) => {
+const ChallengePage = async ({
+  params,
+}: {
+  params: { slug: string }
+  searchParams?: { [key: string]: string | string[] | undefined }
+}) => {
   const session = await getServerSession(authOptions)
 
   // Single query for both challenge and session user data
@@ -66,9 +71,10 @@ const ChallengePage = async ({ params }: { params: { slug: string } }) => {
 
   const challenge = {
     ...(challengeData.docs[0] as PopulatedChallenge),
-    comments: (challengeData.docs[0] as PopulatedChallenge).comments?.filter(
-      (comment) => comment.status === 'approved' && !comment.deleted,
-    ),
+    comments:
+      (challengeData.docs[0] as PopulatedChallenge).comments?.filter(
+        (comment) => comment.status === 'approved' && !comment.deleted,
+      ) || [],
   } as PopulatedChallenge
 
   // Filter user's ledger entries from the populated data
@@ -128,7 +134,10 @@ const ChallengePage = async ({ params }: { params: { slug: string } }) => {
               <RichText data={challenge.content} className="payload-rich-text" />
             </div>
           </div>
-          <Comments user={sessionUser} challenge={{ ...challenge, comments: challenge.comments ?? [] }} />
+          <Comments 
+            user={sessionUser} 
+            challenge={challenge as Challenge & { comments: Comment[] }} 
+          />
         </Container>
       </div>
     </>
