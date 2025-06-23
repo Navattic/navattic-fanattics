@@ -11,6 +11,8 @@ import { softDeleteComment } from '@/features/comments/actions'
 import { Icon } from '../Icon'
 import OpenProfileDrawer from '../UserProfilePreviewModal/OpenProfileDrawer'
 
+type OptimisticComment = Omit<Comment, 'id'> & { id: string }
+
 export function CommentBlock({
   comment: initialComment,
   user,
@@ -19,6 +21,8 @@ export function CommentBlock({
   hasChild,
   hasParent,
   parentHasSiblings,
+  onOptimisticComment,
+  onRemoveOptimisticComment,
 }: {
   comment: Comment
   user: User
@@ -27,6 +31,8 @@ export function CommentBlock({
   isLastChildOfParent: boolean
   hasParent: boolean
   parentHasSiblings: boolean
+  onOptimisticComment?: (comment: OptimisticComment) => void
+  onRemoveOptimisticComment?: (tempId: string) => void
 }) {
   const [openReply, setOpenReply] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
@@ -66,7 +72,7 @@ export function CommentBlock({
             ) : (
               <OpenProfileDrawer
                 user={user}
-                className="text-base font-semibold text-gray-800 capitalize hover:underline cursor-pointer"
+                className="cursor-pointer text-base font-semibold text-gray-800 capitalize hover:underline"
               >
                 {user.firstName} {user.lastName}
               </OpenProfileDrawer>
@@ -107,13 +113,15 @@ export function CommentBlock({
           </div>
         </div>
       </div>
-      {openReply && (
+      {openReply && onOptimisticComment && onRemoveOptimisticComment && (
         <CommentReplyForm
           parentComment={comment}
           user={user}
           challenge={challenge}
           setOpenReply={setOpenReply}
           hasReplies={hasChild}
+          onOptimisticComment={onOptimisticComment}
+          onRemoveOptimisticComment={onRemoveOptimisticComment}
         />
       )}
     </>

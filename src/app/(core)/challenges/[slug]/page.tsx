@@ -21,24 +21,43 @@ interface PopulatedChallenge extends Challenge {
 // Cache the challenge data fetch
 const getChallengeData = unstable_cache(
   async (slug: string) => {
-    return await payload.find({
+    const challengeResult = await payload.find({
       collection: 'challenges',
       where: { slug: { equals: slug } },
       depth: 2,
       populate: {
-        comments: {
-          status: true,
-          deleted: true,
-        },
         ledger: {
           user_id: true,
           amount: true,
         },
       },
     })
+
+    if (challengeResult.totalDocs === 0) {
+      return { challenge: null, comments: [] }
+    }
+
+    const challenge = challengeResult.docs[0]
+
+    // Fetch all comments for this challenge with proper depth for nested replies
+    const commentsResult = await payload.find({
+      collection: 'comments',
+      where: {
+        challenge: { equals: challenge.id },
+        status: { equals: 'approved' },
+        deleted: { equals: false },
+      },
+      depth: 5, // 5 levels deep: top-level + 4 nested levels
+      sort: 'createdAt',
+    })
+
+    return {
+      challenge,
+      comments: commentsResult.docs,
+    }
   },
   ['challenge-data'],
-  { revalidate: 60 * 5 }, // Cache for 5 minutes
+  { revalidate: 60 * 5 },
 )
 
 // Add revalidation since challenges are mostly static
@@ -60,17 +79,14 @@ const ChallengePage = async ({ params }: { params: Promise<{ slug: string }> }) 
       : Promise.resolve(null),
   ])
 
-  if (challengeData.totalDocs === 0) return notFound()
+  if (!challengeData.challenge) return notFound()
 
   const sessionUser = userData?.docs[0]
   const userPoints = sessionUser ? await calculateUserPoints({ user: sessionUser }) : 0
 
   const challenge = {
-    ...(challengeData.docs[0] as PopulatedChallenge),
-    comments:
-      (challengeData.docs[0] as PopulatedChallenge).comments?.filter(
-        (comment) => comment.status === 'approved' && !comment.deleted,
-      ) || [],
+    ...(challengeData.challenge as PopulatedChallenge),
+    comments: challengeData.comments,
   } as PopulatedChallenge
 
   // Filter user's ledger entries from the populated data

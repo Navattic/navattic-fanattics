@@ -1,20 +1,25 @@
 import { User, Challenge, Comment } from '@/payload-types'
-import { payload } from '@/lib/payloadClient'
 import { CommentBlock } from '@/components/ui/Comments/Comments'
 import { cn } from '@/lib/utils'
 import { Suspense } from 'react'
 import { CommentSkeleton } from '@/components/ui/Skeletons/CommentSkeleton'
+
+type OptimisticComment = Omit<Comment, 'id'> & { id: string }
 
 function CommentTree({
   comment,
   user,
   challenge,
   repliesMap,
+  onOptimisticComment,
+  onRemoveOptimisticComment,
 }: {
-  comment: Comment
+  comment: Comment | OptimisticComment
   user: User
   challenge: Challenge
-  repliesMap: Record<string, Comment[]>
+  repliesMap: Record<string, (Comment | OptimisticComment)[]>
+  onOptimisticComment?: (comment: OptimisticComment) => void
+  onRemoveOptimisticComment?: (tempId: string) => void
 }) {
   const replies = repliesMap[comment.id] || []
   const hasChild = replies.length > 0
@@ -29,13 +34,15 @@ function CommentTree({
   return (
     <div className="w-full">
       <CommentBlock
-        comment={comment}
+        comment={comment as Comment}
         user={user}
         challenge={challenge}
         hasChild={hasChild}
         hasParent={hasParent}
         isLastChildOfParent={isLastChildOfParent}
         parentHasSiblings={parentHasSiblings}
+        onOptimisticComment={onOptimisticComment}
+        onRemoveOptimisticComment={onRemoveOptimisticComment}
       />
       {replies.map((reply) => {
         const replyUser = reply.user as User
@@ -48,6 +55,8 @@ function CommentTree({
               user={replyUser}
               challenge={challenge}
               repliesMap={repliesMap}
+              onOptimisticComment={onOptimisticComment}
+              onRemoveOptimisticComment={onRemoveOptimisticComment}
             />
           </div>
         )
@@ -56,7 +65,15 @@ function CommentTree({
   )
 }
 
-const CommentSection = ({ challenge }: { challenge: Challenge & { comments: Comment[] } }) => {
+const CommentSection = ({
+  challenge,
+  onOptimisticComment,
+  onRemoveOptimisticComment,
+}: {
+  challenge: Challenge & { comments: (Comment | OptimisticComment)[] }
+  onOptimisticComment?: (comment: OptimisticComment) => void
+  onRemoveOptimisticComment?: (tempId: string) => void
+}) => {
   const allComments = challenge.comments.filter(
     (comment) => comment.status === 'approved' && !comment.deleted,
   )
@@ -75,12 +92,12 @@ const CommentSection = ({ challenge }: { challenge: Challenge & { comments: Comm
       }
       return acc
     },
-    {} as Record<string, Comment[]>,
+    {} as Record<string, (Comment | OptimisticComment)[]>,
   )
 
   return (
     <div>
-      {topLevelComments.map((comment: Comment) => {
+      {topLevelComments.map((comment) => {
         const user = comment.user as User
         return (
           <Suspense key={comment.id} fallback={<CommentSkeleton />}>
@@ -89,6 +106,8 @@ const CommentSection = ({ challenge }: { challenge: Challenge & { comments: Comm
               user={user}
               challenge={challenge}
               repliesMap={repliesMap}
+              onOptimisticComment={onOptimisticComment}
+              onRemoveOptimisticComment={onRemoveOptimisticComment}
             />
           </Suspense>
         )

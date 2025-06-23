@@ -5,7 +5,8 @@ import Avatar from '@/components/ui/Avatar'
 import { Challenge, User, Comment as PayloadComment } from '@/payload-types'
 import { Button } from '@/components/ui'
 import { createComment } from './actions'
-import { useSWRConfig } from 'swr'
+
+type OptimisticComment = Omit<PayloadComment, 'id'> & { id: string }
 
 interface CommentReplyFormProps {
   parentComment: PayloadComment
@@ -13,6 +14,8 @@ interface CommentReplyFormProps {
   challenge: Challenge
   setOpenReply: (open: boolean) => void
   hasReplies: boolean
+  onOptimisticComment: (comment: OptimisticComment) => void
+  onRemoveOptimisticComment: (tempId: string) => void
 }
 
 function CommentReplyForm({
@@ -21,35 +24,60 @@ function CommentReplyForm({
   challenge,
   setOpenReply,
   hasReplies,
+  onOptimisticComment,
+  onRemoveOptimisticComment,
 }: CommentReplyFormProps) {
   const [commentContent, setCommentContent] = useState('')
   const [status, setStatus] = useState<'idle' | 'executing' | 'error'>('idle')
   const [error, setError] = useState<string | null>(null)
-  const { mutate } = useSWRConfig()
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
 
     if (!commentContent.trim()) return
 
-    try {
-      setStatus('executing')
-      setError(null)
+    const content = commentContent.trim()
+    const tempId = `temp-reply-${Date.now()}`
 
+    // Create optimistic reply
+    const optimisticReply: OptimisticComment = {
+      id: tempId,
+      content,
+      user: user,
+      challenge: challenge.id,
+      parent: parentComment,
+      status: 'approved',
+      deleted: false,
+      likes: 0,
+      likedBy: [],
+      flaggedReports: 0,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    }
+
+    // Add optimistic reply immediately
+    onOptimisticComment(optimisticReply)
+    setCommentContent('')
+    setStatus('executing')
+    setError(null)
+    setOpenReply(false)
+
+    try {
       await createComment({
-        commentContent,
+        commentContent: content,
         user,
         challenge,
         parentComment,
       })
 
-      setCommentContent('')
+      // Remove optimistic reply on success
+      onRemoveOptimisticComment(tempId)
       setStatus('idle')
-      mutate(`comments-${challenge.id}`)
-      setOpenReply(false)
     } catch (err) {
+      // Remove optimistic reply on error
+      onRemoveOptimisticComment(tempId)
       setStatus('error')
-      setError('Failed to post comment. Please try again.')
+      setError('Failed to post reply. Please try again.')
       console.error('Error submitting reply:', err)
     }
   }
@@ -61,15 +89,15 @@ function CommentReplyForm({
 
   return (
     <div className="flex gap-3">
-      <div className="px-4 mr-3 self-stretch">
-        {hasReplies && <div className="w-0.5 bg-gray-300 h-full"></div>}
+      <div className="mr-3 self-stretch px-4">
+        {hasReplies && <div className="h-full w-0.5 bg-gray-300"></div>}
       </div>
       <div className="mt-4">
         <Avatar user={user} />
       </div>
-      <form className="mt-4 flex flex-col gap-3 w-full" onSubmit={handleSubmit}>
+      <form className="mt-4 flex w-full flex-col gap-3" onSubmit={handleSubmit}>
         <textarea
-          className="w-full bg-white border rounded-lg p-3 h-24 resize-none"
+          className="h-24 w-full resize-none rounded-lg border bg-white p-3"
           placeholder="Add a reply"
           value={commentContent}
           onChange={(e) => setCommentContent(e.target.value)}
@@ -94,7 +122,7 @@ function CommentReplyForm({
             size="md"
             disabled={!commentContent.trim() || status === 'executing'}
           >
-            Reply
+            {status === 'executing' ? 'Posting...' : 'Reply'}
           </Button>
         </div>
       </form>

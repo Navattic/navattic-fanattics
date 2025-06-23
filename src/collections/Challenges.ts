@@ -55,5 +55,12 @@ export const Challenges: CollectionConfig = {
       relationTo: 'ledger',
       hasMany: true,
     },
+    {
+      name: 'challengeComments',
+      type: 'join',
+      collection: 'comments',
+      on: 'challenge',
+      hasMany: true,
+    },
   ],
 }

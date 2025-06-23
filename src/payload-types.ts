@@ -27,6 +27,9 @@ export interface Config {
     'payload-migrations': PayloadMigration;
   };
   collectionsJoins: {
+    challenges: {
+      challengeComments: 'comments';
+    };
     users: {
       userComments: 'comments';
     };
@@ -110,6 +113,10 @@ export interface Challenge {
   };
   slug?: string | null;
   ledger?: (number | Ledger)[] | null;
+  challengeComments?: {
+    docs?: (number | Comment)[] | null;
+    hasNextPage?: boolean | null;
+  } | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -542,6 +549,7 @@ export interface ChallengesSelect<T extends boolean = true> {
   content?: T;
   slug?: T;
   ledger?: T;
+  challengeComments?: T;
   updatedAt?: T;
   createdAt?: T;
 }
