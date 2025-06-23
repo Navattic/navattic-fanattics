@@ -91,8 +91,8 @@ const items = [
 export function AppSidebar() {
   const { data: session, status: authStatus } = useSession()
   const pathname = usePathname()
-  const user = useUser()
-  const isLoading = authStatus === 'loading'
+  const { user, isLoading: userLoading, error } = useUser()
+  const isLoading = authStatus === 'loading' || userLoading
 
   const footerItems = [
     session?.user.roles?.includes('admin') && {
@@ -165,7 +165,7 @@ export function AppSidebar() {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <SidebarMenuButton>
-                    <div className="flex w-full items-center justify-between cursor-pointer">
+                    <div className="flex w-full cursor-pointer items-center justify-between">
                       <div className="flex items-center gap-2 text-sm font-medium text-gray-600">
                         <Avatar user={user} size="sm" showCompany={false} />
                         <span className="capitalize">
@@ -186,7 +186,7 @@ export function AppSidebar() {
                   {footerItems.map((item) => (
                     <div key={item.label}>
                       <DropdownMenuItem
-                        className="!h-8 rounded-lg px-3 py-0 pr-2.5 hover:bg-gray-100 cursor-pointer"
+                        className="!h-8 cursor-pointer rounded-lg px-3 py-0 pr-2.5 hover:bg-gray-100"
                         asChild={!item.label.includes('Sign out')}
                         onSelect={() => item.label.includes('Sign out') && signOut()}
                       >

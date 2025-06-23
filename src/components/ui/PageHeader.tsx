@@ -3,7 +3,15 @@
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 import { usePathname } from 'next/navigation'
 
-const PageHeader = ({ title, userPoints }: { title?: string; userPoints: number }) => {
+const PageHeader = ({
+  title,
+  userPoints,
+  noUser,
+}: {
+  title?: string
+  userPoints: number
+  noUser?: boolean
+}) => {
   const pathname = usePathname()
 
   return (
@@ -22,7 +30,9 @@ const PageHeader = ({ title, userPoints }: { title?: string; userPoints: number 
         ) : (
           <Breadcrumbs title={title} />
         )}
-        <div className="text-sm font-medium text-gray-800">Current Balance: {userPoints}</div>
+        {!noUser && (
+          <div className="text-sm font-medium text-gray-800">Current Balance: {userPoints}</div>
+        )}
       </div>
     </div>
   )

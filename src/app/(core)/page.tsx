@@ -25,9 +25,14 @@ const Home = async () => {
 
   if (!session || !sessionUser) {
     return (
-      <div className="mx-auto mt-20 text-center">
-        <h1 className="text-lg font-medium">Please sign in to view challenges</h1>
-      </div>
+      <>
+        <PageHeader title="Fanattic Portal" userPoints={0} noUser={true} />
+        <div className="min-h-screen bg-gray-50">
+          <Container className="max-w-6xl">
+            <PageTitle title={<>Welcome!</>} description="Please sign in to view the portal." />
+          </Container>
+        </div>
+      </>
     )
   }
 
@@ -36,7 +41,6 @@ const Home = async () => {
       collection: 'challenges',
     })
   ).docs
-
 
   const userLedgerEntries =
     sessionUser &&
@@ -73,7 +77,7 @@ const Home = async () => {
           <PageTitle
             title={
               <>
-                Welcome back, <span className="capitalize">{sessionUser.firstName}</span>!
+                Welcome, <span className="capitalize">{sessionUser.firstName}</span>!
               </>
             }
             description={userPointsDescription}

@@ -7,7 +7,7 @@ import { payload } from '@/lib/payloadClient'
 async function calculateUserPoints({ user }: { user: User }): Promise<number> {
   // Validate user ID before querying
   if (!user?.id || isNaN(Number(user.id))) {
-    console.error('Invalid user ID provided:', user?.id)
+    console.warn('Invalid user ID provided:', user?.id)
     return 0 // Return 0 points for invalid users
   }
 

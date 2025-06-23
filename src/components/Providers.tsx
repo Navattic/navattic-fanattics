@@ -7,10 +7,16 @@ import { UserProfilePreviewModalProvider } from './ui/UserProfilePreviewModal/Us
 import UserProfilePreviewModal from './ui/UserProfilePreviewModal/UserProfilePreviewModal'
 import { User } from '@/payload-types'
 
-// Create the UserContext
-const UserContext = createContext<User | undefined>(undefined)
+// Create the UserContext with loading and error states
+interface UserContextType {
+  user: User | null
+  isLoading: boolean
+  error: string | null
+}
 
-// Create the useUser hook
+const UserContext = createContext<UserContextType | undefined>(undefined)
+
+// Create the useUser hook with better error handling
 export function useUser() {
   const context = useContext(UserContext)
   if (context === undefined) {
@@ -21,13 +27,15 @@ export function useUser() {
 
 interface Props {
   children: ReactNode
-  user: User
+  user: User | null
+  isLoading?: boolean
+  error?: string | null
 }
 
-const Providers = ({ children, user }: Props) => {
+const Providers = ({ children, user, isLoading = false, error = null }: Props) => {
   return (
     <SessionProvider>
-      <UserContext.Provider value={user}>
+      <UserContext.Provider value={{ user, isLoading, error }}>
         <SidebarProvider>
           <UserProfilePreviewModalProvider>
             {children}
