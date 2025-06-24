@@ -21,8 +21,6 @@ export function CommentBlock({
   hasChild,
   hasParent,
   parentHasSiblings,
-  onOptimisticComment,
-  onRemoveOptimisticComment,
 }: {
   comment: Comment
   user: User
@@ -31,8 +29,6 @@ export function CommentBlock({
   isLastChildOfParent: boolean
   hasParent: boolean
   parentHasSiblings: boolean
-  onOptimisticComment?: (comment: OptimisticComment) => void
-  onRemoveOptimisticComment?: (tempId: string) => void
 }) {
   const [openReply, setOpenReply] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
@@ -113,7 +109,7 @@ export function CommentBlock({
           </div>
         </div>
       </div>
-      {openReply && onOptimisticComment && onRemoveOptimisticComment && (
+      {openReply && (
         <CommentReplyForm
           parentComment={comment}
           user={user}
