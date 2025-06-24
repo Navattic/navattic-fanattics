@@ -2,7 +2,6 @@
 
 import { Button, Icon } from '@/components/ui'
 import { Comment, User } from '@/payload-types'
-import { toggleLike } from './actions'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,6 +22,7 @@ import {
   DialogFooter,
   DialogClose,
 } from '@/components/shadcn/ui/dialog'
+import OptimisticLikeCounter from './OptimisticLikeCounter'
 
 interface CommentActionsProps {
   setOpenReply: (open: boolean) => void
@@ -43,53 +43,11 @@ export function CommentActions({
 }: CommentActionsProps) {
   const [comment, setComment] = useState(initialComment)
 
-  const isLiked = user
-    ? (comment.likedBy as User[])?.some((likedUser) => likedUser.id === user.id)
-    : false
-
-  const handleLike = async () => {
-    if (!user) return
-
-    // Calculate new likes count without modifying other users' likes
-    const currentLikedBy = (comment.likedBy as User[]) || []
-    const newLikedBy = isLiked
-      ? currentLikedBy.filter((u) => u.id !== user.id)
-      : [...currentLikedBy, user]
-
-    // Update likes count based on the likedBy array length
-    const newLikes = newLikedBy.length
-
-    // Optimistic update
-    setComment((prev) => ({
-      ...prev,
-      likes: newLikes,
-      likedBy: newLikedBy,
-    }))
-
-    try {
-      await toggleLike({
-        commentId: comment.id,
-        userId: user.id,
-      })
-    } catch (error) {
-      console.error('Error handling like:', error)
-      // Revert to the original state on error
-      setComment(initialComment)
-    }
-  }
-
   const isCurrentUserComment = user?.id === (comment.user as User)?.id
 
   return (
     <div className="my-3 flex gap-1">
-      <Button variant="ghost" size="sm" onClick={handleLike}>
-        <Icon
-          name={isLiked ? 'thumbs-up-filled' : 'thumbs-up'}
-          size="sm"
-          className="-translate-y-px"
-        />
-        <span className="min-w-5">{comment.likes === 0 ? 'Like' : comment.likes}</span>
-      </Button>
+      <OptimisticLikeCounter comment={comment} currentUser={user as User} />
       <Button variant="ghost" size="sm" onClick={() => setOpenReply(!openReply)}>
         <Icon name="reply" size="sm" className="-translate-y-[2px]" />
         Reply

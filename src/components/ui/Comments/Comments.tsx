@@ -120,8 +120,6 @@ export function CommentBlock({
           challenge={challenge}
           setOpenReply={setOpenReply}
           hasReplies={hasChild}
-          onOptimisticComment={onOptimisticComment}
-          onRemoveOptimisticComment={onRemoveOptimisticComment}
         />
       )}
     </>

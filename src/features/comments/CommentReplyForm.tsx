@@ -6,16 +6,12 @@ import { Challenge, User, Comment as PayloadComment } from '@/payload-types'
 import { Button } from '@/components/ui'
 import { createComment } from './actions'
 
-type OptimisticComment = Omit<PayloadComment, 'id'> & { id: string }
-
 interface CommentReplyFormProps {
   parentComment: PayloadComment
   user: User
   challenge: Challenge
   setOpenReply: (open: boolean) => void
   hasReplies: boolean
-  onOptimisticComment: (comment: OptimisticComment) => void
-  onRemoveOptimisticComment: (tempId: string) => void
 }
 
 function CommentReplyForm({
@@ -24,8 +20,6 @@ function CommentReplyForm({
   challenge,
   setOpenReply,
   hasReplies,
-  onOptimisticComment,
-  onRemoveOptimisticComment,
 }: CommentReplyFormProps) {
   const [commentContent, setCommentContent] = useState('')
   const [status, setStatus] = useState<'idle' | 'executing' | 'error'>('idle')
@@ -37,30 +31,8 @@ function CommentReplyForm({
     if (!commentContent.trim()) return
 
     const content = commentContent.trim()
-    const tempId = `temp-reply-${Date.now()}`
-
-    // Create optimistic reply
-    const optimisticReply: OptimisticComment = {
-      id: tempId,
-      content,
-      user: user,
-      challenge: challenge.id,
-      parent: parentComment,
-      status: 'approved',
-      deleted: false,
-      likes: 0,
-      likedBy: [],
-      flaggedReports: 0,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    }
-
-    // Add optimistic reply immediately
-    onOptimisticComment(optimisticReply)
-    setCommentContent('')
     setStatus('executing')
     setError(null)
-    setOpenReply(false)
 
     try {
       await createComment({
@@ -70,12 +42,10 @@ function CommentReplyForm({
         parentComment,
       })
 
-      // Remove optimistic reply on success
-      onRemoveOptimisticComment(tempId)
+      setCommentContent('')
       setStatus('idle')
+      setOpenReply(false)
     } catch (err) {
-      // Remove optimistic reply on error
-      onRemoveOptimisticComment(tempId)
       setStatus('error')
       setError('Failed to post reply. Please try again.')
       console.error('Error submitting reply:', err)
