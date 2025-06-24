@@ -1,7 +1,7 @@
 'use client'
 
 import { Button, Icon } from '@/components/ui'
-import { useOptimistic, startTransition } from 'react'
+import { useState } from 'react'
 import { adjustLikes } from './actions'
 import { Comment, User } from '@/payload-types'
 
@@ -14,31 +14,50 @@ function OptimisticLikeCounter({ comment, currentUser }: { comment: Comment; cur
       typeof item === 'object' ? item.id === currentUser.id : item === currentUser.id,
     )
 
-  const [optimisticState, addOptimisticUpdate] = useOptimistic(
-    {
-      likes: likes || 0,
-      isLikedByCurrentUser,
-    },
-    (state, action: 'like' | 'unlike') => ({
-      likes: action === 'like' ? state.likes + 1 : state.likes - 1,
-      isLikedByCurrentUser: action === 'like',
-    }),
-  )
+  // Use local state for optimistic updates
+  const [optimisticState, setOptimisticState] = useState({
+    likes: likes || 0,
+    isLiked: isLikedByCurrentUser,
+  })
+  const [isPending, setIsPending] = useState(false)
 
   const handleLikeToggle = async () => {
-    const action = optimisticState.isLikedByCurrentUser ? 'unlike' : 'like'
+    if (isPending) return
+
+    const action = optimisticState.isLiked ? 'unlike' : 'like'
     const amount = action === 'like' ? 1 : -1
 
-    startTransition(() => {
-      addOptimisticUpdate(action)
-    })
-    await adjustLikes({ amount, user: user as User, comment: comment as Comment })
+    // Optimistic update
+    setOptimisticState((prev) => ({
+      likes: action === 'like' ? prev.likes + 1 : prev.likes - 1,
+      isLiked: action === 'like',
+    }))
+    setIsPending(true)
+
+    try {
+      const result = await adjustLikes({ amount, user: user as User, comment: comment as Comment })
+
+      // Update with server response
+      setOptimisticState({
+        likes: result.likes,
+        isLiked: result.isLiked,
+      })
+    } catch (error) {
+      console.error('Error adjusting likes:', error)
+      // Revert optimistic update on error
+      setOptimisticState({
+        likes: likes || 0,
+        isLiked: isLikedByCurrentUser,
+      })
+    } finally {
+      setIsPending(false)
+    }
   }
 
   return (
-    <Button variant="ghost" size="sm" onClick={handleLikeToggle}>
+    <Button variant="ghost" size="sm" onClick={handleLikeToggle} disabled={isPending}>
       <Icon
-        name={optimisticState.isLikedByCurrentUser ? 'thumbs-up-filled' : 'thumbs-up'}
+        name={optimisticState.isLiked ? 'thumbs-up-filled' : 'thumbs-up'}
         size="sm"
         className="-translate-y-px"
       />
