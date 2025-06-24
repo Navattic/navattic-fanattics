@@ -134,7 +134,7 @@ const ChallengePage = async ({ params }: { params: Promise<{ slug: string }> }) 
                 </Badge>
                 <div className="flex items-center justify-center gap-1 text-gray-500">
                   <Icon name="message-square" className="text-gray-400" />
-                  26
+                  {challenge.comments?.length || 0}
                 </div>
                 <div className="flex items-center justify-center gap-1 text-gray-500">
                   <Icon name="clock" className="text-gray-400" />

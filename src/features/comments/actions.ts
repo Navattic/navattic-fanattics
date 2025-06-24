@@ -35,7 +35,7 @@ export async function createComment({
       },
     })
 
-    revalidateTag(`comments-${challenge.id}`)
+    revalidateTag('challenge-data')
     return result
   } catch (error) {
     console.error('Error creating comment:', error)
@@ -43,42 +43,53 @@ export async function createComment({
   }
 }
 
-export async function toggleLike({
-  commentId,
-  userId,
+export const adjustLikes = async ({
+  amount,
+  comment,
+  user,
 }: {
-  commentId: number
-  userId: number
-}): Promise<{ likes: number; isLiked: boolean }> {
-  try {
-    const comment = await payload.findByID({
-      collection: 'comments',
-      id: commentId,
-      depth: 1, // Ensure we get the full user objects
-    })
-
-    const likedBy = (comment.likedBy as User[]) || []
-    const isLiked = likedBy.some((user) => user.id === userId)
-
-    const updatedComment = await payload.update({
-      collection: 'comments',
-      id: commentId,
-      data: {
-        likes: isLiked ? (comment.likes || 0) - 1 : (comment.likes || 0) + 1,
-        likedBy: isLiked
-          ? likedBy.filter((user) => user.id !== userId)
-          : [...likedBy, { id: userId }],
-      },
-      depth: 1, // Return the full user objects
-    })
-
+  amount: number
+  comment: Comment
+  user: User
+}): Promise<{ likes: number; isLiked: boolean }> => {
+  if (!amount) {
     return {
-      likes: updatedComment.likes || 0,
-      isLiked: !isLiked,
+      likes: comment.likes || 0,
+      isLiked: (comment.likedBy as User[])?.some((u) => u.id === user.id) || false,
     }
-  } catch (error) {
-    console.error('Error toggling like:', error)
-    throw new Error('Failed to toggle like')
+  }
+
+  const currentLikedBy = (comment.likedBy as User[]) || []
+  const isCurrentlyLiked = currentLikedBy.some((u) => u.id === user.id)
+  const newLikes = (comment.likes || 0) + amount
+
+  let newLikedBy: User[]
+  if (amount > 0 && !isCurrentlyLiked) {
+    // Adding like - add user if not already there
+    newLikedBy = [...currentLikedBy, user]
+  } else if (amount < 0 && isCurrentlyLiked) {
+    // Removing like - remove user
+    newLikedBy = currentLikedBy.filter((u) => u.id !== user.id)
+  } else {
+    // No change needed
+    newLikedBy = currentLikedBy
+  }
+
+  const updatedComment = await payload.update({
+    collection: 'comments',
+    id: comment.id,
+    data: {
+      likes: newLikes,
+      likedBy: newLikedBy.map((u) => u.id), // Payload expects IDs
+    },
+  })
+
+  // Fix: Use the same cache key as the challenge data
+  revalidateTag('challenge-data')
+
+  return {
+    likes: updatedComment.likes || 0,
+    isLiked: newLikedBy.some((u) => u.id === user.id),
   }
 }
 
