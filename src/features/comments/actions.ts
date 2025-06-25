@@ -32,10 +32,14 @@ export async function createComment({
         user: user.id,
         challenge: challenge.id,
         parent: parentComment?.id || null,
+        status: 'approved',
       },
     })
 
     revalidateTag('challenge-data')
+    await new Promise((resolve) => setTimeout(resolve, 100))
+    revalidateTag('challenge-data')
+
     return result
   } catch (error) {
     console.error('Error creating comment:', error)

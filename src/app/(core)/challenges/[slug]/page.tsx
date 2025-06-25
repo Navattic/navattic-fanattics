@@ -12,6 +12,7 @@ import { formatTimeRemaining } from '@/utils/formatTimeRemaining'
 import { calculateUserPoints } from '@/lib/users/points'
 import { Challenge, Ledger, Comment } from '@/payload-types'
 import { unstable_cache } from 'next/cache'
+import { Suspense } from 'react'
 
 interface PopulatedChallenge extends Challenge {
   comments?: Comment[]
@@ -57,11 +58,14 @@ const getChallengeData = unstable_cache(
     }
   },
   ['challenge-data'],
-  { revalidate: 60 * 5 },
+  { revalidate: 60 },
 )
 
 // Add revalidation since challenges are mostly static
 export const revalidate = 3600 // 1h
+
+// Add this export to force dynamic rendering
+export const dynamic = 'force-dynamic'
 
 const ChallengePage = async ({ params }: { params: Promise<{ slug: string }> }) => {
   const { slug } = await params
@@ -146,10 +150,13 @@ const ChallengePage = async ({ params }: { params: Promise<{ slug: string }> }) 
               <RichText data={challenge.content} className="payload-rich-text" />
             </div>
           </div>
-          <Comments
-            user={sessionUser}
-            challenge={challenge as Challenge & { comments: Comment[] }}
-          />
+          {/* Make comments section dynamic */}
+          <Suspense fallback={<div>Loading comments...</div>}>
+            <Comments
+              user={sessionUser}
+              challenge={challenge as Challenge & { comments: Comment[] }}
+            />
+          </Suspense>
         </Container>
       </div>
     </>
