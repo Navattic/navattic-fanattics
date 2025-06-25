@@ -31,30 +31,32 @@ function CommentReplyForm({
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
 
-    if (!commentContent.trim()) return
+    if (!commentContent.trim() || status === 'executing') return
 
     const content = commentContent.trim()
     setStatus('executing')
     setError(null)
 
-    // Add optimistic comment
-    const optimisticId = addOptimisticComment({
-      content: content,
-      user: user,
-      challenge: challenge,
-      parent: parentComment,
-      status: 'approved',
-      deleted: false,
-      likes: 0,
-      likedBy: [],
-      flaggedReports: 0,
-    })
-
-    // Clear form and close reply form immediately
-    setCommentContent('')
-    setOpenReply(false)
+    let optimisticId: string | null = null
 
     try {
+      // Add optimistic comment
+      optimisticId = addOptimisticComment({
+        content: content,
+        user: user,
+        challenge: challenge,
+        parent: parentComment,
+        status: 'approved',
+        deleted: false,
+        likes: 0,
+        likedBy: [],
+        flaggedReports: 0,
+      })
+
+      // Clear form and close reply form immediately
+      setCommentContent('')
+      setOpenReply(false)
+
       const result = await createComment({
         commentContent: content,
         user,
@@ -63,19 +65,27 @@ function CommentReplyForm({
       })
 
       // Replace optimistic comment with real one
-      replaceOptimisticComment(optimisticId, result)
+      if (optimisticId) {
+        replaceOptimisticComment(optimisticId, result)
+      }
+
       setStatus('idle')
     } catch (err) {
       setStatus('error')
       setError('Failed to post reply. Please try again.')
+
       // Remove optimistic comment on error
-      removeOptimisticComment(optimisticId)
+      if (optimisticId) {
+        removeOptimisticComment(optimisticId)
+      }
+
       console.error('Error submitting reply:', err)
     }
   }
 
   function handleCancel() {
     setCommentContent('')
+    setError(null)
     setOpenReply(false)
   }
 

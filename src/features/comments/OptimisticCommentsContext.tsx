@@ -17,12 +17,15 @@ interface OptimisticCommentsContextType {
   ) => string
   removeOptimisticComment: (optimisticId: string) => void
   replaceOptimisticComment: (optimisticId: string, realComment: Comment) => void
+  realComments: Comment[]
+  addRealComment: (comment: Comment) => void
 }
 
 const OptimisticCommentsContext = createContext<OptimisticCommentsContextType | null>(null)
 
 export function OptimisticCommentsProvider({ children }: { children: ReactNode }) {
   const [optimisticComments, setOptimisticComments] = useState<OptimisticComment[]>([])
+  const [realComments, setRealComments] = useState<Comment[]>([])
 
   const addOptimisticComment = (
     commentData: Omit<OptimisticComment, 'id' | 'isOptimistic' | 'createdAt' | 'updatedAt'>,
@@ -55,6 +58,11 @@ export function OptimisticCommentsProvider({ children }: { children: ReactNode }
 
   const replaceOptimisticComment = (optimisticId: string, realComment: Comment) => {
     setOptimisticComments((prev) => prev.filter((comment) => comment.id !== optimisticId))
+    setRealComments((prev) => [...prev, realComment])
+  }
+
+  const addRealComment = (comment: Comment) => {
+    setRealComments((prev) => [...prev, comment])
   }
 
   return (
@@ -64,6 +72,8 @@ export function OptimisticCommentsProvider({ children }: { children: ReactNode }
         addOptimisticComment,
         removeOptimisticComment,
         replaceOptimisticComment,
+        realComments,
+        addRealComment,
       }}
     >
       {children}

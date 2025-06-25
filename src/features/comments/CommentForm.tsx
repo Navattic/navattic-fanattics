@@ -22,33 +22,36 @@ function CommentForm({ user, challenge }: CommentFormProps) {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
 
-    if (!comment.trim()) return
+    if (!comment.trim() || status === 'executing') return
 
     const commentContent = comment.trim()
     setStatus('executing')
     setError(null)
 
-    console.log('Adding optimistic comment...')
-
-    // Add optimistic comment
-    const optimisticId = addOptimisticComment({
-      content: commentContent,
-      user: user,
-      challenge: challenge,
-      parent: null,
-      status: 'approved',
-      deleted: false,
-      likes: 0,
-      likedBy: [],
-      flaggedReports: 0,
-    })
-
-    console.log('Optimistic comment added with ID:', optimisticId)
-
-    // Clear form immediately
-    setComment('')
+    let optimisticId: string | null = null
 
     try {
+      console.log('Adding optimistic comment...')
+
+      // Add optimistic comment
+      optimisticId = addOptimisticComment({
+        content: commentContent,
+        user: user,
+        challenge: challenge,
+        parent: null,
+        status: 'approved',
+        deleted: false,
+        likes: 0,
+        likedBy: [],
+        flaggedReports: 0,
+      })
+
+      console.log('Optimistic comment added with ID:', optimisticId)
+
+      // Clear form immediately
+      setComment('')
+
+      // Wait for server response
       const result = await createComment({
         commentContent,
         user,
@@ -58,12 +61,19 @@ function CommentForm({ user, challenge }: CommentFormProps) {
       console.log('Server response received:', result)
 
       // Replace optimistic comment with real one
-      replaceOptimisticComment(optimisticId, result)
+      if (optimisticId) {
+        replaceOptimisticComment(optimisticId, result)
+      }
+
       setStatus('idle')
     } catch (err) {
       console.error('Error submitting comment:', err)
+
       // Remove optimistic comment on error
-      removeOptimisticComment(optimisticId)
+      if (optimisticId) {
+        removeOptimisticComment(optimisticId)
+      }
+
       setStatus('error')
       setError('Failed to post comment. Please try again.')
     }
@@ -71,6 +81,7 @@ function CommentForm({ user, challenge }: CommentFormProps) {
 
   function handleCancel() {
     setComment('')
+    setError(null)
   }
 
   return (

@@ -37,13 +37,25 @@ export async function createComment({
     })
 
     revalidateTag('challenge-data')
-    await new Promise((resolve) => setTimeout(resolve, 100))
-    revalidateTag('challenge-data')
 
     return result
   } catch (error) {
-    console.error('Error creating comment:', error)
-    throw new Error('Failed to create comment')
+    console.error('Server: Error creating comment:', error)
+
+    // Log more details about the error
+    if (error instanceof Error) {
+      console.error('Server: Error message:', error.message)
+      console.error('Server: Error stack:', error.stack)
+    }
+
+    // Check if it's a database connection error
+    if (error && typeof error === 'object' && 'code' in error) {
+      console.error('Server: Database error code:', error.code)
+    }
+
+    throw new Error(
+      `Failed to create comment: ${error instanceof Error ? error.message : 'Unknown error'}`,
+    )
   }
 }
 
@@ -94,23 +106,6 @@ export const adjustLikes = async ({
   return {
     likes: updatedComment.likes || 0,
     isLiked: newLikedBy.some((u) => u.id === user.id),
-  }
-}
-
-export async function getComments(challengeId: number): Promise<Comment[]> {
-  try {
-    const result = await payload.find({
-      collection: 'comments',
-      where: {
-        challenge: { equals: challengeId },
-        status: { equals: 'approved' },
-      },
-      depth: 10,
-    })
-    return result.docs
-  } catch (error) {
-    console.error('Error fetching comments:', error)
-    throw new Error('Failed to fetch comments')
   }
 }
 

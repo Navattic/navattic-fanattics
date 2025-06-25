@@ -83,8 +83,8 @@ const Home = async () => {
             description={userPointsDescription}
             button={
               <Button href="/challenges" variant="outline" size="sm">
-                <Icon name="arrow-right" className="size-4" />
                 View challenges
+                <Icon name="arrow-right" className="size-4" />
               </Button>
             }
           />

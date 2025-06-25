@@ -57,23 +57,24 @@ function CommentTree({
 }
 
 const CommentSection = ({ challenge }: { challenge: Challenge & { comments: Comment[] } }) => {
-  const { optimisticComments } = useOptimisticComments()
-
-  console.log('Real comments:', challenge.comments.length)
-  console.log('Optimistic comments:', optimisticComments.length)
+  const { optimisticComments, realComments } = useOptimisticComments()
 
   // Merge real comments with optimistic comments
-  // Put optimistic comments FIRST (at the top)
+  // Include both challenge.comments and realComments from context
   const allComments: (Comment | OptimisticComment)[] = [
     ...optimisticComments, // Optimistic comments first
+    ...realComments, // Real comments from context
     ...challenge.comments.filter((comment) => comment.status === 'approved' && !comment.deleted),
   ]
 
-  console.log('Total comments after merge:', allComments.length)
+  // Remove duplicates (in case a comment exists in both realComments and challenge.comments)
+  const uniqueComments = allComments.filter(
+    (comment, index, self) => index === self.findIndex((c) => c.id === comment.id),
+  )
 
   // Then separate them in memory
-  const topLevelComments = allComments.filter((comment) => !comment.parent)
-  const replies = allComments.filter((comment) => comment.parent)
+  const topLevelComments = uniqueComments.filter((comment) => !comment.parent)
+  const replies = uniqueComments.filter((comment) => comment.parent)
 
   // Build replies map from the replies query
   const repliesMap = replies.reduce(
