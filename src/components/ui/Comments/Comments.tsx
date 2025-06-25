@@ -10,6 +10,12 @@ import { CommentEditForm } from '@/features/comments/CommentEditForm'
 import { softDeleteComment } from '@/features/comments/actions'
 import { Icon } from '../Icon'
 import OpenProfileDrawer from '../UserProfilePreviewModal/OpenProfileDrawer'
+import { OptimisticComment } from '@/features/comments/OptimisticCommentsContext'
+
+// Type guard to check if comment is optimistic
+function isOptimisticComment(comment: Comment | OptimisticComment): comment is OptimisticComment {
+  return 'isOptimistic' in comment && comment.isOptimistic === true
+}
 
 export function CommentBlock({
   comment: initialComment,
@@ -20,7 +26,7 @@ export function CommentBlock({
   hasParent,
   parentHasSiblings,
 }: {
-  comment: Comment
+  comment: Comment | OptimisticComment
   user: User
   challenge: Challenge
   hasChild: boolean
@@ -34,7 +40,7 @@ export function CommentBlock({
 
   const handleCommentDelete = async () => {
     try {
-      const updatedComment = await softDeleteComment(comment.id)
+      const updatedComment = await softDeleteComment(comment.id as number)
       setComment(updatedComment)
     } catch (error) {
       console.error('Error deleting comment:', error)
@@ -44,7 +50,10 @@ export function CommentBlock({
   const regularBorder = hasChild
   const sideBorder = parentHasSiblings && (hasChild || hasParent) && !isLastChildOfParent
   const noBorder = isLastChildOfParent && !hasChild
-  
+
+  // Don't show actions for optimistic comments
+  const showActions = !isOptimisticComment(comment)
+
   return (
     <>
       <div key={comment.id} className="flex flex-col">
@@ -72,7 +81,12 @@ export function CommentBlock({
                 {user.firstName} {user.lastName}
               </OpenProfileDrawer>
             )}
-            <div className="text-sm text-gray-400">• {formatPostDate(comment.createdAt)}</div>
+            <div className="text-sm text-gray-400">
+              • {formatPostDate(comment.createdAt)}
+              {isOptimisticComment(comment) && (
+                <span className="ml-1 text-blue-500">(posting...)</span>
+              )}
+            </div>
           </div>
         </div>
         <div className="relative flex items-stretch">
@@ -80,9 +94,9 @@ export function CommentBlock({
             {!noBorder && regularBorder && <div className="h-full w-0.5 bg-gray-300" />}
           </div>
           <div className="w-full flex-col">
-            {isEditing ? (
+            {isEditing && !isOptimisticComment(comment) ? (
               <CommentEditForm
-                commentId={comment.id}
+                commentId={comment.id as number}
                 initialContent={comment.content}
                 onCancel={() => setIsEditing(false)}
                 onSuccess={(updatedComment) => {
@@ -95,7 +109,7 @@ export function CommentBlock({
             ) : (
               <div className="text-base text-gray-800">{comment.content}</div>
             )}
-            {!comment.deleted && (
+            {!comment.deleted && showActions && (
               <CommentActions
                 setOpenReply={setOpenReply}
                 openReply={openReply}
@@ -108,7 +122,7 @@ export function CommentBlock({
           </div>
         </div>
       </div>
-      {openReply && (
+      {openReply && showActions && (
         <CommentReplyForm
           parentComment={comment}
           user={user}

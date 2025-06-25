@@ -3,6 +3,7 @@ import { CommentBlock } from '@/components/ui/Comments/Comments'
 import { cn } from '@/lib/utils'
 import { Suspense } from 'react'
 import { CommentSkeleton } from '@/components/ui/Skeletons/CommentSkeleton'
+import { useOptimisticComments, OptimisticComment } from './OptimisticCommentsContext'
 
 function CommentTree({
   comment,
@@ -10,10 +11,10 @@ function CommentTree({
   challenge,
   repliesMap,
 }: {
-  comment: Comment
+  comment: Comment | OptimisticComment
   user: User
   challenge: Challenge
-  repliesMap: Record<string, Comment[]>
+  repliesMap: Record<string, (Comment | OptimisticComment)[]>
 }) {
   const replies = repliesMap[comment.id] || []
   const hasChild = replies.length > 0
@@ -56,9 +57,19 @@ function CommentTree({
 }
 
 const CommentSection = ({ challenge }: { challenge: Challenge & { comments: Comment[] } }) => {
-  const allComments = challenge.comments.filter(
-    (comment) => comment.status === 'approved' && !comment.deleted,
-  )
+  const { optimisticComments } = useOptimisticComments()
+
+  console.log('Real comments:', challenge.comments.length)
+  console.log('Optimistic comments:', optimisticComments.length)
+
+  // Merge real comments with optimistic comments
+  // Put optimistic comments FIRST (at the top)
+  const allComments: (Comment | OptimisticComment)[] = [
+    ...optimisticComments, // Optimistic comments first
+    ...challenge.comments.filter((comment) => comment.status === 'approved' && !comment.deleted),
+  ]
+
+  console.log('Total comments after merge:', allComments.length)
 
   // Then separate them in memory
   const topLevelComments = allComments.filter((comment) => !comment.parent)
@@ -74,7 +85,7 @@ const CommentSection = ({ challenge }: { challenge: Challenge & { comments: Comm
       }
       return acc
     },
-    {} as Record<string, Comment[]>,
+    {} as Record<string, (Comment | OptimisticComment)[]>,
   )
 
   return (

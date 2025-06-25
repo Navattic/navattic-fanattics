@@ -5,6 +5,7 @@ import Avatar from '@/components/ui/Avatar'
 import { Challenge, User } from '@/payload-types'
 import { Button } from '@/components/ui'
 import { createComment } from './actions'
+import { useOptimisticComments } from './OptimisticCommentsContext'
 
 interface CommentFormProps {
   user: User
@@ -15,6 +16,8 @@ function CommentForm({ user, challenge }: CommentFormProps) {
   const [comment, setComment] = useState('')
   const [status, setStatus] = useState<'idle' | 'executing' | 'error'>('idle')
   const [error, setError] = useState<string | null>(null)
+  const { addOptimisticComment, removeOptimisticComment, replaceOptimisticComment } =
+    useOptimisticComments()
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -25,17 +28,42 @@ function CommentForm({ user, challenge }: CommentFormProps) {
     setStatus('executing')
     setError(null)
 
+    console.log('Adding optimistic comment...')
+
+    // Add optimistic comment
+    const optimisticId = addOptimisticComment({
+      content: commentContent,
+      user: user,
+      challenge: challenge,
+      parent: null,
+      status: 'approved',
+      deleted: false,
+      likes: 0,
+      likedBy: [],
+      flaggedReports: 0,
+    })
+
+    console.log('Optimistic comment added with ID:', optimisticId)
+
+    // Clear form immediately
+    setComment('')
+
     try {
-      await createComment({
+      const result = await createComment({
         commentContent,
         user,
         challenge,
       })
 
-      setComment('')
+      console.log('Server response received:', result)
+
+      // Replace optimistic comment with real one
+      replaceOptimisticComment(optimisticId, result)
       setStatus('idle')
     } catch (err) {
       console.error('Error submitting comment:', err)
+      // Remove optimistic comment on error
+      removeOptimisticComment(optimisticId)
       setStatus('error')
       setError('Failed to post comment. Please try again.')
     }
