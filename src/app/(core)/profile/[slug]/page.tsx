@@ -32,8 +32,8 @@ const ProfilePage = async ({ params }: { params: Promise<{ slug: string }> }) =>
         equals: slug,
       },
     },
-    limit: 1,
-    depth: 1,
+    // limit: 1,
+    // depth: 1,
   })
 
   // If no user found with this slug, return 404

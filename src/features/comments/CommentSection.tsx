@@ -3,6 +3,7 @@ import { CommentBlock } from '@/components/ui/Comments/Comments'
 import { cn } from '@/lib/utils'
 import { Suspense } from 'react'
 import { CommentSkeleton } from '@/components/ui/Skeletons/CommentSkeleton'
+import { useOptimisticComments, OptimisticComment } from './OptimisticCommentsContext'
 
 function CommentTree({
   comment,
@@ -10,10 +11,10 @@ function CommentTree({
   challenge,
   repliesMap,
 }: {
-  comment: Comment
+  comment: Comment | OptimisticComment
   user: User
   challenge: Challenge
-  repliesMap: Record<string, Comment[]>
+  repliesMap: Record<string, (Comment | OptimisticComment)[]>
 }) {
   const replies = repliesMap[comment.id] || []
   const hasChild = replies.length > 0
@@ -56,13 +57,24 @@ function CommentTree({
 }
 
 const CommentSection = ({ challenge }: { challenge: Challenge & { comments: Comment[] } }) => {
-  const allComments = challenge.comments.filter(
-    (comment) => comment.status === 'approved' && !comment.deleted,
+  const { optimisticComments, realComments } = useOptimisticComments()
+
+  // Merge real comments with optimistic comments
+  // Include both challenge.comments and realComments from context
+  const allComments: (Comment | OptimisticComment)[] = [
+    ...optimisticComments, // Optimistic comments first
+    ...realComments, // Real comments from context
+    ...challenge.comments.filter((comment) => comment.status === 'approved' && !comment.deleted),
+  ]
+
+  // Remove duplicates (in case a comment exists in both realComments and challenge.comments)
+  const uniqueComments = allComments.filter(
+    (comment, index, self) => index === self.findIndex((c) => c.id === comment.id),
   )
 
   // Then separate them in memory
-  const topLevelComments = allComments.filter((comment) => !comment.parent)
-  const replies = allComments.filter((comment) => comment.parent)
+  const topLevelComments = uniqueComments.filter((comment) => !comment.parent)
+  const replies = uniqueComments.filter((comment) => comment.parent)
 
   // Build replies map from the replies query
   const repliesMap = replies.reduce(
@@ -74,7 +86,7 @@ const CommentSection = ({ challenge }: { challenge: Challenge & { comments: Comm
       }
       return acc
     },
-    {} as Record<string, Comment[]>,
+    {} as Record<string, (Comment | OptimisticComment)[]>,
   )
 
   return (

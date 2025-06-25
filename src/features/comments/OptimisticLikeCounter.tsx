@@ -5,7 +5,18 @@ import { useState } from 'react'
 import { adjustLikes } from './actions'
 import { Comment, User } from '@/payload-types'
 
-function OptimisticLikeCounter({ comment, currentUser }: { comment: Comment; currentUser: User }) {
+// Extend Comment type to include optimistic flag
+interface ExtendedComment extends Comment {
+  isOptimistic?: boolean
+}
+
+function OptimisticLikeCounter({
+  comment,
+  currentUser,
+}: {
+  comment: ExtendedComment
+  currentUser: User
+}) {
   const { likedBy, likes, user } = comment
 
   const isLikedByCurrentUser =
@@ -22,7 +33,8 @@ function OptimisticLikeCounter({ comment, currentUser }: { comment: Comment; cur
   const [isPending, setIsPending] = useState(false)
 
   const handleLikeToggle = async () => {
-    if (isPending) return
+    // Don't allow liking optimistic comments
+    if (isPending || comment.isOptimistic) return
 
     const action = optimisticState.isLiked ? 'unlike' : 'like'
     const amount = action === 'like' ? 1 : -1
@@ -55,7 +67,12 @@ function OptimisticLikeCounter({ comment, currentUser }: { comment: Comment; cur
   }
 
   return (
-    <Button variant="ghost" size="sm" onClick={handleLikeToggle} disabled={isPending}>
+    <Button
+      variant="ghost"
+      size="sm"
+      onClick={handleLikeToggle}
+      disabled={isPending || comment.isOptimistic}
+    >
       <Icon
         name={optimisticState.isLiked ? 'thumbs-up-filled' : 'thumbs-up'}
         size="sm"

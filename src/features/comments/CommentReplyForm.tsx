@@ -5,6 +5,7 @@ import Avatar from '@/components/ui/Avatar'
 import { Challenge, User, Comment as PayloadComment } from '@/payload-types'
 import { Button } from '@/components/ui'
 import { createComment } from './actions'
+import { useOptimisticComments } from './OptimisticCommentsContext'
 
 interface CommentReplyFormProps {
   parentComment: PayloadComment
@@ -24,36 +25,67 @@ function CommentReplyForm({
   const [commentContent, setCommentContent] = useState('')
   const [status, setStatus] = useState<'idle' | 'executing' | 'error'>('idle')
   const [error, setError] = useState<string | null>(null)
+  const { addOptimisticComment, removeOptimisticComment, replaceOptimisticComment } =
+    useOptimisticComments()
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
 
-    if (!commentContent.trim()) return
+    if (!commentContent.trim() || status === 'executing') return
 
     const content = commentContent.trim()
     setStatus('executing')
     setError(null)
 
+    let optimisticId: string | null = null
+
     try {
-      await createComment({
+      // Add optimistic comment
+      optimisticId = addOptimisticComment({
+        content: content,
+        user: user,
+        challenge: challenge,
+        parent: parentComment,
+        status: 'approved',
+        deleted: false,
+        likes: 0,
+        likedBy: [],
+        flaggedReports: 0,
+      })
+
+      // Clear form and close reply form immediately
+      setCommentContent('')
+      setOpenReply(false)
+
+      const result = await createComment({
         commentContent: content,
         user,
         challenge,
         parentComment,
       })
 
-      setCommentContent('')
+      // Replace optimistic comment with real one
+      if (optimisticId) {
+        replaceOptimisticComment(optimisticId, result)
+      }
+
       setStatus('idle')
-      setOpenReply(false)
     } catch (err) {
       setStatus('error')
       setError('Failed to post reply. Please try again.')
+
+      // Remove optimistic comment on error
+      if (optimisticId) {
+        removeOptimisticComment(optimisticId)
+      }
+
       console.error('Error submitting reply:', err)
     }
   }
 
   function handleCancel() {
     setCommentContent('')
+    setError(null)
     setOpenReply(false)
   }
 

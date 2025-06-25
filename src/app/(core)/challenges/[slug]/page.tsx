@@ -58,7 +58,7 @@ const getChallengeData = unstable_cache(
     }
   },
   ['challenge-data'],
-  { revalidate: 60 },
+  { revalidate: 10 },
 )
 
 // Add revalidation since challenges are mostly static

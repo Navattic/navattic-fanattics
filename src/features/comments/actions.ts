@@ -2,7 +2,7 @@
 
 import { payload } from '@/lib/payloadClient'
 import { User, Challenge, Comment } from '@/payload-types'
-import { revalidateTag } from 'next/cache'
+import { revalidateTag, revalidatePath } from 'next/cache'
 
 export async function createComment({
   commentContent,
@@ -36,8 +36,7 @@ export async function createComment({
       },
     })
 
-    revalidateTag('challenge-data')
-    await new Promise((resolve) => setTimeout(resolve, 100))
+    // Simple revalidation without delays
     revalidateTag('challenge-data')
 
     return result
@@ -94,23 +93,6 @@ export const adjustLikes = async ({
   return {
     likes: updatedComment.likes || 0,
     isLiked: newLikedBy.some((u) => u.id === user.id),
-  }
-}
-
-export async function getComments(challengeId: number): Promise<Comment[]> {
-  try {
-    const result = await payload.find({
-      collection: 'comments',
-      where: {
-        challenge: { equals: challengeId },
-        status: { equals: 'approved' },
-      },
-      depth: 10,
-    })
-    return result.docs
-  } catch (error) {
-    console.error('Error fetching comments:', error)
-    throw new Error('Failed to fetch comments')
   }
 }
 
