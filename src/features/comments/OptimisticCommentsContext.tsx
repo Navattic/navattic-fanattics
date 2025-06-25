@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useState, ReactNode } from 'react'
+import { createContext, useContext, useState, ReactNode, useEffect } from 'react'
 import { Comment, User, Challenge } from '@/payload-types'
 
 export interface OptimisticComment extends Omit<Comment, 'id' | 'createdAt' | 'updatedAt'> {
@@ -12,13 +12,14 @@ export interface OptimisticComment extends Omit<Comment, 'id' | 'createdAt' | 'u
 
 interface OptimisticCommentsContextType {
   optimisticComments: OptimisticComment[]
+  realComments: Comment[]
   addOptimisticComment: (
     comment: Omit<OptimisticComment, 'id' | 'isOptimistic' | 'createdAt' | 'updatedAt'>,
   ) => string
   removeOptimisticComment: (optimisticId: string) => void
   replaceOptimisticComment: (optimisticId: string, realComment: Comment) => void
-  realComments: Comment[]
   addRealComment: (comment: Comment) => void
+  clearAllComments: () => void // Add cleanup function
 }
 
 const OptimisticCommentsContext = createContext<OptimisticCommentsContextType | null>(null)
@@ -26,6 +27,21 @@ const OptimisticCommentsContext = createContext<OptimisticCommentsContextType | 
 export function OptimisticCommentsProvider({ children }: { children: ReactNode }) {
   const [optimisticComments, setOptimisticComments] = useState<OptimisticComment[]>([])
   const [realComments, setRealComments] = useState<Comment[]>([])
+
+  // Cleanup function
+  const clearAllComments = () => {
+    setOptimisticComments([])
+    setRealComments([])
+  }
+
+  // Auto-cleanup optimistic comments after a timeout
+  useEffect(() => {
+    const cleanupTimer = setTimeout(() => {
+      setOptimisticComments([])
+    }, 30000) // Clean up after 30 seconds
+
+    return () => clearTimeout(cleanupTimer)
+  }, [])
 
   const addOptimisticComment = (
     commentData: Omit<OptimisticComment, 'id' | 'isOptimistic' | 'createdAt' | 'updatedAt'>,
@@ -69,11 +85,12 @@ export function OptimisticCommentsProvider({ children }: { children: ReactNode }
     <OptimisticCommentsContext.Provider
       value={{
         optimisticComments,
+        realComments,
         addOptimisticComment,
         removeOptimisticComment,
         replaceOptimisticComment,
-        realComments,
         addRealComment,
+        clearAllComments,
       }}
     >
       {children}

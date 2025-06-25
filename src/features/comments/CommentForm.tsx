@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Avatar from '@/components/ui/Avatar'
 import { Challenge, User } from '@/payload-types'
 import { Button } from '@/components/ui'
@@ -18,6 +18,16 @@ function CommentForm({ user, challenge }: CommentFormProps) {
   const [error, setError] = useState<string | null>(null)
   const { addOptimisticComment, removeOptimisticComment, replaceOptimisticComment } =
     useOptimisticComments()
+
+  // Add ref to track if component is mounted
+  const isMountedRef = useRef(true)
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false
+    }
+  }, [])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -60,22 +70,26 @@ function CommentForm({ user, challenge }: CommentFormProps) {
 
       console.log('Server response received:', result)
 
-      // Replace optimistic comment with real one
-      if (optimisticId) {
-        replaceOptimisticComment(optimisticId, result)
+      // Only update state if component is still mounted
+      if (isMountedRef.current) {
+        // Replace optimistic comment with real one
+        if (optimisticId) {
+          replaceOptimisticComment(optimisticId, result)
+        }
+        setStatus('idle')
       }
-
-      setStatus('idle')
     } catch (err) {
       console.error('Error submitting comment:', err)
 
-      // Remove optimistic comment on error
-      if (optimisticId) {
-        removeOptimisticComment(optimisticId)
+      // Only update state if component is still mounted
+      if (isMountedRef.current) {
+        // Remove optimistic comment on error
+        if (optimisticId) {
+          removeOptimisticComment(optimisticId)
+        }
+        setStatus('error')
+        setError('Failed to post comment. Please try again.')
       }
-
-      setStatus('error')
-      setError('Failed to post comment. Please try again.')
     }
   }
 

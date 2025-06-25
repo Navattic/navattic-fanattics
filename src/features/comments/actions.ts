@@ -2,7 +2,7 @@
 
 import { payload } from '@/lib/payloadClient'
 import { User, Challenge, Comment } from '@/payload-types'
-import { revalidateTag } from 'next/cache'
+import { revalidateTag, revalidatePath } from 'next/cache'
 
 export async function createComment({
   commentContent,
@@ -36,26 +36,13 @@ export async function createComment({
       },
     })
 
+    // Simple revalidation without delays
     revalidateTag('challenge-data')
 
     return result
   } catch (error) {
-    console.error('Server: Error creating comment:', error)
-
-    // Log more details about the error
-    if (error instanceof Error) {
-      console.error('Server: Error message:', error.message)
-      console.error('Server: Error stack:', error.stack)
-    }
-
-    // Check if it's a database connection error
-    if (error && typeof error === 'object' && 'code' in error) {
-      console.error('Server: Database error code:', error.code)
-    }
-
-    throw new Error(
-      `Failed to create comment: ${error instanceof Error ? error.message : 'Unknown error'}`,
-    )
+    console.error('Error creating comment:', error)
+    throw new Error('Failed to create comment')
   }
 }
 

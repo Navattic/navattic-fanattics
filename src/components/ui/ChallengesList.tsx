@@ -11,7 +11,6 @@ const ChallengesList = async ({
   challengesData: Challenge[]
   userLedgerEntries: Ledger[]
 }) => {
-
   // Fetch comment counts for all challenges in one query
   const commentCounts = await Promise.all(
     challengesData.map(async (challenge) => {
@@ -47,8 +46,8 @@ const ChallengesList = async ({
             <div className="mb-2 space-y-2">
               <div className="flex items-center gap-4">
                 <Badge size="sm" colorScheme="brand">
-                  <Icon name="coins" size="sm" className="mr-1" />
-                  {challenge.points} points
+                  Win {challenge.points} points
+                  <Icon name="coins" size="xs" className="ml-1" />
                 </Badge>
                 {isCompleted && (
                   <Badge size="sm" colorScheme="green">
