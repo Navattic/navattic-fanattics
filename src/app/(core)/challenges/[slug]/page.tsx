@@ -19,7 +19,7 @@ interface PopulatedChallenge extends Challenge {
   ledger?: Ledger[]
 }
 
-// Cache the challenge data fetch
+// Cache only the challenge data (not comments)
 const getChallengeData = unstable_cache(
   async (slug: string) => {
     const challengeResult = await payload.find({
@@ -35,34 +35,16 @@ const getChallengeData = unstable_cache(
     })
 
     if (challengeResult.totalDocs === 0) {
-      return { challenge: null, comments: [] }
+      return { challenge: null }
     }
 
-    const challenge = challengeResult.docs[0]
-
-    // Fetch all comments for this challenge with proper depth for nested replies
-    const commentsResult = await payload.find({
-      collection: 'comments',
-      where: {
-        challenge: { equals: challenge.id },
-        status: { equals: 'approved' },
-        deleted: { equals: false },
-      },
-      depth: 5, // 5 levels deep: top-level + 4 nested levels
-      sort: 'createdAt',
-    })
-
     return {
-      challenge,
-      comments: commentsResult.docs,
+      challenge: challengeResult.docs[0],
     }
   },
   ['challenge-data'],
-  { revalidate: 10 },
+  { revalidate: 3600 }, // 1 hour for challenge data
 )
-
-// Add revalidation since challenges are mostly static
-export const revalidate = 3600 // 1h
 
 // Add this export to force dynamic rendering
 export const dynamic = 'force-dynamic'
@@ -71,9 +53,9 @@ const ChallengePage = async ({ params }: { params: Promise<{ slug: string }> }) 
   const { slug } = await params
   const session = await getServerSession(authOptions)
 
-  // Update the challenge data fetch to use slug
+  // Fetch challenge data (cached) and user data
   const [challengeData, userData] = await Promise.all([
-    getChallengeData(slug), // Use slug instead of params.slug
+    getChallengeData(slug),
     session?.user?.email
       ? payload.find({
           collection: 'users',
@@ -88,9 +70,22 @@ const ChallengePage = async ({ params }: { params: Promise<{ slug: string }> }) 
   const sessionUser = userData?.docs[0]
   const userPoints = sessionUser ? await calculateUserPoints({ user: sessionUser }) : 0
 
+  // Fetch comments directly without caching
+  const commentsResult = await payload.find({
+    collection: 'comments',
+    where: {
+      challenge: { equals: challengeData.challenge.id },
+      status: { equals: 'approved' },
+      deleted: { equals: false },
+    },
+    depth: 5,
+    sort: 'createdAt',
+    limit: 200,
+  })
+
   const challenge = {
     ...(challengeData.challenge as PopulatedChallenge),
-    comments: challengeData.comments,
+    comments: commentsResult.docs,
   } as PopulatedChallenge
 
   // Filter user's ledger entries from the populated data
@@ -138,7 +133,7 @@ const ChallengePage = async ({ params }: { params: Promise<{ slug: string }> }) 
                 </Badge>
                 <div className="flex items-center justify-center gap-1 text-gray-500">
                   <Icon name="message-square" className="text-gray-400" />
-                  {challenge.comments?.length || 0}
+                  {commentsResult.totalDocs || 0}
                 </div>
                 <div className="flex items-center justify-center gap-1 text-gray-500">
                   <Icon name="clock" className="text-gray-400" />
