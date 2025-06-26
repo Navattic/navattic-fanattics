@@ -15,7 +15,7 @@ import { authOptions } from '@/lib/authOptions'
 interface UserWithStats {
   user: User
   points: number
-  commentCount: number
+  challengesCompleted: number
   lastCommentDate: string | null
 }
 
@@ -35,24 +35,41 @@ const Leaderboard = async () => {
   ).docs as PopulatedUser[]
 
   // Process user stats in memory
-  const usersWithStats: UserWithStats[] = users.map((user) => ({
-    user,
-    points:
-      user.ledger?.reduce((total: number, entry: Ledger) => total + (entry.amount || 0), 0) || 0,
-    commentCount:
-      user.comments?.filter((comment) => comment.status === 'approved' && !comment.deleted)
-        .length || 0,
-    lastCommentDate:
-      user.comments
-        ?.filter((comment) => comment.status === 'approved' && !comment.deleted)
-        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0]
-        ?.createdAt || null,
-  }))
+  const usersWithStats: UserWithStats[] = users.map((user) => {
+    // Calculate completed challenges by counting unique challenge_id entries in ledger
+    const completedChallenges = new Set(
+      user.ledger
+        ?.filter(
+          (entry: Ledger) =>
+            entry.amount > 0 && // Only count positive point entries
+            entry.challenge_id && // Must have a challenge reference
+            typeof entry.challenge_id === 'object' &&
+            entry.challenge_id?.id,
+        )
+        .map((entry: Ledger) =>
+          typeof entry.challenge_id === 'object' ? entry.challenge_id?.id : null,
+        )
+        .filter(Boolean) || [],
+    )
 
-  // Sort users based on points, comment count, and most recent comment
+    return {
+      user,
+      points:
+        user.ledger?.reduce((total: number, entry: Ledger) => total + (entry.amount || 0), 0) || 0,
+      challengesCompleted: completedChallenges.size,
+      lastCommentDate:
+        user.comments
+          ?.filter((comment) => comment.status === 'approved' && !comment.deleted)
+          .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0]
+          ?.createdAt || null,
+    }
+  })
+
+  // Sort users based on points, challenges completed, and most recent comment
   const sortedUsers = usersWithStats.sort((a, b) => {
     if (a.points !== b.points) return b.points - a.points
-    if (a.commentCount !== b.commentCount) return b.commentCount - a.commentCount
+    if (a.challengesCompleted !== b.challengesCompleted)
+      return b.challengesCompleted - a.challengesCompleted
     if (a.lastCommentDate && b.lastCommentDate) {
       return new Date(b.lastCommentDate).getTime() - new Date(a.lastCommentDate).getTime()
     }
@@ -91,12 +108,14 @@ const Leaderboard = async () => {
                   user={sortedUsers[0].user}
                   position={1}
                   points={sortedUsers[0].points}
+                  challengesCompleted={sortedUsers[0].challengesCompleted}
                 />
                 {sortedUsers.length > 1 && (
                   <PodiumCard
                     user={sortedUsers[1].user}
                     position={2}
                     points={sortedUsers[1].points}
+                    challengesCompleted={sortedUsers[1].challengesCompleted}
                   />
                 )}
                 {sortedUsers.length > 2 && (
@@ -104,6 +123,7 @@ const Leaderboard = async () => {
                     user={sortedUsers[2].user}
                     position={3}
                     points={sortedUsers[2].points}
+                    challengesCompleted={sortedUsers[2].challengesCompleted}
                   />
                 )}
               </>

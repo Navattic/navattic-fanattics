@@ -1,7 +1,5 @@
 import type { User } from '@/payload-types'
 import Avatar from '../Avatar'
-import { calculateUserNumComments } from '@/lib/users/numComments'
-// import { Badge } from '../Badge'
 import { Icon } from '../Icon'
 import OpenProfileDrawer from '../UserProfilePreviewModal/OpenProfileDrawer'
 
@@ -9,10 +7,12 @@ const PodiumCard = async ({
   user,
   position,
   points,
+  challengesCompleted,
 }: {
   user: User
   position: number
   points: number
+  challengesCompleted: number
 }) => {
   const styles = [
     {
@@ -32,7 +32,6 @@ const PodiumCard = async ({
     },
   ]
 
-  const numComments = await calculateUserNumComments({ user })
 
   return (
     <>
@@ -72,11 +71,11 @@ const PodiumCard = async ({
           <div className="flex flex-1 flex-col items-center gap-1 rounded-tl-[8px] rounded-tr-[8px] rounded-br-[12px] rounded-bl-[8px] bg-gray-50 p-2 px-2">
             <div className="text-base font-semibold text-gray-600">
               {' '}
-              <Icon name="message-square" className="mr-2 size-4 text-gray-500" />
-              {numComments}
+              <Icon name="award" className="mr-2 size-4 text-gray-500" />
+              {challengesCompleted}
             </div>
             <div className="text-xs text-gray-500">
-              {numComments === 1 ? 'Comment' : 'Comments'}
+              {challengesCompleted === 1 ? 'Challenge' : 'Challenges'}
             </div>
           </div>
         </div>

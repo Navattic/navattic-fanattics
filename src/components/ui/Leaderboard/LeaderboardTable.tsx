@@ -19,7 +19,7 @@ import OpenProfileDrawer from '../UserProfilePreviewModal/OpenProfileDrawer'
 interface UserWithStats {
   user: User
   points: number
-  commentCount: number
+  challengesCompleted: number
   lastCommentDate: string | null
 }
 
@@ -32,16 +32,10 @@ const LeaderboardTable = ({ users }: { users: UserWithStats[] }) => {
             <TableHead className="w-[100px] px-4">Rank</TableHead>
             <TableHead className="px-4">User</TableHead>
             <TableHead className="px-4">
-              <div className="flex items-center gap-2">
-                {/* <Icon name="message-square" className="size-4 text-gray-500" /> */}
-                Comments
-              </div>
+              <div className="flex items-center gap-2">Challenges Completed</div>
             </TableHead>
             <TableHead className="px-4 text-right">
-              <div className="flex items-center justify-end gap-2">
-                {/* <Icon name="coins" className="size-4 text-gray-500" /> */}
-                Points
-              </div>
+              <div className="flex items-center justify-end gap-2">Points</div>
             </TableHead>
           </TableRow>
         </TableHeader>
@@ -75,10 +69,10 @@ const LeaderboardTable = ({ users }: { users: UserWithStats[] }) => {
               <TableCell
                 className={cn(
                   'px-4 text-sm',
-                  userWithStats.commentCount > 0 ? 'text-gray-800' : 'text-gray-400',
+                  userWithStats.challengesCompleted > 0 ? 'text-gray-800' : 'text-gray-400',
                 )}
               >
-                {userWithStats.commentCount > 0 ? userWithStats.commentCount : '-'}
+                {userWithStats.challengesCompleted > 0 ? userWithStats.challengesCompleted : '-'}
               </TableCell>
               <TableCell
                 className={cn(
