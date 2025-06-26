@@ -1,4 +1,3 @@
-import { User } from '@/payload-types'
 import { CoinsIcon, HandCoinsIcon, BicepsFlexed, MessageCircleReplyIcon } from 'lucide-react'
 
 const StatisticCard = ({
@@ -11,8 +10,8 @@ const StatisticCard = ({
   value: number
 }) => {
   return (
-    <div className="bg-white rounded-xl border border-gray-100 inset-shadow p-4 px-6 shadow-xs flex gap-4">
-      <span className="text-gray-500 mt-1">{icon}</span>
+    <div className="inset-shadow flex gap-4 rounded-xl border border-gray-100 bg-white p-4 px-6 shadow-xs">
+      <span className="mt-1 text-gray-500">{icon}</span>
       <div className="flex flex-col">
         <p className="text-lg font-bold text-gray-900">{value}</p>
         <p className="text-sm text-gray-500">{label}</p>
@@ -21,29 +20,34 @@ const StatisticCard = ({
   )
 }
 
-const Statistics = async ({ user, userPoints }: { user: User, userPoints: number }) => {
-  // TODO: use real data
+interface UserStats {
+  points: number
+  challengesCompleted: number
+  itemsRedeemed: number
+  commentsWritten: number
+}
 
+const Statistics = ({ userStats }: { userStats: UserStats }) => {
   const StatisticData = [
     {
       icon: <CoinsIcon />,
-      label: 'Total points',
-      value: userPoints,
+      label: 'Total points earned',
+      value: userStats.points,
     },
     {
       icon: <BicepsFlexed />,
       label: 'Challenges completed',
-      value: 10,
+      value: userStats.challengesCompleted,
     },
     {
       icon: <HandCoinsIcon />,
       label: 'Items redeemed',
-      value: 1,
+      value: userStats.itemsRedeemed,
     },
     {
       icon: <MessageCircleReplyIcon />,
       label: 'Comments written',
-      value: 24,
+      value: userStats.commentsWritten,
     },
   ]
 

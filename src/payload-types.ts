@@ -31,6 +31,7 @@ export interface Config {
       challengeComments: 'comments';
     };
     users: {
+      ledgerEntries: 'ledger';
       userComments: 'comments';
     };
   };
@@ -165,6 +166,10 @@ export interface User {
   roles?: ('admin' | 'user')[] | null;
   slug?: string | null;
   user_id?: string | null;
+  ledgerEntries?: {
+    docs?: (number | Ledger)[] | null;
+    hasNextPage?: boolean | null;
+  } | null;
   userComments?: {
     docs?: (number | Comment)[] | null;
     hasNextPage?: boolean | null;
@@ -608,6 +613,7 @@ export interface UsersSelect<T extends boolean = true> {
   roles?: T;
   slug?: T;
   user_id?: T;
+  ledgerEntries?: T;
   userComments?: T;
   updatedAt?: T;
   createdAt?: T;

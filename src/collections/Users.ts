@@ -126,6 +126,13 @@ export const Users: CollectionConfig = {
       },
     },
     {
+      name: 'ledgerEntries',
+      type: 'join',
+      collection: 'ledger',
+      on: 'user_id',
+      hasMany: true,
+    },
+    {
       name: 'userComments',
       type: 'join',
       collection: 'comments',

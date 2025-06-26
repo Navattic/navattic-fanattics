@@ -20,7 +20,10 @@ interface UserWithStats {
 }
 
 interface PopulatedUser extends User {
-  ledger?: Ledger[]
+  ledgerEntries?: {
+    docs?: Ledger[]
+    hasNextPage?: boolean
+  }
   comments?: Comment[]
 }
 
@@ -38,7 +41,7 @@ const Leaderboard = async () => {
   const usersWithStats: UserWithStats[] = users.map((user) => {
     // Calculate completed challenges by counting unique challenge_id entries in ledger
     const completedChallenges = new Set(
-      user.ledger
+      user.ledgerEntries?.docs  
         ?.filter(
           (entry: Ledger) =>
             entry.amount > 0 && // Only count positive point entries
@@ -52,10 +55,15 @@ const Leaderboard = async () => {
         .filter(Boolean) || [],
     )
 
+    // Calculate total points earned (only positive entries)
+    const totalPointsEarned =
+      user.ledgerEntries?.docs
+        ?.filter((entry: Ledger) => entry.amount > 0)
+        .reduce((total: number, entry: Ledger) => total + (entry.amount || 0), 0) || 0
+
     return {
       user,
-      points:
-        user.ledger?.reduce((total: number, entry: Ledger) => total + (entry.amount || 0), 0) || 0,
+      points: totalPointsEarned, // Changed from total balance to total points earned
       challengesCompleted: completedChallenges.size,
       lastCommentDate:
         user.comments
