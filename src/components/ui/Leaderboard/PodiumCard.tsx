@@ -66,7 +66,7 @@ const PodiumCard = async ({
               <Icon name="coins" className="mr-2 size-4 text-gray-500" />
               {points}
             </div>
-            <div className="text-xs text-gray-500">Points</div>
+            <div className="text-xs text-gray-500">Total points</div>
           </div>
           <div className="flex flex-1 flex-col items-center gap-1 rounded-tl-[8px] rounded-tr-[8px] rounded-br-[12px] rounded-bl-[8px] bg-gray-50 p-2 px-2">
             <div className="text-base font-semibold text-gray-600">

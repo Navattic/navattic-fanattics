@@ -3,21 +3,30 @@
 import type { User } from '@/payload-types'
 import { useProfileDrawer } from './UserProfilePreviewModalContext'
 
-interface OpenProfileDrawerProps<T = any> {
+interface UserStats {
+  points: number
+  challengesCompleted: number
+  itemsRedeemed: number
+  commentsWritten: number
+}
+
+interface OpenProfileDrawerProps {
   children: React.ReactNode
   user: User
+  stats?: UserStats
   className?: string
 }
 
-export default function OpenProfileDrawer<T>({
+export default function OpenProfileDrawer({
   children,
   user,
+  stats,
   className,
-}: OpenProfileDrawerProps<T>) {
+}: OpenProfileDrawerProps) {
   const { setOpen, setUser } = useProfileDrawer()
 
   const handleClick = () => {
-    if (user) setUser(user)
+    if (user) setUser(user, stats)
     setOpen(true)
   }
 

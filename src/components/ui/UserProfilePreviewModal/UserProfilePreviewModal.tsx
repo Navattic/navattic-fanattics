@@ -1,54 +1,55 @@
 'use client'
 
-import type { Company } from '@/payload-types'
+import type { Company, Ledger } from '@/payload-types'
 import { useProfileDrawer } from './UserProfilePreviewModalContext'
 import {
   Drawer,
   DrawerHeader,
   DrawerContent,
   DrawerTitle,
-  DrawerDescription,
   DrawerClose,
 } from '../../shadcn/ui/drawer'
 import Avatar from '../Avatar'
 import UserEmail from '../UserEmail'
 import { Icon, IconName } from '../Icon'
 import { formatDate } from '@/utils/formatDate'
-import { getUserPoints } from '@/lib/users/actions'
-import { useEffect, useState } from 'react'
 
 function UserProfilePreviewModal() {
-  const { open, setOpen, user } = useProfileDrawer()
-  const [points, setPoints] = useState<number>(0)
+  const { open, setOpen, user, stats } = useProfileDrawer()
 
   const company = user?.company as Company | undefined
 
-  useEffect(() => {
-    if (user) {
-      getUserPoints(user).then(setPoints)
-    }
-  }, [user])
+  // Calculate points from ledger entries if stats are not provided
+  const totalPointsEarned =
+    !stats && user?.ledgerEntries?.docs
+      ? user.ledgerEntries.docs
+          .filter(
+            (entry): entry is Ledger =>
+              typeof entry === 'object' && 'amount' in entry && entry.amount > 0,
+          )
+          .reduce((total: number, entry) => total + (entry.amount || 0), 0)
+      : 0
 
   const StatisticData = [
     {
       icon: 'coins',
-      label: 'Total points',
-      value: points,
+      label: 'Total points earned',
+      value: stats?.points ?? totalPointsEarned,
     },
     {
       icon: 'biceps-flexed',
       label: 'Challenges completed',
-      value: 10,
+      value: stats?.challengesCompleted ?? 0,
     },
     {
       icon: 'hand-coins',
       label: 'Items redeemed',
-      value: 1,
+      value: stats?.itemsRedeemed ?? 0,
     },
     {
       icon: 'message-circle-reply',
       label: 'Comments written',
-      value: 24,
+      value: stats?.commentsWritten ?? 0,
     },
   ]
 
@@ -65,11 +66,13 @@ function UserProfilePreviewModal() {
               <DrawerTitle className="flex items-center gap-2">
                 <Avatar user={user} size="lg" showCompany={true} />
                 <div className="flex flex-col">
-                  {user?.firstName} {user?.lastName}
+                  <span className="capitalize">
+                    {user?.firstName} {user?.lastName}
+                  </span>
                   {user?.email && <UserEmail email={user.email} size="sm" />}
                 </div>
               </DrawerTitle>
-              <DrawerDescription className="mt-4 flex flex-col gap-4">
+              <div className="mt-4 flex flex-col gap-4 text-sm text-gray-400">
                 <div>
                   <div className="text-md mb-2 text-gray-800">About</div>
                   <div className="flex w-full flex-col gap-4 rounded-lg border border-gray-100 bg-gray-50 p-5">
@@ -120,7 +123,7 @@ function UserProfilePreviewModal() {
                     ))}
                   </div>
                 </div>
-              </DrawerDescription>
+              </div>
             </DrawerHeader>
             <DrawerClose className="absolute top-[10px] right-3 cursor-pointer">
               <Icon name="x" className="size-5 text-gray-600" />

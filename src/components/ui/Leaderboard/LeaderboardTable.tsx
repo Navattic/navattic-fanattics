@@ -32,10 +32,10 @@ const LeaderboardTable = ({ users }: { users: UserWithStats[] }) => {
             <TableHead className="w-[100px] px-4">Rank</TableHead>
             <TableHead className="px-4">User</TableHead>
             <TableHead className="px-4">
-              <div className="flex items-center gap-2">Challenges Completed</div>
+              <div className="flex items-center gap-2">Challenges completed</div>
             </TableHead>
             <TableHead className="px-4 text-right">
-              <div className="flex items-center justify-end gap-2">Points</div>
+              <div className="flex items-center justify-end gap-2">Total points</div>
             </TableHead>
           </TableRow>
         </TableHeader>
