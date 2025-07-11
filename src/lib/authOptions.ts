@@ -17,8 +17,8 @@ function PayloadAdapter(): Adapter {
         collection: 'users',
         data: {
           email: data.email,
-          firstName: data.name?.split(' ')[0] || 'Unknown',
-          lastName: data.name?.split(' ')[1] || 'User',
+          firstName: data.name?.split(' ')[0] || '',
+          lastName: data.name?.split(' ')[1] || '',
           roles: ['user'],
           loginMethod: data.account?.provider === 'google' ? 'google' : 'email',
           password: v4(),
