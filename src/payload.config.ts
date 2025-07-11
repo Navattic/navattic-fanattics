@@ -21,6 +21,7 @@ import {
   CompanyLogos,
   Products,
   GiftShopTransactions,
+  VerificationTokens,
 } from './collections'
 
 const filename = fileURLToPath(import.meta.url)
@@ -46,6 +47,7 @@ export default buildConfig({
     CompanyLogos,
     Products,
     GiftShopTransactions,
+    VerificationTokens,
   ],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
@@ -60,8 +62,8 @@ export default buildConfig({
   }),
   sharp,
   email: resendAdapter({
-    defaultFromAddress: 'noreply@mail.navattic.dev', // change to .dev for prod
-    defaultFromName: 'Payload CMS',
+    defaultFromAddress: 'noreply@mail.navattic.dev', // TODO:change to .com for prod
+    defaultFromName: 'Fanattic Portal',
     apiKey: process.env.RESEND_API_KEY || '',
   }),
   plugins: [

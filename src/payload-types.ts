@@ -22,6 +22,7 @@ export interface Config {
     'company-logos': CompanyLogo;
     Products: Product;
     'gift-shop-transactions': GiftShopTransaction;
+    'verification-tokens': VerificationToken;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
@@ -47,6 +48,7 @@ export interface Config {
     'company-logos': CompanyLogosSelect<false> | CompanyLogosSelect<true>;
     Products: ProductsSelect<false> | ProductsSelect<true>;
     'gift-shop-transactions': GiftShopTransactionsSelect<false> | GiftShopTransactionsSelect<true>;
+    'verification-tokens': VerificationTokensSelect<false> | VerificationTokensSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
@@ -451,6 +453,18 @@ export interface GiftShopTransaction {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "verification-tokens".
+ */
+export interface VerificationToken {
+  id: number;
+  identifier: string;
+  token: string;
+  expires: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
@@ -499,6 +513,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'gift-shop-transactions';
         value: number | GiftShopTransaction;
+      } | null)
+    | ({
+        relationTo: 'verification-tokens';
+        value: number | VerificationToken;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -769,6 +787,17 @@ export interface GiftShopTransactionsSelect<T extends boolean = true> {
   adminNotes?: T;
   userNotes?: T;
   fulfillmentDate?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "verification-tokens_select".
+ */
+export interface VerificationTokensSelect<T extends boolean = true> {
+  identifier?: T;
+  token?: T;
+  expires?: T;
   updatedAt?: T;
   createdAt?: T;
 }
