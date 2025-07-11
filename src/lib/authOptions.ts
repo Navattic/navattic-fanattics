@@ -11,16 +11,16 @@ import { Adapter, AdapterUser } from 'next-auth/adapters'
 // Add this custom adapter before the authOptions
 function PayloadAdapter(): Adapter {
   return {
-    async createUser(data: AdapterUser) {
+    async createUser(data: AdapterUser & { account?: { provider: string } }) {
       const payload = await getPayload({ config })
       const user = await payload.create({
         collection: 'users',
         data: {
           email: data.email,
-          firstName: data.name?.split(' ')[0] || '',
-          lastName: data.name?.split(' ')[1] || '',
+          firstName: data.name?.split(' ')[0] || 'Unknown',
+          lastName: data.name?.split(' ')[1] || 'User',
           roles: ['user'],
-          loginMethod: 'email',
+          loginMethod: data.account?.provider === 'google' ? 'google' : 'email',
           password: v4(),
         },
       })
@@ -222,6 +222,7 @@ export const authOptions: NextAuthOptions = {
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID ?? '',
       clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? '',
+      allowDangerousEmailAccountLinking: true,
     }),
   ],
   callbacks: {
@@ -237,20 +238,33 @@ export const authOptions: NextAuthOptions = {
         })
 
         if (existingUser.docs.length > 0) {
-          // User exists - check if trying to use different login method
           const currentUser = existingUser.docs[0]
           const attemptedMethod = account?.provider === 'google' ? 'google' : 'email'
 
-          if (currentUser.loginMethod !== attemptedMethod) {
+          // If user is trying to sign in with Google and they previously used email,
+          // we can allow it since Google accounts are verified
+          if (currentUser.loginMethod !== attemptedMethod && attemptedMethod !== 'google') {
             console.error(
               `User attempted to sign in with ${attemptedMethod} but account uses ${currentUser.loginMethod}`,
             )
             return `/login?error=Use+${currentUser.loginMethod}+to+sign+in`
           }
+
+          // If they're switching from email to Google, update their login method
+          if (currentUser.loginMethod === 'email' && attemptedMethod === 'google') {
+            await payload.update({
+              collection: 'users',
+              id: currentUser.id,
+              data: {
+                loginMethod: 'google',
+              },
+            })
+          }
+
           return true
         }
 
-        // New user - don't create account yet, just allow sign in
+        // New user - allow sign in
         return true
       } catch (error) {
         console.error('Error in SignIn Callback:', error)
