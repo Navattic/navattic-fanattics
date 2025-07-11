@@ -17,8 +17,8 @@ function PayloadAdapter(): Adapter {
         collection: 'users',
         data: {
           email: data.email,
-          firstName: data.name?.split(' ')[0] || 'Unknown',
-          lastName: data.name?.split(' ')[1] || 'User',
+          firstName: data.name?.split(' ')[0] || '',
+          lastName: data.name?.split(' ')[1] || '',
           roles: ['user'],
           loginMethod: 'email',
           password: v4(),
@@ -151,7 +151,9 @@ export const authOptions: NextAuthOptions = {
   },
   pages: {
     signIn: '/login',
-    verifyRequest: '/login?verify=true', // Page shown after email is sent
+    verifyRequest: '/login?verify=true',
+    // Add this line to use the auth-redirect page
+    newUser: '/auth-redirect', // This will redirect new users through our auth-redirect page
   },
   providers: [
     EmailProvider({
@@ -160,6 +162,9 @@ export const authOptions: NextAuthOptions = {
       async sendVerificationRequest({ identifier: email, url }) {
         const payload = await getPayload({ config })
         const { host } = new URL(url)
+
+        // Add email parameter to the URL
+        const urlWithEmail = `${url}${url.includes('?') ? '&' : '?'}email=${encodeURIComponent(email)}`
 
         await payload.sendEmail({
           to: email,
@@ -198,14 +203,14 @@ export const authOptions: NextAuthOptions = {
               </head>
               <body>
                 <div class="container">
-                  <h1>Sign in to ${host}</h1>
+                  <h1>Sign in to the Fanattic Portal!</h1>
                   <p>Click the button below to sign in to your account:</p>
-                  <a href="${url}" class="button">Sign in</a>
+                  <a href="${urlWithEmail}" class="button">Sign in</a>
                   <p>If you didn't request this email, you can safely ignore it.</p>
                   <div class="footer">
                     <p>This link will expire in 24 hours.</p>
                     <p>If the button above doesn't work, you can copy and paste this URL into your browser:</p>
-                    <p>${url}</p>
+                    <p>${urlWithEmail}</p>
                   </div>
                 </div>
               </body>
@@ -221,42 +226,67 @@ export const authOptions: NextAuthOptions = {
   ],
   callbacks: {
     async signIn({ user, account }) {
-      const { email, name } = user
-
-      if (!email) {
-        return false
-      }
+      const { email } = user
+      if (!email) return false
 
       const payload = await getPayload({ config })
-
       try {
         const existingUser = await payload.find({
           collection: 'users',
           where: { email: { equals: email } },
         })
 
-        if (!existingUser.docs.length) {
-          const [firstName, lastName] = name?.split(' ') || ['Unknown', 'User']
+        if (existingUser.docs.length > 0) {
+          // User exists - check if trying to use different login method
+          const currentUser = existingUser.docs[0]
+          const attemptedMethod = account?.provider === 'google' ? 'google' : 'email'
 
-          await payload.create({
-            collection: 'users',
-            data: {
-              email,
-              firstName,
-              lastName,
-              roles: ['user'],
-              loginMethod: (account?.provider === 'google' ? 'google' : 'email') as
-                | 'google'
-                | 'email',
-              password: v4(),
-            },
-          })
+          if (currentUser.loginMethod !== attemptedMethod) {
+            console.error(
+              `User attempted to sign in with ${attemptedMethod} but account uses ${currentUser.loginMethod}`,
+            )
+            return `/login?error=Use+${currentUser.loginMethod}+to+sign+in`
+          }
+          return true
         }
 
+        // New user - don't create account yet, just allow sign in
         return true
       } catch (error) {
         console.error('Error in SignIn Callback:', error)
         return false
+      }
+    },
+    async redirect({ url, baseUrl }) {
+      // If the URL is already pointing to /register, don't interfere
+      if (url.includes('/register')) {
+        return url
+      }
+
+      const fullUrl = url.startsWith('http') ? url : `${baseUrl}${url}`
+
+      try {
+        const urlObj = new URL(fullUrl)
+        let emailParam = urlObj.searchParams.get('email')
+
+        // If no email in URL params, try to get it from the token
+        if (!emailParam && url.includes('callback') && url.includes('token')) {
+          const token = urlObj.searchParams.get('token')
+          const identifier = urlObj.searchParams.get('identifier')
+          if (identifier) {
+            emailParam = identifier
+          }
+        }
+
+        // For callback URLs (when user clicks email link), redirect to register
+        if (url.includes('callback') && url.includes('token')) {
+          return `${baseUrl}/register`
+        }
+
+        return url.startsWith(baseUrl) ? url : baseUrl
+      } catch (error) {
+        console.error('Redirect error:', error)
+        return baseUrl
       }
     },
     async jwt({ token, user }) {
@@ -264,14 +294,6 @@ export const authOptions: NextAuthOptions = {
         token.roles = (user as User).roles
       }
       return token
-    },
-    async redirect({ url, baseUrl }) {
-      // Custom redirect logic
-      if (url.startsWith(baseUrl)) {
-        // Redirect all successful logins to a middleware page, which will determine if they're a new user
-        return `${baseUrl}/auth-redirect`
-      }
-      return url
     },
   },
 }
