@@ -241,32 +241,24 @@ export const authOptions: NextAuthOptions = {
           const currentUser = existingUser.docs[0]
           const attemptedMethod = account?.provider === 'google' ? 'google' : 'email'
 
-          // If user is trying to sign in with Google and they previously used email,
-          // we can allow it since Google accounts are verified
-          if (currentUser.loginMethod !== attemptedMethod && attemptedMethod !== 'google') {
+          if (currentUser.loginMethod !== attemptedMethod) {
             console.error(
               `User attempted to sign in with ${attemptedMethod} but account uses ${currentUser.loginMethod}`,
             )
-            return `/login?error=Use+${currentUser.loginMethod}+to+sign+in`
-          }
 
-          // If they're switching from email to Google, update their login method
-          if (currentUser.loginMethod === 'email' && attemptedMethod === 'google') {
-            await payload.update({
-              collection: 'users',
-              id: currentUser.id,
-              data: {
-                loginMethod: 'google',
-              },
-            })
+            // Instead of returning a relative URL, return false and add an error code
+            // that we can handle in the login page
+            throw new Error(`use_${currentUser.loginMethod}`)
           }
-
           return true
         }
 
-        // New user - allow sign in
         return true
       } catch (error) {
+        // If it's our custom error, throw it to be handled by the error page
+        if (error instanceof Error && error.message.startsWith('use_')) {
+          throw error
+        }
         console.error('Error in SignIn Callback:', error)
         return false
       }

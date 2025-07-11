@@ -10,6 +10,7 @@ import { Input } from '@/components/shadcn/ui/input'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { SignInResponse } from 'next-auth/react'
 
 const emailSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
@@ -20,6 +21,7 @@ type EmailFormData = z.infer<typeof emailSchema>
 export default function LoginForm() {
   const [isLoading, setIsLoading] = useState(false)
   const [emailSent, setEmailSent] = useState(false)
+  const [authError, setAuthError] = useState<string | null>(null)
   const searchParams = useSearchParams()
   const isVerifying = searchParams.get('verify') === 'true'
 
@@ -31,22 +33,53 @@ export default function LoginForm() {
     resolver: zodResolver(emailSchema),
   })
 
-  const handleGoogleSignIn = () => {
+  const handleGoogleSignIn = async () => {
     setIsLoading(true)
-    signIn('google')
+    setAuthError(null)
+    try {
+      const result = await signIn('google', { redirect: false })
+      if (result?.error === 'Error: use_email') {
+        setAuthError(
+          'This account uses email sign-in. Please use the email sign-in option instead.',
+        )
+      }
+    } catch (error) {
+      console.error('Error signing in with Google:', error)
+      setAuthError('An unexpected error occurred. Please try again.')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const handleEmailSignIn = async (data: EmailFormData) => {
     setIsLoading(true)
+    setAuthError(null)
     try {
-      await signIn('email', {
+      const result = await signIn('email', {
         email: data.email,
         callbackUrl: '/',
         redirect: false,
       })
-      setEmailSent(true)
+
+      if (result?.error) {
+        console.log('Comparing error strings:')
+        console.log('Actual error:', result.error)
+        console.log('Expected error:', 'Error: use_google')
+        console.log('Are they equal?', result.error === 'Error: use_google')
+
+        // Instead of exact match, let's check if it includes the key part
+        if (result.error.includes('use_google')) {
+          setAuthError('This account uses Google sign-in, please use that option instead.')
+        } else {
+          console.error('Unexpected sign-in error:', result.error)
+          setAuthError('An error occurred during sign in. Please try again.')
+        }
+      } else {
+        setEmailSent(true)
+      }
     } catch (error) {
       console.error('Error sending magic link:', error)
+      setAuthError('An unexpected error occurred. Please try again.')
     } finally {
       setIsLoading(false)
     }
@@ -108,6 +141,25 @@ export default function LoginForm() {
         />
       </div>
       <h1 className="pb-6 text-lg font-bold text-gray-800">Sign in to Fanattic Portal</h1>
+
+      {authError && (
+        <div className="rounded-md bg-red-50 p-4">
+          <div className="flex">
+            <div className="flex-shrink-0">
+              <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                <path
+                  fillRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </div>
+            <div className="ml-3">
+              <p className="text-sm text-red-700">{authError}</p>
+            </div>
+          </div>
+        </div>
+      )}
 
       <form onSubmit={handleSubmit(handleEmailSignIn)} className="space-y-4">
         <div>
