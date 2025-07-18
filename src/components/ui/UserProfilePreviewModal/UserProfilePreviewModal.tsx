@@ -13,6 +13,7 @@ import Avatar from '../Avatar'
 import UserEmail from '../UserEmail'
 import { Icon, IconName } from '../Icon'
 import { formatDate } from '@/utils/formatDate'
+import { ArrowUpRightIcon } from 'lucide-react'
 
 function UserProfilePreviewModal() {
   const { open, setOpen, user, stats } = useProfileDrawer()
@@ -65,7 +66,7 @@ function UserProfilePreviewModal() {
             <DrawerHeader className="relative w-full p-0">
               <DrawerTitle className="flex items-center gap-2">
                 <Avatar user={user} size="lg" showCompany={true} />
-                <div className="flex flex-col">
+                <div className="flex flex-col gap-1">
                   <span className="capitalize">
                     {user?.firstName} {user?.lastName}
                   </span>
@@ -94,6 +95,34 @@ function UserProfilePreviewModal() {
                             className="text-blue-500 hover:underline"
                           >
                             {company.website}
+                          </a>
+                        </div>
+                      )}
+                      {user?.linkedinUrl && (
+                        <div className="flex items-center gap-3">
+                          <Icon name="linkedin" className="size-4 text-gray-400" />
+                          <a
+                            href={user.linkedinUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="group flex text-sm text-blue-500"
+                          >
+                            LinkedIn Profile
+                            <ArrowUpRightIcon className="ml-0.5 size-3 opacity-50 transition-all duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:scale-[104%] group-hover:opacity-100" />
+                          </a>
+                        </div>
+                      )}
+                      {user?.interactiveDemoUrl && (
+                        <div className="flex items-center gap-3">
+                          <Icon name="navattic" className="size-4 text-gray-400" />
+                          <a
+                            href={user.interactiveDemoUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="group flex text-sm text-blue-500"
+                          >
+                            Favorite Interactive Demo
+                            <ArrowUpRightIcon className="ml-0.5 size-3 opacity-50 transition-all duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:scale-[104%] group-hover:opacity-100" />
                           </a>
                         </div>
                       )}

@@ -24,6 +24,26 @@ const formSchema = z.object({
   avatar: z.instanceof(File).optional(),
   bio: z.string().max(500).optional(),
   company: z.number().optional(),
+  linkedinUrl: z
+    .string()
+    .optional()
+    .or(z.literal(''))
+    .refine((url) => {
+      if (!url) return true // Allow empty values
+
+      try {
+        const urlObj = new URL(url)
+        const isLinkedIn =
+          urlObj.hostname === 'linkedin.com' || urlObj.hostname === 'www.linkedin.com'
+        const hasProfilePath = urlObj.pathname.startsWith('/in/')
+        const hasValidUsername = urlObj.pathname.length > 4 // /in/ + at least 1 character
+
+        return isLinkedIn && hasProfilePath && hasValidUsername
+      } catch {
+        return false
+      }
+    }, 'Please enter a valid LinkedIn profile URL (e.g., https://linkedin.com/in/username)'),
+  interactiveDemoUrl: z.string().url('Please enter a valid URL').optional().or(z.literal('')),
 })
 
 type OnboardingFormProps = {
@@ -62,6 +82,8 @@ export default function OnboardingForm({ session }: OnboardingFormProps) {
       username: firstName.toLowerCase() + (lastName ? lastName.toLowerCase().charAt(0) : ''),
       bio: '',
       company: undefined,
+      linkedinUrl: '',
+      interactiveDemoUrl: '',
     },
   })
 
@@ -126,6 +148,8 @@ export default function OnboardingForm({ session }: OnboardingFormProps) {
           email: values.email,
           bio: values.bio,
           company: values.company,
+          linkedinUrl: values.linkedinUrl || undefined,
+          interactiveDemoUrl: values.interactiveDemoUrl || undefined,
         }),
       })
 
@@ -265,6 +289,32 @@ export default function OnboardingForm({ session }: OnboardingFormProps) {
                 {...form.register('bio')}
                 placeholder="Tell us about yourself"
                 className="resize-none"
+              />
+            </FieldSet>
+
+            <FieldSet
+              label="LinkedIn Profile"
+              description="Your LinkedIn profile URL (optional)"
+              promptText={form.formState.errors.linkedinUrl?.message}
+              state={form.formState.errors.linkedinUrl ? 'error' : 'default'}
+            >
+              <Input
+                {...form.register('linkedinUrl')}
+                type="url"
+                placeholder="https://linkedin.com/in/your-profile"
+              />
+            </FieldSet>
+
+            <FieldSet
+              label="Favorite Interactive Demo"
+              description="Share a link to your favorite interactive demo or project (optional)"
+              promptText={form.formState.errors.interactiveDemoUrl?.message}
+              state={form.formState.errors.interactiveDemoUrl ? 'error' : 'default'}
+            >
+              <Input
+                {...form.register('interactiveDemoUrl')}
+                type="url"
+                placeholder="https://example.com/demo"
               />
             </FieldSet>
 

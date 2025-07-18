@@ -10,6 +10,8 @@ import Bio from '@/components/ui/Bio'
 import { calculateUserPoints } from '@/lib/users/points'
 import { payload } from '@/lib/payloadClient'
 import { User, Ledger, Comment } from '@/payload-types'
+import { Icon } from '@/components/ui'
+import { ArrowUpRightIcon } from 'lucide-react'
 
 interface PopulatedUser extends User {
   ledgerEntries?: {
@@ -121,10 +123,55 @@ const ProfilePage = async ({ params }: { params: Promise<{ slug: string }> }) =>
               <UserEmail email={user.email} />
             </div>
           </div>
-          <div className="mt-8">
+          <div className="mt-4">
             <h2 className="mb-2 text-base font-medium">About</h2>
             <Bio user={user} />
           </div>
+
+          {(user.linkedinUrl || user.interactiveDemoUrl) && (
+            <div className="mt-8">
+              <h2 className="mb-2 text-base font-medium">Links</h2>
+              <div className="space-y-3">
+                {user.linkedinUrl && (
+                  <div className="inset-shadow flex items-center gap-3 rounded-2xl border border-gray-100 bg-white p-5">
+                    <div className="grid aspect-square size-8 place-items-center rounded-md border border-gray-200">
+                      <Icon name="linkedin" className="size-4 text-gray-600" />
+                    </div>
+                    <div className="flex flex-col">
+                      <a
+                        href={user.linkedinUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="group flex text-sm text-blue-500"
+                      >
+                        LinkedIn Profile
+                        <ArrowUpRightIcon className="ml-0.5 size-3 opacity-50 transition-all duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:scale-[104%] group-hover:opacity-100" />
+                      </a>
+                    </div>
+                  </div>
+                )}
+                {user.interactiveDemoUrl && (
+                  <div className="inset-shadow flex items-center gap-3 rounded-2xl border border-gray-100 bg-white p-5">
+                    <div className="grid aspect-square size-8 place-items-center rounded-md border border-gray-200">
+                      <Icon name="navattic" className="size-5 text-gray-600" />
+                    </div>
+                    <div className="flex flex-col">
+                      <a
+                        href={user.interactiveDemoUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="group flex text-sm text-blue-500"
+                      >
+                        Favorite Interactive Demo
+                        <ArrowUpRightIcon className="ml-0.5 size-3 opacity-50 transition-all duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:scale-[104%] group-hover:opacity-100" />
+                      </a>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
           <div className="mt-8">
             <h2 className="mb-2 text-base font-medium">Statistics</h2>
             <Statistics userStats={userStats} />
