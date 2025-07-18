@@ -124,7 +124,10 @@ const EventSchedule = async () => {
       <PageHeader title="Event Schedule" userPoints={userPoints} />
       <div className="min-h-screen bg-gray-50">
         <Container>
-          <PageTitle title="Event Schedule" />
+          <PageTitle
+            title="Event Schedule"
+            description="See upcoming virtual and in-person Navattic events."
+          />
           <div className="text-md mt-8 mb-3 font-semibold text-gray-600">Upcoming Events</div>
           {upcomingEvents.length > 0 ? (
             <div className="flex flex-col gap-4">

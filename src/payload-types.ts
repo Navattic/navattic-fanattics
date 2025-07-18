@@ -161,6 +161,8 @@ export interface User {
    */
   title?: string | null;
   location?: string | null;
+  linkedinUrl?: string | null;
+  interactiveDemoUrl?: string | null;
   bio?: string | null;
   company?: (number | null) | Company;
   avatar?: (number | null) | Avatar;
@@ -637,6 +639,8 @@ export interface UsersSelect<T extends boolean = true> {
   lastName?: T;
   title?: T;
   location?: T;
+  linkedinUrl?: T;
+  interactiveDemoUrl?: T;
   bio?: T;
   company?: T;
   avatar?: T;
