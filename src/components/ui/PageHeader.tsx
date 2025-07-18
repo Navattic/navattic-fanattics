@@ -1,6 +1,7 @@
 'use client'
 
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
+import { Home } from 'lucide-react'
 import { usePathname } from 'next/navigation'
 
 const PageHeader = ({
@@ -24,7 +25,7 @@ const PageHeader = ({
             </span>
           ) : (
             <span className="text-sm font-medium text-gray-800 capitalize" aria-current="page">
-              &ldquo;Home&rdquo;
+              <Home className="mr-1 h-4 w-4" />
             </span>
           )
         ) : (

@@ -26,7 +26,7 @@ const Home = async () => {
   if (!session || !sessionUser) {
     return (
       <>
-        <PageHeader title="Fanattic Portal" userPoints={0} noUser={true} />
+        <PageHeader userPoints={0} noUser={true} />
         <div className="min-h-screen bg-gray-50">
           <Container className="max-w-6xl">
             <PageTitle title={<>Welcome!</>} description="Please sign in to view the portal." />
@@ -71,7 +71,7 @@ const Home = async () => {
 
   return (
     <>
-      <PageHeader title="Fanattic Portal" userPoints={userPoints} />
+      <PageHeader userPoints={userPoints} />
       <div className="min-h-screen bg-gray-50">
         <Container className="max-w-6xl">
           <PageTitle

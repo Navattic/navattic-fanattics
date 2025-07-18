@@ -23,13 +23,29 @@ function Breadcrumbs({
 }: BreadcrumbsProps) {
   const pathname = usePathname()
 
-  // Skip rendering breadcrumbs on homepage
-  if (pathname === '/') return null
-
   // Split the pathname into segments and remove empty segments
   const segments = pathname.split('/').filter(Boolean)
 
-  // Generate breadcrumb items
+  // If we're on the root page, show just the home icon
+  if (pathname === '/') {
+    return (
+      <nav aria-label="Breadcrumbs" className={cn('flex items-center text-sm', className)}>
+        <ol className="flex items-center space-x-0">
+          <li className="flex items-center">
+            <Link
+              href="/"
+              className="text-muted-foreground flex items-center transition-colors hover:text-gray-800"
+            >
+              <Home className="mr-1 h-4 w-4" />
+              <span className="sr-only">{homeLabel}</span>
+            </Link>
+          </li>
+        </ol>
+      </nav>
+    )
+  }
+
+  // Generate breadcrumb items for non-root pages
   const breadcrumbs = [
     { label: homeLabel, href: '/' },
     ...segments.map((segment, index) => {
@@ -54,9 +70,9 @@ function Breadcrumbs({
               {index === 0 ? (
                 <Link
                   href={breadcrumb.href}
-                  className="flex items-center text-muted-foreground hover:text-gray-800 transition-colors"
+                  className="text-muted-foreground flex items-center transition-colors hover:text-gray-800"
                 >
-                  <Home className="h-4 w-4 mr-1" />
+                  <Home className="mr-1 h-4 w-4" />
                   <span className="sr-only">{breadcrumb.label}</span>
                 </Link>
               ) : isLast ? (
@@ -66,7 +82,7 @@ function Breadcrumbs({
               ) : (
                 <Link
                   href={breadcrumb.href}
-                  className="text-muted-foreground hover:text-gray-800 transition-colors"
+                  className="text-muted-foreground transition-colors hover:text-gray-800"
                 >
                   {breadcrumb.label}
                 </Link>

@@ -49,7 +49,7 @@ const ProductCard = ({
 
   return (
     <>
-      <div className="inset-shadow space-y-5 overflow-hidden rounded-2xl border border-gray-100 bg-white p-5">
+      <div className="inset-shadow flex h-full flex-col space-y-5 overflow-hidden rounded-2xl border border-gray-100 bg-white p-5">
         <div className="relative aspect-[5/3] h-auto w-full overflow-hidden rounded-xl bg-gray-50">
           {image.url && (
             <Image
@@ -61,12 +61,14 @@ const ProductCard = ({
             />
           )}
         </div>
-        <div className="space-y-3">
-          <div className="space-y-1">
-            <h2 className="text-md font-semibold">{product.title}</h2>
-            <Badge iconLeft="coins">{product.price} credits</Badge>
+        <div className="flex flex-1 flex-col justify-between">
+          <div className="space-y-3">
+            <div className="space-y-1">
+              <h2 className="text-md font-semibold">{product.title}</h2>
+              <Badge iconLeft="coins">{product.price} credits</Badge>
+            </div>
+            <p className="pb-5 text-sm text-gray-500">{product.description}</p>
           </div>
-          <p className="pb-2 text-sm text-gray-500">{product.description}</p>
           <Button
             size="lg"
             className="w-full"
