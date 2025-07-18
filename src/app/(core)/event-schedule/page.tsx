@@ -17,7 +17,7 @@ const EventEntry = ({ event, isPastEvent }: { event: Event; isPastEvent?: boolea
     <div className="inset-shadow flex justify-between rounded-3xl border border-gray-100 bg-white p-4 pl-6 [:last-child]:mb-20">
       <div className="flex flex-col justify-between p-2 pt-1 pr-8">
         <div className="space-y-2">
-          <div className="text-lg font-semibold text-gray-800">{event.title}</div>
+          <div className="text-lg font-semibold text-gray-800 text-balance">{event.title}</div>
           <Button
             variant={isPastEvent ? 'outline' : 'solid'}
             colorScheme="brand"
