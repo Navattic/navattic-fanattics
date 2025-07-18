@@ -1,35 +1,38 @@
-
 .payload-rich-text {
   & > img {
     @apply rounded-xl shadow-sm;
   }
 
+  & > hr {
+    @apply mb-4;
+  }
+
   & > h1 {
-    @apply mt-2 mb-6 text-4xl font-medium text-gray-900;
+    @apply mt-10 mb-6 text-2xl font-medium text-gray-900;
   }
 
   & > h2 {
-    @apply mt-2 mb-6 text-3xl font-medium text-gray-900;
+    @apply mt-10 mb-6 text-xl font-medium text-gray-900;
   }
 
   & > h3 {
-    @apply mt-2 mb-6 text-2xl font-medium text-gray-900;
+    @apply mt-10 mb-2 text-lg font-medium text-gray-900;
   }
 
   & > h4 {
-    @apply mt-2 mb-6 text-xl font-medium text-gray-900;
+    @apply mt-10 mb-2 text-lg font-medium text-gray-900;
   }
 
   & > h5 {
-    @apply mt-2 mb-6 text-lg font-medium text-gray-900;
+    @apply mt-8 mb-2 text-lg font-medium text-gray-900;
   }
 
   & > h6 {
-    @apply mt-2 mb-6 text-md leading-relaxed;
+    @apply text-md mt-8 mb-2 leading-relaxed;
   }
 
   & > p {
-    @apply mb-4 text-base leading-relaxed;
+    @apply mb-2 text-base leading-relaxed;
   }
 
   & * > a {
@@ -37,14 +40,18 @@
   }
 
   & > ul {
-    @apply list-disc list-inside mb-4;
+    @apply mb-4 list-inside list-disc;
   }
 
   & > ol {
-    @apply list-decimal list-inside mb-4;
+    @apply mb-4 list-inside list-decimal;
   }
 
   & > ul > li {
+    @apply text-base leading-relaxed;
+  }
+
+  & > ol > li {
     @apply text-base leading-relaxed;
   }
 
