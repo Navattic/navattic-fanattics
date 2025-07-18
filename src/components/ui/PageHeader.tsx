@@ -60,7 +60,7 @@ const PageHeader = ({
             >
               <span className="flex items-center text-sm font-medium">
                 {/* <span className="pr-2 text-gray-500">Balance</span> */}
-                <div className="flex items-center gap-1 rounded-lg border border-blue-100 bg-blue-50 px-2 py-1">
+                <div className="flex items-center gap-1 rounded-lg border border-blue-100 bg-blue-50 px-2 py-0.5">
                   <Icon name="coins" className="size-4 text-blue-400" />
                   <span className="text-blue-500">{userPoints} points</span>
                 </div>

@@ -65,7 +65,7 @@ const ProductCard = ({
           <div className="space-y-3">
             <div className="space-y-1">
               <h2 className="text-md font-semibold">{product.title}</h2>
-              <Badge iconLeft="coins">{product.price} credits</Badge>
+              <Badge iconLeft="coins">{product.price} points</Badge>
             </div>
             <p className="pb-5 text-sm text-gray-500">{product.description}</p>
           </div>
@@ -81,7 +81,7 @@ const ProductCard = ({
                 Redeem gift <Icon name="gift" />
               </>
             ) : (
-              'Insufficient credits'
+              'Insufficient points'
             )}
           </Button>
         </div>
