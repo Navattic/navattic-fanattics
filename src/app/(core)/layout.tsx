@@ -40,7 +40,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Fanattic Portal',
     description: 'Fanattic Portal',
-    url: 'https://fanattic.com',
+    url: 'https://portal.navattic.com',
     siteName: 'Fanattic Portal',
     type: 'website',
     locale: 'en_US',
