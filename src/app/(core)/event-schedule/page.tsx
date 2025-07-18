@@ -15,7 +15,7 @@ import { authOptions } from '@/lib/authOptions'
 const EventEntry = ({ event, isPastEvent }: { event: Event; isPastEvent?: boolean }) => {
   return (
     <div className="inset-shadow flex justify-between rounded-3xl border border-gray-100 bg-white p-4 pl-6 [:last-child]:mb-20">
-      <div className="flex flex-col justify-between p-2 pr-8">
+      <div className="flex flex-col justify-between p-2 pt-1 pr-8">
         <div className="space-y-2">
           <div className="text-lg font-semibold text-gray-800">{event.title}</div>
           <Button
@@ -82,13 +82,16 @@ const EventEntry = ({ event, isPastEvent }: { event: Event; isPastEvent?: boolea
           </div>
         </div>
       </div>
-      <Image
-        src={(event.image as Media)?.url ?? '/event-placeholder.png'}
-        alt={(event.image as Media)?.alt ?? event.title}
-        width={200}
-        height={200}
-        className="h-fit min-h-[175px] min-w-[175px] rounded-xl border border-gray-100 object-cover"
-      />
+
+      <div className="hidden items-stretch md:flex">
+        <Image
+          src={(event.image as Media)?.url ?? '/event-placeholder.png'}
+          alt={(event.image as Media)?.alt ?? event.title}
+          width={250}
+          height={290}
+          className="h-full min-h-[175px] max-w-[250px] min-w-[175px] rounded-xl border border-gray-100 object-cover"
+        />
+      </div>
     </div>
   )
 }
