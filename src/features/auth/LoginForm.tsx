@@ -5,18 +5,128 @@ import { signIn } from 'next-auth/react'
 import Link from 'next/link'
 import Image from 'next/image'
 import LoadingSpinner from '@/components/ui/icons/LoadingSpinner'
+import { useSearchParams } from 'next/navigation'
+import { Input } from '@/components/shadcn/ui/input'
+import { useForm } from 'react-hook-form'
+import { z } from 'zod'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { SignInResponse } from 'next-auth/react'
+
+const emailSchema = z.object({
+  email: z.string().email('Please enter a valid email address'),
+})
+
+type EmailFormData = z.infer<typeof emailSchema>
+
+type LoadingState = 'idle' | 'email' | 'google'
 
 export default function LoginForm() {
-  const [isLoading, setIsLoading] = useState(false)
+  const [loadingState, setLoadingState] = useState<LoadingState>('idle')
+  const [emailSent, setEmailSent] = useState(false)
+  const [authError, setAuthError] = useState<string | null>(null)
+  const searchParams = useSearchParams()
+  const isVerifying = searchParams.get('verify') === 'true'
 
-  const handleGoogleSignIn = () => {
-    setIsLoading(true)
-    signIn('google')
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<EmailFormData>({
+    resolver: zodResolver(emailSchema),
+  })
+
+  const handleGoogleSignIn = async () => {
+    setLoadingState('google')
+    setAuthError(null)
+    try {
+      const result = await signIn('google', { redirect: false })
+      if (result?.error === 'Error: use_email') {
+        setAuthError(
+          'This account uses email sign-in. Please use the email sign-in option instead.',
+        )
+      }
+    } catch (error) {
+      console.error('Error signing in with Google:', error)
+      setAuthError('An unexpected error occurred. Please try again.')
+    } finally {
+      setLoadingState('idle')
+    }
+  }
+
+  const handleEmailSignIn = async (data: EmailFormData) => {
+    setLoadingState('email')
+    setAuthError(null)
+    try {
+      const result = await signIn('email', {
+        email: data.email,
+        callbackUrl: '/',
+        redirect: false,
+      })
+
+      if (result?.error) {
+        if (result.error.includes('use_google')) {
+          setAuthError('This account uses Google sign-in, please use that option instead.')
+        } else {
+          console.error('Unexpected sign-in error:', result.error)
+          setAuthError('An error occurred during sign in. Please try again.')
+        }
+      } else {
+        setEmailSent(true)
+      }
+    } catch (error) {
+      console.error('Error sending magic link:', error)
+      setAuthError('An unexpected error occurred. Please try again.')
+    } finally {
+      setLoadingState('idle')
+    }
+  }
+
+  if (isVerifying) {
+    return (
+      <div className="space-y-4 text-center">
+        <div className="gradient-to-b relative inline-grid aspect-square place-items-center rounded-lg border border-gray-200 from-white to-gray-50 p-2 shadow-xs">
+          <Image
+            src="/logos/navattic-shadow.png"
+            alt="Navattic Logo"
+            width={40}
+            height={40}
+            priority
+            className="translate-y-1"
+          />
+        </div>
+        <h1 className="text-lg font-bold text-gray-800">Check your email</h1>
+        <p className="text-gray-600">
+          We sent you a magic link. Click the link in your email to sign in. This may take a few
+          minutes.
+        </p>
+      </div>
+    )
+  }
+
+  if (emailSent) {
+    return (
+      <div className="space-y-4 text-center">
+        <div className="gradient-to-b relative inline-grid aspect-square place-items-center rounded-lg border border-gray-200 from-white to-gray-50 p-2 shadow-xs">
+          <Image
+            src="/logos/navattic-shadow.png"
+            alt="Navattic Logo"
+            width={40}
+            height={40}
+            priority
+            className="translate-y-1"
+          />
+        </div>
+        <h1 className="text-lg font-bold text-gray-800">Check your email</h1>
+        <p className="text-gray-600">
+          We sent you a magic link. Click the link in your email to sign in.
+        </p>
+      </div>
+    )
   }
 
   return (
     <div className="space-y-4">
-      <div className="border border-gray-200 rounded-lg p-2 aspect-square relative inline-grid place-items-center shadow-xs gradient-to-b from-white to-gray-50">
+      <div className="gradient-to-b relative inline-grid aspect-square place-items-center rounded-lg border border-gray-200 from-white to-gray-50 p-2 shadow-xs">
         <Image
           src="/logos/navattic-shadow.png"
           alt="Navattic Logo"
@@ -26,7 +136,62 @@ export default function LoginForm() {
           className="translate-y-1"
         />
       </div>
-      <h1 className="text-lg font-bold pb-6 text-gray-800">Sign in to Fanattic Portal</h1>
+      <h1 className="pb-6 text-lg font-bold text-gray-800">Sign in to Fanattic Portal</h1>
+
+      {authError && (
+        <div className="rounded-md bg-red-50 p-3">
+          <div className="flex">
+            <div className="flex-shrink-0">
+              <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                <path
+                  fillRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </div>
+            <div className="ml-2">
+              <p className="text-sm text-red-700">{authError}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <form onSubmit={handleSubmit(handleEmailSignIn)} className="space-y-4">
+        <div>
+          <Input
+            type="email"
+            placeholder="Enter your email"
+            {...register('email')}
+            className={errors.email ? 'border-red-500' : ''}
+          />
+          {errors.email && <p className="mt-1 text-sm text-red-500">{errors.email.message}</p>}
+        </div>
+        <Button
+          type="submit"
+          size="lg"
+          className="w-full text-base"
+          disabled={loadingState !== 'idle'}
+        >
+          {loadingState === 'email' ? (
+            <span className="flex items-center justify-center">
+              <LoadingSpinner />
+              Sending magic link...
+            </span>
+          ) : (
+            'Sign in with Email'
+          )}
+        </Button>
+      </form>
+
+      <div className="relative">
+        <div className="absolute inset-0 flex items-center">
+          <span className="w-full border-t" />
+        </div>
+        <div className="relative flex justify-center text-xs uppercase">
+          <span className="bg-white px-3 text-gray-400">Or</span>
+        </div>
+      </div>
 
       <Button
         type="button"
@@ -34,9 +199,9 @@ export default function LoginForm() {
         size="lg"
         className="w-full text-base"
         onClick={handleGoogleSignIn}
-        disabled={isLoading}
+        disabled={loadingState !== 'idle'}
       >
-        {isLoading ? (
+        {loadingState === 'google' ? (
           <span className="flex items-center justify-center">
             <LoadingSpinner />
             Signing in...
@@ -67,7 +232,7 @@ export default function LoginForm() {
         )}
       </Button>
 
-      <div className="text-center mt-4">
+      <div className="mt-4 text-center">
         <p className="text-sm text-gray-500">
           Don&apos;t have an account?{' '}
           <Link href="/register" className="text-blue-600 hover:underline">

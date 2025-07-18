@@ -22,6 +22,7 @@ export interface Config {
     'company-logos': CompanyLogo;
     Products: Product;
     'gift-shop-transactions': GiftShopTransaction;
+    'verification-tokens': VerificationToken;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
@@ -47,6 +48,7 @@ export interface Config {
     'company-logos': CompanyLogosSelect<false> | CompanyLogosSelect<true>;
     Products: ProductsSelect<false> | ProductsSelect<true>;
     'gift-shop-transactions': GiftShopTransactionsSelect<false> | GiftShopTransactionsSelect<true>;
+    'verification-tokens': VerificationTokensSelect<false> | VerificationTokensSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
@@ -316,27 +318,34 @@ export interface Event {
    * Link to the event page
    */
   eventPageUrl: string;
+  cta?: {
+    /**
+     * Label for the CTA button, ex: "Register here"
+     */
+    label?: string | null;
+    /**
+     * Link to the venue website or location (optional)
+     */
+    link?: string | null;
+  };
   /**
-   * Square aspect ratio image for the event
+   * Square aspect ratio image for the event. If not provided, a fallback will be used.
    */
   image: number | Media;
   location: {
     /**
-     * Name of the venue
+     * Check if this event is a webinar
+     */
+    isWebinar?: boolean | null;
+    /**
+     * Name of the venue or online platform
      */
     name: string;
-    /**
-     * Link to the venue website or location (optional)
-     */
     link?: string | null;
     /**
      * Physical address of the venue. Leave blank and check "Is Webinar" if this is a virtual event.
      */
     address?: string | null;
-    /**
-     * Check if this event is a webinar
-     */
-    isWebinar?: boolean | null;
   };
   date: {
     /**
@@ -451,6 +460,18 @@ export interface GiftShopTransaction {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "verification-tokens".
+ */
+export interface VerificationToken {
+  id: number;
+  identifier: string;
+  token: string;
+  expires: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
@@ -499,6 +520,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'gift-shop-transactions';
         value: number | GiftShopTransaction;
+      } | null)
+    | ({
+        relationTo: 'verification-tokens';
+        value: number | VerificationToken;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -577,14 +602,20 @@ export interface LedgerSelect<T extends boolean = true> {
 export interface EventsSelect<T extends boolean = true> {
   title?: T;
   eventPageUrl?: T;
+  cta?:
+    | T
+    | {
+        label?: T;
+        link?: T;
+      };
   image?: T;
   location?:
     | T
     | {
+        isWebinar?: T;
         name?: T;
         link?: T;
         address?: T;
-        isWebinar?: T;
       };
   date?:
     | T
@@ -769,6 +800,17 @@ export interface GiftShopTransactionsSelect<T extends boolean = true> {
   adminNotes?: T;
   userNotes?: T;
   fulfillmentDate?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "verification-tokens_select".
+ */
+export interface VerificationTokensSelect<T extends boolean = true> {
+  identifier?: T;
+  token?: T;
+  expires?: T;
   updatedAt?: T;
   createdAt?: T;
 }

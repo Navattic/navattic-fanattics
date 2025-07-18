@@ -18,12 +18,16 @@ const EventEntry = ({ event, isPastEvent }: { event: Event; isPastEvent?: boolea
       <div className="flex flex-col justify-between p-2 pr-8">
         <div className="space-y-2">
           <div className="text-lg font-semibold text-gray-800">{event.title}</div>
-          {!isPastEvent && (
-            <Button variant="solid" colorScheme="brand" size="xs">
-              View event
-              <Icon name="arrow-right" className="size-4" />
-            </Button>
-          )}
+          <Button
+            variant={isPastEvent ? 'outline' : 'solid'}
+            colorScheme="brand"
+            size="xs"
+            href={event.cta?.link ?? ''}
+            target="_blank"
+          >
+            {event.cta?.label ?? 'Register here'}
+            <Icon name="arrow-right" className="size-3" />
+          </Button>
         </div>
         <div className="mt-5 flex flex-col gap-4">
           <div className="flex items-center gap-3">
@@ -34,7 +38,7 @@ const EventEntry = ({ event, isPastEvent }: { event: Event; isPastEvent?: boolea
               <div className="font-semibold text-gray-800">
                 <Link href={event.location.link ?? ''} target="_blank" className="group flex">
                   {event.location.name}
-                  <ArrowUpRightIcon className="size-4 opacity-50 transition-all duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:scale-[104%] group-hover:opacity-100" />
+                  <ArrowUpRightIcon className="ml-0.5 size-3 opacity-50 transition-all duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:scale-[104%] group-hover:opacity-100" />
                 </Link>
               </div>
               <div className="whitespace-nowrap">
@@ -131,7 +135,7 @@ const EventSchedule = async () => {
           ) : (
             <Empty title="No upcoming events" iconName="calendar" />
           )}
-          <div className="text-md mt-28 mb-3 font-semibold text-gray-600">Past Events</div>
+          <div className="text-md mb-3 font-semibold text-gray-600">Past Events</div>
           {pastEvents.length > 0 ? (
             <div className="flex flex-col gap-4">
               {pastEvents.map((event) => (

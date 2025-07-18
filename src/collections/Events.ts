@@ -29,24 +29,15 @@ export const Events: CollectionConfig = {
       },
     },
     {
-      name: 'image',
-      type: 'upload',
-      required: true,
-      relationTo: 'media',
-      admin: {
-        description: 'Square aspect ratio image for the event',
-      },
-    },
-    {
-      name: 'location',
+      name: 'cta',
+      label: 'CTA (optional)',
       type: 'group',
       fields: [
         {
-          name: 'name',
+          name: 'label',
           type: 'text',
-          required: true,
           admin: {
-            description: 'Name of the venue',
+            description: 'Label for the CTA button, ex: "Register here"',
           },
         },
         {
@@ -56,20 +47,50 @@ export const Events: CollectionConfig = {
             description: 'Link to the venue website or location (optional)',
           },
         },
-        {
-          name: 'address',
-          type: 'text',
-          admin: {
-            description:
-              'Physical address of the venue. Leave blank and check "Is Webinar" if this is a virtual event.',
-          },
-        },
+      ],
+    },
+    {
+      name: 'image',
+      label: 'Thumbnail image',
+      type: 'upload',
+      required: true,
+      relationTo: 'media',
+      admin: {
+        description:
+          'Square aspect ratio image for the event. If not provided, a fallback will be used.',
+      },
+    },
+    {
+      name: 'location',
+      type: 'group',
+      fields: [
         {
           name: 'isWebinar',
           type: 'checkbox',
           defaultValue: false,
           admin: {
             description: 'Check if this event is a webinar',
+          },
+        },
+        {
+          name: 'name',
+          type: 'text',
+          required: true,
+          admin: {
+            description: 'Name of the venue or online platform',
+          },
+        },
+        {
+          name: 'link',
+          label: 'Link to the venue, website, or location (optional)',
+          type: 'text',
+        },
+        {
+          name: 'address',
+          type: 'text',
+          admin: {
+            description:
+              'Physical address of the venue. Leave blank and check "Is Webinar" if this is a virtual event.',
           },
         },
       ],
