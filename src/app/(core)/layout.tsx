@@ -21,7 +21,7 @@ import { Metadata } from 'next'
 export const metadata: Metadata = {
   title: 'Fanattic Portal',
   description:
-    'The Fanattic Portal is your hub for meeting other Navattic fans, winning prizes and more.',
+    'Participate in challenges, see upcoming Navattic events, and meet fellow Navattic fans and power users',
   icons: {
     icon: [
       { url: '/favicon/favicon.ico' },
