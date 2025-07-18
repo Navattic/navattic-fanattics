@@ -46,7 +46,7 @@ export const metadata: Metadata = {
     locale: 'en_US',
     images: [
       {
-        url: '/opengraph.png',
+        url: 'https://t7nc1nixn2.ufs.sh/f/yVcG3wa4IlnLZ7aD0dol54jKIOt798TGDorYQXCU1pWmkNwf',
         width: 1200,
         height: 630,
       },
