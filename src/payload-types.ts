@@ -318,27 +318,34 @@ export interface Event {
    * Link to the event page
    */
   eventPageUrl: string;
+  cta?: {
+    /**
+     * Label for the CTA button, ex: "Register here"
+     */
+    label?: string | null;
+    /**
+     * Link to the venue website or location (optional)
+     */
+    link?: string | null;
+  };
   /**
-   * Square aspect ratio image for the event
+   * Square aspect ratio image for the event. If not provided, a fallback will be used.
    */
   image: number | Media;
   location: {
     /**
-     * Name of the venue
+     * Check if this event is a webinar
+     */
+    isWebinar?: boolean | null;
+    /**
+     * Name of the venue or online platform
      */
     name: string;
-    /**
-     * Link to the venue website or location (optional)
-     */
     link?: string | null;
     /**
      * Physical address of the venue. Leave blank and check "Is Webinar" if this is a virtual event.
      */
     address?: string | null;
-    /**
-     * Check if this event is a webinar
-     */
-    isWebinar?: boolean | null;
   };
   date: {
     /**
@@ -595,14 +602,20 @@ export interface LedgerSelect<T extends boolean = true> {
 export interface EventsSelect<T extends boolean = true> {
   title?: T;
   eventPageUrl?: T;
+  cta?:
+    | T
+    | {
+        label?: T;
+        link?: T;
+      };
   image?: T;
   location?:
     | T
     | {
+        isWebinar?: T;
         name?: T;
         link?: T;
         address?: T;
-        isWebinar?: T;
       };
   date?:
     | T

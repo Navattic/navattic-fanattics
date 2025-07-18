@@ -171,48 +171,45 @@ export const authOptions: NextAuthOptions = {
           from: 'noreply@mail.navattic.dev',
           subject: `Sign in to ${host}`,
           html: `
-            <!DOCTYPE html>
-            <html>
-              <head>
-                <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-                <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-                <title>Sign in to ${host}</title>
-                <style>
-                  .container { 
-                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-                    max-width: 600px;
-                    margin: 0 auto;
-                    padding: 20px;
-                  }
-                  .button {
-                    background-color: #0070f3;
-                    border-radius: 5px;
-                    color: white;
-                    display: inline-block;
-                    padding: 12px 24px;
-                    text-decoration: none;
-                    text-align: center;
-                    margin: 20px 0;
-                  }
-                  .footer {
-                    color: #666;
-                    font-size: 12px;
-                    margin-top: 20px;
-                  }
-                </style>
-              </head>
-              <body>
-                <div class="container">
-                  <h1>Sign in to the Fanattic Portal!</h1>
-                  <p>Click the button below to sign in to your account:</p>
-                  <a href="${urlWithEmail}" class="button">Sign in</a>
-                  <p>If you didn't request this email, you can safely ignore it.</p>
-                  <div class="footer">
-                    <p>This link will expire in 24 hours.</p>
-                    <p>If the button above doesn't work, you can copy and paste this URL into your browser:</p>
-                    <p>${urlWithEmail}</p>
-                  </div>
-                </div>
+            <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+              <html dir="ltr" lang="en">
+                <head>
+                  <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
+                  <meta name="x-apple-disable-message-reformatting" />
+                </head>
+
+              <body style="background-color:#FCFCFD;padding:30px 0 50px 0;font-family:&quot;Helvetica Neue&quot;,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased">
+                <table align="center" width="100%" border="0" cellPadding="0" cellSpacing="0" role="presentation" style="max-width:560px;margin:0 auto;padding:40px 50px;background:#fff;border:1px solid #d8e2e7;border-radius:13px">
+                  <tbody>
+                    <tr style="width:100%">
+                      <td>
+                        <table align="center" width="100%" border="0" cellPadding="0" cellSpacing="0" role="presentation" style="display:flex">
+                          <tbody>
+                            <tr>
+                              <td>
+                              <td data-id="__react-email-column"><img src="https://app.navattic.com/email/navattic-logo.png" style="display:block;outline:none;border:none;text-decoration:none;width:100px;height:18px" /></td>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+                <table align="center" width="100%" border="0" cellPadding="0" cellSpacing="0" role="presentation" style="margin-top:30px">
+                  <tbody>
+                    <tr>
+                      <td>
+                        <h2 style="color:rgb(31,41,55);margin:0 auto;font-size:24px;line-height:1.4;font-weight:600;margin-bottom:20px">Sign in to the Fanattic Portal!</h2>
+                        <p style="font-size:16px;line-height:160%;margin-top:16px;margin-bottom:16px">Click the button below to sign in to your account. If you didn&#x27;t request this, you can safely ignore this email.</p>
+                        <a href='${urlWithEmail}' style="display:inline-block;text-align:center;text-decoration-line:none;font-weight:500;line-height:1.25rem;cursor:pointer;padding-top:0.5rem;padding-bottom:0.5rem;font-size:0.875rem;border-radius:0.5rem;padding-left:0.75rem;padding-right:0.75rem;background-color:rgb(31,41,55);color:rgb(255,255,255);border-width:1px;border-style:solid;border-color:rgb(6,7,8);text-decoration:none;max-width:100%;mso-padding-alt:0px;padding:8px 12px 8px 12px" target="_blank">Sign in here
+                        </a>
+
+                        <p style="font-size:16px;line-height:160%;margin-top:48px;margin-bottom:16px">If you have any questions, please reach out to <a href="mailto:natalie.marcotullio@navattic.com" rel="noreferrer" style="color:rgb(29 64 175);text-decoration-line:none;line-height:160%" target="_blank">natalie.marcotullio@navattic.com</a></p>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+                </td>
+                </tr>
+                </tbody>
+                </table>
               </body>
             </html>
           `,

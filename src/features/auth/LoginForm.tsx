@@ -18,8 +18,10 @@ const emailSchema = z.object({
 
 type EmailFormData = z.infer<typeof emailSchema>
 
+type LoadingState = 'idle' | 'email' | 'google'
+
 export default function LoginForm() {
-  const [isLoading, setIsLoading] = useState(false)
+  const [loadingState, setLoadingState] = useState<LoadingState>('idle')
   const [emailSent, setEmailSent] = useState(false)
   const [authError, setAuthError] = useState<string | null>(null)
   const searchParams = useSearchParams()
@@ -34,7 +36,7 @@ export default function LoginForm() {
   })
 
   const handleGoogleSignIn = async () => {
-    setIsLoading(true)
+    setLoadingState('google')
     setAuthError(null)
     try {
       const result = await signIn('google', { redirect: false })
@@ -47,12 +49,12 @@ export default function LoginForm() {
       console.error('Error signing in with Google:', error)
       setAuthError('An unexpected error occurred. Please try again.')
     } finally {
-      setIsLoading(false)
+      setLoadingState('idle')
     }
   }
 
   const handleEmailSignIn = async (data: EmailFormData) => {
-    setIsLoading(true)
+    setLoadingState('email')
     setAuthError(null)
     try {
       const result = await signIn('email', {
@@ -62,12 +64,6 @@ export default function LoginForm() {
       })
 
       if (result?.error) {
-        console.log('Comparing error strings:')
-        console.log('Actual error:', result.error)
-        console.log('Expected error:', 'Error: use_google')
-        console.log('Are they equal?', result.error === 'Error: use_google')
-
-        // Instead of exact match, let's check if it includes the key part
         if (result.error.includes('use_google')) {
           setAuthError('This account uses Google sign-in, please use that option instead.')
         } else {
@@ -81,7 +77,7 @@ export default function LoginForm() {
       console.error('Error sending magic link:', error)
       setAuthError('An unexpected error occurred. Please try again.')
     } finally {
-      setIsLoading(false)
+      setLoadingState('idle')
     }
   }
 
@@ -143,7 +139,7 @@ export default function LoginForm() {
       <h1 className="pb-6 text-lg font-bold text-gray-800">Sign in to Fanattic Portal</h1>
 
       {authError && (
-        <div className="rounded-md bg-red-50 p-4">
+        <div className="rounded-md bg-red-50 p-3">
           <div className="flex">
             <div className="flex-shrink-0">
               <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
@@ -154,7 +150,7 @@ export default function LoginForm() {
                 />
               </svg>
             </div>
-            <div className="ml-3">
+            <div className="ml-2">
               <p className="text-sm text-red-700">{authError}</p>
             </div>
           </div>
@@ -171,8 +167,13 @@ export default function LoginForm() {
           />
           {errors.email && <p className="mt-1 text-sm text-red-500">{errors.email.message}</p>}
         </div>
-        <Button type="submit" size="lg" className="w-full text-base" disabled={isLoading}>
-          {isLoading ? (
+        <Button
+          type="submit"
+          size="lg"
+          className="w-full text-base"
+          disabled={loadingState !== 'idle'}
+        >
+          {loadingState === 'email' ? (
             <span className="flex items-center justify-center">
               <LoadingSpinner />
               Sending magic link...
@@ -198,9 +199,9 @@ export default function LoginForm() {
         size="lg"
         className="w-full text-base"
         onClick={handleGoogleSignIn}
-        disabled={isLoading}
+        disabled={loadingState !== 'idle'}
       >
-        {isLoading ? (
+        {loadingState === 'google' ? (
           <span className="flex items-center justify-center">
             <LoadingSpinner />
             Signing in...
