@@ -1,8 +1,12 @@
 'use client'
 
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
+import { Tooltip } from '@/components/ui/Tooltip'
 import { Home } from 'lucide-react'
+
 import { usePathname } from 'next/navigation'
+import { Icon } from '@/components/ui/Icon'
+import Link from 'next/link'
 
 const PageHeader = ({
   title,
@@ -32,7 +36,34 @@ const PageHeader = ({
           <Breadcrumbs title={title} />
         )}
         {!noUser && (
-          <div className="text-sm font-medium text-gray-800">Current Balance: {userPoints}</div>
+          <div className="text-sm font-medium text-gray-800">
+            <Tooltip
+              content={
+                <>
+                  Points are earned by completing challenges and can be spent on rewards in the gift
+                  shop!
+                  <br />
+                  <br />
+                  Click{' '}
+                  <Link href="/gift-shop" className="text-blue-300 underline">
+                    here
+                  </Link>{' '}
+                  to access the gift shop, or{' '}
+                  <Link href="/challenges" className="text-blue-300 underline">
+                    here
+                  </Link>{' '}
+                  to view the challenges.
+                </>
+              }
+              side="bottom"
+            >
+              <span className="text-sm font-medium text-gray-800">
+                <span className="pr-2 text-gray-500">Current Balance:</span>
+                <Icon name="coins" className="mr-1 size-3 text-gray-700" />
+                {userPoints} points
+              </span>
+            </Tooltip>
+          </div>
         )}
       </div>
     </div>
