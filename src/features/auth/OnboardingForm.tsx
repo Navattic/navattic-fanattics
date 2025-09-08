@@ -62,6 +62,9 @@ export default function OnboardingForm({ session }: OnboardingFormProps) {
   // Add a ref to store the upload promise
   const avatarUploadPromise = useRef<Promise<number | null> | null>(null)
 
+  // Add state for tracking if avatar was removed
+  const [avatarRemoved, setAvatarRemoved] = useState(false)
+
   const [error, setError] = useState<string | null>(null)
 
   // Split the nextauth session name to infer the user's first/last names
@@ -199,22 +202,30 @@ export default function OnboardingForm({ session }: OnboardingFormProps) {
     }
   }, [])
 
+  // Add function to remove avatar
+  const removeAvatar = useCallback(() => {
+    setAvatarPreview(null)
+    setAvatarId(null)
+    setAvatarRemoved(true)
+    form.setValue('avatar', undefined)
+    // Clear any existing upload promise
+    avatarUploadPromise.current = null
+  }, [form])
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     console.log('onSubmit called with values:', values)
     setIsSubmitting(true)
     setError(null)
 
     try {
-      // Wait for avatar upload and get the ID
-      let avatarId = null
-      if (avatarUploadPromise.current) {
-        avatarId = await avatarUploadPromise.current
-      }
+      let finalAvatarId = null
 
-      // If user uploaded a file, use that avatar ID instead
-      if (values.avatar && avatarId === null) {
-        // The file was already uploaded in handleAvatarChange, so avatarId should be set
-        avatarId = avatarId
+      // Only process avatar if it wasn't removed and there's an upload in progress
+      if (!avatarRemoved && avatarUploadPromise.current) {
+        const uploadResult = await avatarUploadPromise.current
+        if (uploadResult) {
+          finalAvatarId = uploadResult
+        }
       }
 
       const response = await fetch('/api/auth/update-profile', {
@@ -230,7 +241,7 @@ export default function OnboardingForm({ session }: OnboardingFormProps) {
           company: values.company,
           linkedinUrl: values.linkedinUrl || undefined,
           interactiveDemoUrl: values.interactiveDemoUrl || undefined,
-          avatar: avatarId,
+          avatar: finalAvatarId,
         }),
       })
 
@@ -249,7 +260,13 @@ export default function OnboardingForm({ session }: OnboardingFormProps) {
     }
   }
 
-  function handleNextStep() {
+  function handleNextStep(e?: React.MouseEvent) {
+    // Prevent any form submission
+    if (e) {
+      e.preventDefault()
+      e.stopPropagation()
+    }
+
     setHasAttemptedValidation(true)
 
     const currentStepFields =
@@ -280,7 +297,13 @@ export default function OnboardingForm({ session }: OnboardingFormProps) {
     })
   }
 
-  function handlePreviousStep() {
+  function handlePreviousStep(e?: React.MouseEvent) {
+    // Prevent any form submission
+    if (e) {
+      e.preventDefault()
+      e.stopPropagation()
+    }
+
     setStep(step - 1)
     setHasAttemptedValidation(false) // Reset when going back
   }
@@ -308,8 +331,8 @@ export default function OnboardingForm({ session }: OnboardingFormProps) {
       }
       reader.readAsDataURL(file)
 
-      // Upload the file immediately
-      uploadAvatarFile(file)
+      // Upload the file immediately and store the promise
+      avatarUploadPromise.current = uploadAvatarFile(file)
     }
   }
 
@@ -345,6 +368,7 @@ export default function OnboardingForm({ session }: OnboardingFormProps) {
         onChange={handleAvatarChange}
         className="sr-only"
         aria-describedby="avatar-description"
+        disabled={isAvatarUploading}
       />
 
       <Form {...form}>
@@ -360,12 +384,7 @@ export default function OnboardingForm({ session }: OnboardingFormProps) {
               <p className="text-destructive text-sm">{error}</p>
             </div>
           )}
-          {isAvatarUploading && (
-            <div className="text-muted-foreground flex items-center gap-2 text-sm">
-              <LoadingSpinner />
-              <span>Uploading avatar...</span>
-            </div>
-          )}
+
           {step === 1 ? (
             <>
               {/* Step 1 content */}
@@ -399,7 +418,7 @@ export default function OnboardingForm({ session }: OnboardingFormProps) {
               </FieldSet>
 
               <div className="flex justify-end">
-                <Button type="button" variant="solid" size="md" onClick={handleNextStep}>
+                <Button type="button" variant="solid" size="md" onClick={(e) => handleNextStep(e)}>
                   Continue <Icon name="arrow-right" />
                 </Button>
               </div>
@@ -415,28 +434,57 @@ export default function OnboardingForm({ session }: OnboardingFormProps) {
               >
                 <div className="flex items-center gap-4">
                   <div
-                    className="border-border bg-muted relative flex h-24 w-24 items-center justify-center overflow-hidden rounded-full border"
+                    className="border-border bg-muted group relative flex h-24 w-24 items-center justify-center overflow-hidden rounded-full border"
                     role="img"
                     aria-label="Avatar preview"
                   >
                     {avatarPreview ? (
-                      <Image
-                        src={avatarPreview}
-                        alt="Avatar preview"
-                        className="h-full w-full object-cover"
-                        width={96}
-                        height={96}
-                      />
+                      <>
+                        <Image
+                          src={avatarPreview}
+                          alt="Avatar preview"
+                          className="h-full w-full object-cover"
+                          width={96}
+                          height={96}
+                        />
+                        {/* Hover overlay with remove button */}
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity group-hover:opacity-100">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="xs"
+                            onClick={removeAvatar}
+                            className="h-8 text-xs"
+                          >
+                            Remove
+                          </Button>
+                        </div>
+                      </>
                     ) : (
                       <Icon name="user" className="text-muted-foreground h-10 w-10" />
                     )}
                   </div>
-                  <Label
-                    htmlFor="avatar-upload"
-                    className="ring-offset-background focus-visible:ring-ring border-input bg-background hover:bg-accent hover:text-accent-foreground inline-flex h-8 cursor-pointer items-center justify-center rounded-md border px-3 py-1 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50"
-                  >
-                    {avatarPreview ? 'Change photo' : 'Upload photo'}
-                  </Label>
+                  <div className="flex flex-col gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="md"
+                      onClick={() => document.getElementById('avatar-upload')?.click()}
+                      disabled={isAvatarUploading}
+                      className="h-8"
+                    >
+                      {isAvatarUploading ? (
+                        <span className="flex items-center gap-1">
+                          Uploading...
+                          <Icon name="spinner" />
+                        </span>
+                      ) : avatarPreview ? (
+                        'Change photo'
+                      ) : (
+                        'Upload photo'
+                      )}
+                    </Button>
+                  </div>
                   <div id="avatar-description" className="sr-only">
                     Select an image file to upload as your profile picture
                   </div>
@@ -464,10 +512,15 @@ export default function OnboardingForm({ session }: OnboardingFormProps) {
               </FieldSet>
 
               <div className="flex justify-between">
-                <Button type="button" variant="outline" size="md" onClick={handlePreviousStep}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="md"
+                  onClick={(e) => handlePreviousStep(e)}
+                >
                   Back
                 </Button>
-                <Button type="button" variant="solid" size="md" onClick={handleNextStep}>
+                <Button type="button" variant="solid" size="md" onClick={(e) => handleNextStep(e)}>
                   Continue <Icon name="arrow-right" />
                 </Button>
               </div>
@@ -476,22 +529,6 @@ export default function OnboardingForm({ session }: OnboardingFormProps) {
             <>
               {/* Step 3 content */}
               {/* Step 3 validation summary */}
-              {hasAttemptedValidation &&
-                (hasFieldError('linkedinUrl') || hasFieldError('interactiveDemoUrl')) && (
-                  <div className="bg-destructive/10 border-destructive/20 mb-4 rounded-md border p-3">
-                    <p className="text-destructive mb-2 text-sm font-medium">
-                      Please fix the following errors:
-                    </p>
-                    <ul className="text-destructive space-y-1 text-sm">
-                      {hasFieldError('linkedinUrl') && (
-                        <li>• {form.formState.errors.linkedinUrl?.message}</li>
-                      )}
-                      {hasFieldError('interactiveDemoUrl') && (
-                        <li>• {form.formState.errors.interactiveDemoUrl?.message}</li>
-                      )}
-                    </ul>
-                  </div>
-                )}
               <FieldSet
                 label="LinkedIn Profile"
                 description="Your LinkedIn profile URL (optional)"
@@ -519,7 +556,12 @@ export default function OnboardingForm({ session }: OnboardingFormProps) {
               </FieldSet>
 
               <div className="flex justify-between">
-                <Button type="button" variant="outline" size="md" onClick={handlePreviousStep}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="md"
+                  onClick={(e) => handlePreviousStep(e)}
+                >
                   Back
                 </Button>
                 <Button

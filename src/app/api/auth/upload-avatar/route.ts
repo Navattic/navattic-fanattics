@@ -70,14 +70,21 @@ async function handleFileUpload(req: Request, session: any) {
   }
 
   try {
+    // Convert File to Payload format
+    const fileBuffer = await file.arrayBuffer()
+
     // Upload to Payload
     const uploadedAvatar = await payload.create({
       collection: 'avatars',
       data: {
         alt,
       },
-      // @ts-ignore
-      file,
+      file: {
+        data: Buffer.from(fileBuffer),
+        mimetype: file.type,
+        name: file.name,
+        size: file.size,
+      },
     })
 
     // Find and update user
