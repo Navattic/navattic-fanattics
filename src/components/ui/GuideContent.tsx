@@ -6,6 +6,8 @@ import {
   AccordionContent,
 } from '../shadcn/ui/accordion'
 import { Guide } from '@/payload-types'
+import { Description } from '@/components/ui/Description'
+import { IconName } from '@/components/ui/Icon'
 
 const GuideContent = ({ guide }: { guide: Guide }) => {
   return (
@@ -13,7 +15,7 @@ const GuideContent = ({ guide }: { guide: Guide }) => {
       <div className="space-y-4 border-b border-gray-200 p-8 py-6 pt-7">
         <h1 className="text-lg font-medium">Rules & Guide</h1>
       </div>
-      <div className="bg-gray-50">
+      <div>
         <div className="max-w-prose p-8 pt-6 pb-2 text-base text-gray-600">
           <RichText data={guide.introduction} className="payload-rich-text" />
         </div>
@@ -25,16 +27,19 @@ const GuideContent = ({ guide }: { guide: Guide }) => {
                 key={info.id}
                 type="single"
                 collapsible
-                className="mb-4 rounded-xl border border-gray-200 bg-white px-8 py-2"
+                className="mb-4 overflow-hidden rounded-xl border border-gray-200 bg-white"
               >
                 <AccordionItem value={`item-${index}`}>
-                  <AccordionTrigger className="!cursor-pointer">
-                    <div className="space-y-2">
-                      <h3 className="text-md font-medium text-blue-600">{info.title}</h3>
-                      <p className="text-sm font-normal text-gray-500">{info.description}</p>
-                    </div>
+                  <AccordionTrigger className="!cursor-pointer pl-5 pr-6 py-4 hover:bg-gray-50/50">
+                    <Description
+                      iconLeft={(info.icon as IconName) ?? undefined}
+                      iconColorScheme="brand"
+                      title={info.title}
+                      description={info.description}
+                      className="cursor-pointer"
+                    />
                   </AccordionTrigger>
-                  <AccordionContent>
+                  <AccordionContent className="px-8">
                     <RichText className="payload-rich-text" data={info.content} />
                   </AccordionContent>
                 </AccordionItem>

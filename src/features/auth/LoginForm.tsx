@@ -198,9 +198,9 @@ export default function LoginForm() {
           disabled={loadingState !== 'idle'}
         >
           {loadingState === 'email' ? (
-            <span className="flex items-center justify-center">
-              <LoadingSpinner />
-              Sending magic link...
+            <span className="flex items-center justify-center gap-1">
+              Sending magic link
+              <Icon name="spinner" />
             </span>
           ) : (
             'Sign in with Email'
@@ -226,9 +226,9 @@ export default function LoginForm() {
         disabled={loadingState !== 'idle'}
       >
         {loadingState === 'google' ? (
-          <span className="flex items-center justify-center">
-            <LoadingSpinner />
-            Signing in...
+          <span className="flex items-center justify-center gap-1">
+            Loading
+            <Icon name="spinner" />
           </span>
         ) : (
           <>

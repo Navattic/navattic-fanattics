@@ -1,4 +1,5 @@
 import type { GlobalConfig } from 'payload'
+import { IconNames } from '@/components/ui/icons/generated/icon-names'
 
 export const Guide: GlobalConfig = {
   slug: 'guide',
@@ -26,6 +27,16 @@ export const Guide: GlobalConfig = {
       type: 'array',
       required: false,
       fields: [
+        {
+          name: 'icon',
+          type: 'select',
+          required: true,
+          options: IconNames.map((name) => ({
+            label: name.charAt(0) + name.slice(1).replace(/-/g, ' '),
+            value: name,
+          })),
+          defaultValue: 'info',
+        },
         {
           name: 'title',
           type: 'text',

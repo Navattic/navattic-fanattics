@@ -115,7 +115,7 @@ export function AppSidebar() {
     <Sidebar>
       <SidebarHeader className="mb-10 p-5">
         <Link href="/">
-          <NavatticLogo className="w-24" />
+          <NavatticLogo />
         </Link>
       </SidebarHeader>
       <SidebarContent className="flex flex-col gap-2">
