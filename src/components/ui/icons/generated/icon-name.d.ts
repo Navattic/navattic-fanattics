@@ -139,6 +139,7 @@ export type IconName =
   | 'trash'
   | 'tree-palm'
   | 'trending-up'
+  | 'triangle-alert'
   | 'trophy'
   | 'user-cog'
   | 'user-plus'

@@ -9,13 +9,10 @@ import { Input } from '@/components/shadcn/ui/input'
 import { Textarea } from '@/components/shadcn/ui/textarea'
 import { FieldSet } from '@/components/ui/FieldSet'
 import { Icon } from '@/components/ui'
-import { Label } from '@/components/shadcn/ui/label'
 import { Session } from 'next-auth'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { CompanySelector } from '@/features/companies/CompanySelector'
-import LoadingSpinner from '@/components/ui/icons/LoadingSpinner'
-import { debounce } from 'lodash'
 
 const formSchema = z.object({
   firstName: z.string().min(2, 'First name must be at least 2 characters').max(30),
@@ -78,6 +75,14 @@ export default function OnboardingForm({ session }: OnboardingFormProps) {
   // Get avatar URL from nextauth session (for Google logins)
   const avatarUrl = session.user?.image || null
 
+  // Add debugging
+  console.log('[Onboarding] Session data:', {
+    hasUser: !!session.user,
+    userImage: session.user?.image,
+    avatarUrl,
+    hasAvatarUrl: !!avatarUrl,
+  })
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -131,13 +136,21 @@ export default function OnboardingForm({ session }: OnboardingFormProps) {
 
   // Set avatar preview if available from Google
   useEffect(() => {
-    if (avatarUrl) {
+    console.log('[Onboarding] Avatar URL effect triggered:', {
+      avatarUrl,
+      hasAvatarUrl: !!avatarUrl,
+      sessionUser: session.user,
+    })
+
+    if (avatarUrl && !avatarRemoved) {
       const highResGoogleAvatarUrl = avatarUrl.replace('s96-c', 's192-c') // get higher res avatar
+      console.log('[Onboarding] Setting avatar preview:', highResGoogleAvatarUrl)
       setAvatarPreview(highResGoogleAvatarUrl)
 
       // Define upload function inside useEffect to avoid dependency issues
       const uploadAvatar = async (url: string) => {
         try {
+          console.log('[Onboarding] Starting Google avatar upload:', url)
           setIsAvatarUploading(true)
 
           const response = await fetch('/api/auth/upload-avatar', {
@@ -152,12 +165,14 @@ export default function OnboardingForm({ session }: OnboardingFormProps) {
           })
 
           if (!response.ok) {
+            const errorText = await response.text()
+            console.error('[Onboarding] Upload failed:', response.status, errorText)
             throw new Error('Failed to upload avatar')
           }
 
           const data = await response.json()
-          setAvatarId(data.id)
-          console.log('[Onboarding] Successfully uploaded avatar:', data)
+          setAvatarId(data.id) // Store the avatar ID
+          console.log('[Onboarding] Successfully uploaded Google avatar:', data)
           return data.id
         } catch (error) {
           console.error('[Onboarding] Error uploading Google avatar:', error)
@@ -169,8 +184,10 @@ export default function OnboardingForm({ session }: OnboardingFormProps) {
 
       // Store the promise for later use
       avatarUploadPromise.current = uploadAvatar(highResGoogleAvatarUrl)
+    } else {
+      console.log('[Onboarding] No avatar URL available from session or avatar was removed')
     }
-  }, [avatarUrl])
+  }, [avatarUrl, avatarRemoved, session.user])
 
   // Add a function to handle file uploads
   const uploadAvatarFile = useCallback(async (file: File) => {
@@ -218,15 +235,22 @@ export default function OnboardingForm({ session }: OnboardingFormProps) {
     setError(null)
 
     try {
-      let finalAvatarId = null
+      let finalAvatarId = avatarId // Use the stored avatar ID (from Google or file upload)
 
-      // Only process avatar if it wasn't removed and there's an upload in progress
-      if (!avatarRemoved && avatarUploadPromise.current) {
+      // If there's an upload in progress, wait for it
+      if (avatarUploadPromise.current) {
         const uploadResult = await avatarUploadPromise.current
         if (uploadResult) {
           finalAvatarId = uploadResult
         }
       }
+
+      // If avatar was removed, don't send any avatar ID
+      if (avatarRemoved) {
+        finalAvatarId = null
+      }
+
+      console.log('[Onboarding] Final avatar ID:', finalAvatarId)
 
       const response = await fetch('/api/auth/update-profile', {
         method: 'POST',
@@ -242,6 +266,7 @@ export default function OnboardingForm({ session }: OnboardingFormProps) {
           linkedinUrl: values.linkedinUrl || undefined,
           interactiveDemoUrl: values.interactiveDemoUrl || undefined,
           avatar: finalAvatarId,
+          loginMethod: getLoginMethod(),
         }),
       })
 
@@ -343,11 +368,6 @@ export default function OnboardingForm({ session }: OnboardingFormProps) {
         ? '2. Profile Details (optional)'
         : '3. Social Links (optional)'
 
-  // Helper function to check if a field has validation errors and should show them
-  const hasFieldError = (fieldName: keyof z.infer<typeof formSchema>) => {
-    return hasAttemptedValidation && !!form.formState.errors[fieldName]
-  }
-
   // Helper function to get field error message only if validation has been attempted
   const getFieldErrorMessage = (fieldName: keyof z.infer<typeof formSchema>) => {
     return hasAttemptedValidation ? form.formState.errors[fieldName]?.message : undefined
@@ -356,6 +376,18 @@ export default function OnboardingForm({ session }: OnboardingFormProps) {
   // Helper function to get field state only if validation has been attempted
   const getFieldState = (fieldName: keyof z.infer<typeof formSchema>) => {
     return hasAttemptedValidation && form.formState.errors[fieldName] ? 'error' : 'default'
+  }
+
+  const getLoginMethod = () => {
+    // Check the provider from the session
+    if (session.user?.provider === 'google') {
+      return 'google'
+    }
+    // Fallback: check if we have a Google avatar URL
+    if (session.user?.image && session.user.image.includes('googleusercontent.com')) {
+      return 'google'
+    }
+    return 'email'
   }
 
   return (
@@ -572,7 +604,7 @@ export default function OnboardingForm({ session }: OnboardingFormProps) {
                   onClick={() => console.log('Submit button clicked!')}
                 >
                   {isSubmitting ? 'Saving...' : 'Enter portal'}
-                  {isSubmitting ? <LoadingSpinner /> : <Icon name="arrow-right" />}
+                  {isSubmitting ? <Icon name="spinner" /> : <Icon name="arrow-right" />}
                 </Button>
               </div>
             </>

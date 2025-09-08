@@ -26,11 +26,11 @@ export default function Avatar({
     },
     lg: {
       width: 56,
-      src: (user?.avatar as Avatar)?.sizes?.thumbnail?.url || (user?.avatar as Avatar)?.url || '',
+      src: (user?.avatar as Avatar)?.sizes?.profile?.url || (user?.avatar as Avatar)?.url || '',
     },
     xl: {
       width: 112,
-      src: (user?.avatar as Avatar)?.sizes?.thumbnail?.url || (user?.avatar as Avatar)?.url || '',
+      src: (user?.avatar as Avatar)?.sizes?.profile?.url || (user?.avatar as Avatar)?.url || '',
     },
   }
 
@@ -81,7 +81,7 @@ export default function Avatar({
       </div>
       {showCompany && companyLogoSrc && isValidBrandfetchUrl && (
         <Tooltip content={company?.name || 'Company'} side="bottom" offset={4}>
-          <img
+          <Image
             className={clsx(
               'absolute -right-1 -bottom-1 z-10 aspect-square rounded-full border border-gray-200 bg-white object-contain p-px',
               size === 'sm' && 'size-3',
@@ -91,6 +91,8 @@ export default function Avatar({
             )}
             src={companyLogoSrc}
             alt={`${company?.name || 'Company'} logo`}
+            width={size === 'sm' ? 12 : 16}
+            height={size === 'sm' ? 12 : 16}
           />
         </Tooltip>
       )}

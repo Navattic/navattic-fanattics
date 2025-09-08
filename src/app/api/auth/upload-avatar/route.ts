@@ -128,10 +128,12 @@ async function handleUrlUpload(req: Request, session: any) {
   }
 
   try {
+    console.log('[Upload Avatar] Processing URL upload:', url)
+
     // Download image as buffer
     const imageRes = await fetch(url)
     if (!imageRes.ok) {
-      throw new Error('Failed to fetch image from URL')
+      throw new Error(`Failed to fetch image from URL: ${imageRes.status} ${imageRes.statusText}`)
     }
 
     const contentType = imageRes.headers.get('content-type') || 'image/jpeg'
@@ -151,7 +153,6 @@ async function handleUrlUpload(req: Request, session: any) {
       collection: 'avatars',
       data: {
         alt,
-        url,
       },
       file: {
         data: Buffer.from(imageBuffer),
@@ -160,6 +161,8 @@ async function handleUrlUpload(req: Request, session: any) {
         size: imageBuffer.byteLength,
       },
     })
+
+    console.log('[Upload Avatar] Successfully created avatar from URL:', uploadedAvatar.id)
 
     // Find and update user
     const users = await payload.find({

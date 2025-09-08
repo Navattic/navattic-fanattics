@@ -12,8 +12,17 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { firstName, lastName, email, bio, company, linkedinUrl, interactiveDemoUrl, avatar } =
-      await req.json()
+    const {
+      firstName,
+      lastName,
+      email,
+      bio,
+      company,
+      linkedinUrl,
+      interactiveDemoUrl,
+      avatar,
+      loginMethod,
+    } = await req.json()
 
     const payload = await getPayload({ config })
 
@@ -45,7 +54,9 @@ export async function POST(req: Request) {
         company: company || undefined,
         linkedinUrl: linkedinUrl || undefined,
         interactiveDemoUrl: interactiveDemoUrl || undefined,
-        avatar: avatar || undefined, // Add this line to handle the avatar
+        avatar: avatar || undefined,
+        loginMethod: loginMethod || 'email',
+        onboardingCompleted: true,
       },
     })
 
@@ -53,5 +64,5 @@ export async function POST(req: Request) {
   } catch (error) {
     console.error('Error updating profile:', error)
     return NextResponse.json({ error: 'Failed to update profile' }, { status: 500 })
-  } 
+  }
 }

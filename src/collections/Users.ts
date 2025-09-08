@@ -141,5 +141,13 @@ export const Users: CollectionConfig = {
       on: 'user',
       hasMany: true,
     },
+    {
+      name: 'onboardingCompleted',
+      type: 'checkbox',
+      defaultValue: false,
+      admin: {
+        description: 'Whether the user has completed the onboarding process',
+      },
+    },
   ],
 }

@@ -1,4 +1,4 @@
-import { NextAuthOptions } from 'next-auth'
+import { JWT, NextAuthOptions } from 'next-auth'
 import GoogleProvider from 'next-auth/providers/google'
 import EmailProvider from 'next-auth/providers/email'
 import { getPayload, User } from 'payload'
@@ -6,7 +6,7 @@ import config from '@/payload.config'
 import { v4 } from 'uuid'
 import { Adapter, AdapterUser } from 'next-auth/adapters'
 
-// TODO: change email address to .com for prod
+// TODO: change email address to .com for prod from .dev
 
 // Add this custom adapter before the authOptions
 function PayloadAdapter(): Adapter {
@@ -100,7 +100,7 @@ function PayloadAdapter(): Adapter {
           token: verificationToken.token,
           expires: new Date(verificationToken.expires),
         }
-      } catch (error) {
+      } catch (_error) {
         return null
       }
     },
@@ -220,6 +220,15 @@ export const authOptions: NextAuthOptions = {
       clientId: process.env.GOOGLE_CLIENT_ID ?? '',
       clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? '',
       allowDangerousEmailAccountLinking: true,
+      profile(profile) {
+        console.log('[Auth] Google profile callback:', profile)
+        return {
+          id: profile.sub,
+          name: profile.name,
+          email: profile.email,
+          image: profile.picture, // Extract profile picture
+        }
+      },
     }),
   ],
   callbacks: {
@@ -243,12 +252,9 @@ export const authOptions: NextAuthOptions = {
               `User attempted to sign in with ${attemptedMethod} but account uses ${currentUser.loginMethod}`,
             )
 
-            // Throw a specific error instead of returning false
-            if (attemptedMethod === 'google') {
-              throw new Error('use_email')
-            } else {
-              throw new Error('use_google')
-            }
+            // Throw specific error that NextAuth will pass through
+            const error = attemptedMethod === 'google' ? 'use_email' : 'use_google'
+            throw new Error(error)
           }
           return true
         }
@@ -256,7 +262,7 @@ export const authOptions: NextAuthOptions = {
         return true
       } catch (error) {
         console.error('Error in SignIn Callback:', error)
-        // Re-throw the specific error if it's a login method mismatch
+        // Re-throw specific login method mismatch errors
         if (
           error instanceof Error &&
           (error.message === 'use_email' || error.message === 'use_google')
@@ -280,7 +286,6 @@ export const authOptions: NextAuthOptions = {
 
         // If no email in URL params, try to get it from the token
         if (!emailParam && url.includes('callback') && url.includes('token')) {
-          const token = urlObj.searchParams.get('token')
           const identifier = urlObj.searchParams.get('identifier')
           if (identifier) {
             emailParam = identifier
@@ -309,11 +314,67 @@ export const authOptions: NextAuthOptions = {
         return baseUrl
       }
     },
-    async jwt({ token, user }) {
+    async jwt({ token, user, account }) {
+      console.log('[Auth] JWT callback - full data:', {
+        hasUser: !!user,
+        hasAccount: !!account,
+        userKeys: user ? Object.keys(user) : [],
+        accountKeys: account ? Object.keys(account) : [],
+        userData: user,
+        accountData: account,
+      })
+
       if (user) {
         token.roles = (user as User).roles
+        token.name = user.name
+        token.email = user.email
+        token.image = user.image
       }
+
+      // Store the provider information
+      if (account?.provider) {
+        token.provider = account.provider
+      }
+
+      // Extract image from Google id_token if available
+      if (account?.provider === 'google' && account.id_token) {
+        try {
+          const payload = JSON.parse(
+            Buffer.from(account.id_token.split('.')[1], 'base64').toString(),
+          )
+          console.log('[Auth] Extracted from id_token:', payload)
+          if (payload.picture) {
+            // Get higher quality image by replacing s96-c with s192-c or s400-c
+            const highQualityImage = payload.picture.replace('s96-c', 's192-c')
+            token.image = highQualityImage
+            console.log('[Auth] Set high quality image from id_token:', highQualityImage)
+          }
+        } catch (error) {
+          console.error('[Auth] Error parsing id_token:', error)
+        }
+      }
+
       return token
+    },
+    async session({ session, token }) {
+      console.log('[Auth] Session callback - token data:', {
+        name: token.name,
+        email: token.email,
+        image: token.image,
+        roles: token.roles,
+        all: token,
+        session: session,
+      })
+
+      // Pass the token data to the session
+      if (token) {
+        session.user.name = token.name
+        session.user.email = token.email
+        session.user.image = token.image as string
+        session.user.roles = token.roles as string[]
+        session.user.provider = token.provider as JWT['provider']
+      }
+      return session
     },
   },
 }

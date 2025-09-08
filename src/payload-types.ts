@@ -178,6 +178,10 @@ export interface User {
     docs?: (number | Comment)[] | null;
     hasNextPage?: boolean | null;
   } | null;
+  /**
+   * Whether the user has completed the onboarding process
+   */
+  onboardingCompleted?: boolean | null;
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -650,6 +654,7 @@ export interface UsersSelect<T extends boolean = true> {
   user_id?: T;
   ledgerEntries?: T;
   userComments?: T;
+  onboardingCompleted?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;

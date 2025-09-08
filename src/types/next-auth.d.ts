@@ -1,18 +1,20 @@
 import 'next-auth'
 
 declare module 'next-auth' {
-  interface Session {
+  export interface Session {
     user: {
       name?: string | null
       email?: string | null
       image?: string | null
       roles?: string[]
+      provider?: 'google' | 'email'
     }
     isNewUser?: boolean
   }
 
-  interface JWT {
+  export interface JWT {
     isNewUser?: boolean
     roles?: string[]
+    provider?: 'google' | 'email'
   }
 }

@@ -10,7 +10,7 @@ import { Input } from '@/components/shadcn/ui/input'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { SignInResponse } from 'next-auth/react'
+import { Icon } from '@/components/ui/Icon'
 
 const emailSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
@@ -57,19 +57,11 @@ export default function LoginForm() {
     setLoadingState('google')
     setAuthError(null)
     try {
-      const result = await signIn('google', { redirect: false })
-      if (result?.error) {
-        setAuthError('An error occurred during sign in. Please try again.')
-      } else if (result?.ok === false) {
-        // This happens when signIn returns false (login method mismatch)
-        setAuthError(
-          'This account uses email sign-in. Please use the email sign-in option instead.',
-        )
-      }
+      // Use redirect: true for Google sign-in so we can handle errors through URL parameters
+      await signIn('google', { redirect: true })
     } catch (error) {
       console.error('Error signing in with Google:', error)
       setAuthError('An unexpected error occurred. Please try again.')
-    } finally {
       setLoadingState('idle')
     }
   }
@@ -78,6 +70,26 @@ export default function LoginForm() {
     setLoadingState('email')
     setAuthError(null)
     try {
+      // First check if the user exists and what login method they use
+      const checkResponse = await fetch('/api/auth/check-login-method', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email: data.email }),
+      })
+
+      if (checkResponse.ok) {
+        const checkData = await checkResponse.json()
+        if (checkData.exists && checkData.loginMethod === 'google') {
+          setAuthError(
+            'This account uses Google sign-in. Please use the Google sign-in option instead.',
+          )
+          setLoadingState('idle')
+          return
+        }
+      }
+
       const result = await signIn('email', {
         email: data.email,
         callbackUrl: '/',
@@ -87,8 +99,7 @@ export default function LoginForm() {
       if (result?.error) {
         setAuthError('An error occurred during sign in. Please try again.')
       } else if (result?.ok === false) {
-        // This happens when signIn returns false (login method mismatch)
-        setAuthError('This account uses Google sign-in, please use that option instead.')
+        setAuthError('An error occurred during sign in. Please try again.')
       } else {
         setEmailSent(true)
       }
@@ -158,19 +169,13 @@ export default function LoginForm() {
       <h1 className="pb-6 text-lg font-bold text-gray-800">Sign in to Fanattic Portal</h1>
 
       {authError && (
-        <div className="rounded-md bg-red-50 p-3">
+        <div className="rounded-md bg-yellow-50 p-3">
           <div className="flex">
             <div className="flex-shrink-0">
-              <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-                <path
-                  fillRule="evenodd"
-                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                  clipRule="evenodd"
-                />
-              </svg>
+              <Icon size="lg" name="triangle-alert" className="text-yellow-400" />
             </div>
-            <div className="ml-2">
-              <p className="text-sm text-red-700">{authError}</p>
+            <div className="ml-3">
+              <p className="text-sm text-pretty text-yellow-700">{authError}</p>
             </div>
           </div>
         </div>
