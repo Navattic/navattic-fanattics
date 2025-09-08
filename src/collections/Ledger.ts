@@ -11,7 +11,10 @@ export const Ledger: CollectionConfig = {
     group: 'Transactions',
   },
   access: {
-    read: () => true, // You may want to restrict this based on your requirements
+    read: () => true,
+    create: () => false,
+    update: () => false,
+    delete: () => false,
   },
   fields: [
     {

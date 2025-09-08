@@ -17,7 +17,7 @@ const EventEntry = ({ event, isPastEvent }: { event: Event; isPastEvent?: boolea
     <div className="inset-shadow flex justify-between rounded-3xl border border-gray-100 bg-white p-4 pl-6 [:last-child]:mb-20">
       <div className="flex flex-col justify-between p-2 pt-1 pr-8">
         <div className="space-y-2">
-          <div className="text-lg font-semibold text-gray-800 text-balance">{event.title}</div>
+          <div className="text-lg font-semibold text-balance text-gray-800">{event.title}</div>
           <Button
             variant={isPastEvent ? 'outline' : 'solid'}
             colorScheme="brand"
@@ -141,7 +141,7 @@ const EventSchedule = async () => {
           ) : (
             <Empty title="No upcoming events" iconName="calendar" />
           )}
-          <div className="text-md mb-3 font-semibold text-gray-600">Past Events</div>
+          <div className="text-md mt-8 mb-3 font-semibold text-gray-600">Past Events</div>
           {pastEvents.length > 0 ? (
             <div className="flex flex-col gap-4">
               {pastEvents.map((event) => (

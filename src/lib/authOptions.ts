@@ -152,8 +152,8 @@ export const authOptions: NextAuthOptions = {
   pages: {
     signIn: '/login',
     verifyRequest: '/login?verify=true',
-    // Add this line to use the auth-redirect page
-    newUser: '/auth-redirect', // This will redirect new users through our auth-redirect page
+    error: '/login', // Redirect errors back to login page
+    newUser: '/auth-redirect',
   },
   providers: [
     EmailProvider({
@@ -243,20 +243,26 @@ export const authOptions: NextAuthOptions = {
               `User attempted to sign in with ${attemptedMethod} but account uses ${currentUser.loginMethod}`,
             )
 
-            // Instead of returning a relative URL, return false and add an error code
-            // that we can handle in the login page
-            throw new Error(`use_${currentUser.loginMethod}`)
+            // Throw a specific error instead of returning false
+            if (attemptedMethod === 'google') {
+              throw new Error('use_email')
+            } else {
+              throw new Error('use_google')
+            }
           }
           return true
         }
 
         return true
       } catch (error) {
-        // If it's our custom error, throw it to be handled by the error page
-        if (error instanceof Error && error.message.startsWith('use_')) {
+        console.error('Error in SignIn Callback:', error)
+        // Re-throw the specific error if it's a login method mismatch
+        if (
+          error instanceof Error &&
+          (error.message === 'use_email' || error.message === 'use_google')
+        ) {
           throw error
         }
-        console.error('Error in SignIn Callback:', error)
         return false
       }
     },
@@ -284,6 +290,17 @@ export const authOptions: NextAuthOptions = {
         // For callback URLs (when user clicks email link), redirect to register
         if (url.includes('callback') && url.includes('token')) {
           return `${baseUrl}/register`
+        }
+
+        // Handle error redirects - redirect back to login with error parameter
+        if (url.includes('/api/auth/error')) {
+          const errorParam = urlObj.searchParams.get('error')
+          if (errorParam === 'use_email') {
+            return `${baseUrl}/login?error=use_email`
+          } else if (errorParam === 'use_google') {
+            return `${baseUrl}/login?error=use_google`
+          }
+          return `${baseUrl}/login?error=generic`
         }
 
         return url.startsWith(baseUrl) ? url : baseUrl

@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/Button'
 import { signIn } from 'next-auth/react'
 import Link from 'next/link'
@@ -26,6 +26,24 @@ export default function LoginForm() {
   const [authError, setAuthError] = useState<string | null>(null)
   const searchParams = useSearchParams()
   const isVerifying = searchParams.get('verify') === 'true'
+  const errorParam = searchParams.get('error')
+
+  // Handle error from URL parameters
+  useEffect(() => {
+    if (errorParam) {
+      if (errorParam === 'use_email') {
+        setAuthError(
+          'This account uses email sign-in. Please use the email sign-in option instead.',
+        )
+      } else if (errorParam === 'use_google') {
+        setAuthError(
+          'This account uses Google sign-in. Please use the Google sign-in option instead.',
+        )
+      } else if (errorParam === 'generic') {
+        setAuthError('An authentication error occurred. Please try again.')
+      }
+    }
+  }, [errorParam])
 
   const {
     register,
@@ -40,7 +58,10 @@ export default function LoginForm() {
     setAuthError(null)
     try {
       const result = await signIn('google', { redirect: false })
-      if (result?.error === 'Error: use_email') {
+      if (result?.error) {
+        setAuthError('An error occurred during sign in. Please try again.')
+      } else if (result?.ok === false) {
+        // This happens when signIn returns false (login method mismatch)
         setAuthError(
           'This account uses email sign-in. Please use the email sign-in option instead.',
         )
@@ -64,12 +85,10 @@ export default function LoginForm() {
       })
 
       if (result?.error) {
-        if (result.error.includes('use_google')) {
-          setAuthError('This account uses Google sign-in, please use that option instead.')
-        } else {
-          console.error('Unexpected sign-in error:', result.error)
-          setAuthError('An error occurred during sign in. Please try again.')
-        }
+        setAuthError('An error occurred during sign in. Please try again.')
+      } else if (result?.ok === false) {
+        // This happens when signIn returns false (login method mismatch)
+        setAuthError('This account uses Google sign-in, please use that option instead.')
       } else {
         setEmailSent(true)
       }
