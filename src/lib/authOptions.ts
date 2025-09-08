@@ -315,20 +315,30 @@ export const authOptions: NextAuthOptions = {
       }
     },
     async jwt({ token, user, account }) {
-      console.log('[Auth] JWT callback - full data:', {
-        hasUser: !!user,
-        hasAccount: !!account,
-        userKeys: user ? Object.keys(user) : [],
-        accountKeys: account ? Object.keys(account) : [],
-        userData: user,
-        accountData: account,
-      })
-
       if (user) {
         token.roles = (user as User).roles
         token.name = user.name
         token.email = user.email
         token.image = user.image
+      } else if (token.sub && !token.roles) {
+        // If we have a user ID but no user data, fetch it from the database
+        // This happens on subsequent sign-ins (like magic link clicks)
+        try {
+          const payload = await getPayload({ config })
+          const dbUser = await payload.findByID({
+            collection: 'users',
+            id: token.sub,
+          })
+
+          if (dbUser) {
+            token.roles = dbUser.roles
+            token.name = `${dbUser.firstName} ${dbUser.lastName}`
+            token.email = dbUser.email
+            token.image = (typeof dbUser.avatar === 'object' && dbUser.avatar?.url) || token.image
+          }
+        } catch (error) {
+          console.error('[Auth] Error fetching user data from database:', error)
+        }
       }
 
       // Store the provider information
@@ -342,12 +352,10 @@ export const authOptions: NextAuthOptions = {
           const payload = JSON.parse(
             Buffer.from(account.id_token.split('.')[1], 'base64').toString(),
           )
-          console.log('[Auth] Extracted from id_token:', payload)
           if (payload.picture) {
             // Get higher quality image by replacing s96-c with s192-c or s400-c
             const highQualityImage = payload.picture.replace('s96-c', 's192-c')
             token.image = highQualityImage
-            console.log('[Auth] Set high quality image from id_token:', highQualityImage)
           }
         } catch (error) {
           console.error('[Auth] Error parsing id_token:', error)
@@ -357,15 +365,6 @@ export const authOptions: NextAuthOptions = {
       return token
     },
     async session({ session, token }) {
-      console.log('[Auth] Session callback - token data:', {
-        name: token.name,
-        email: token.email,
-        image: token.image,
-        roles: token.roles,
-        all: token,
-        session: session,
-      })
-
       // Pass the token data to the session
       if (token) {
         session.user.name = token.name
