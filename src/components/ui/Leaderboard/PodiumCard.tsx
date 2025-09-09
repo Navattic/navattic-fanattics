@@ -1,9 +1,8 @@
 import type { User } from '@/payload-types'
-import Avatar from '../Avatar'
-import { Icon } from '../Icon'
-import OpenProfileDrawer from '../UserProfilePreviewModal/OpenProfileDrawer'
+import { Icon, Avatar } from '@/components/ui'
+import { OpenProfileDrawer } from '../UserProfilePreviewModal/OpenProfileDrawer'
 
-const PodiumCard = async ({
+export const PodiumCard = async ({
   user,
   position,
   points,
@@ -31,7 +30,6 @@ const PodiumCard = async ({
       border: 'border-orange-200/80',
     },
   ]
-
 
   return (
     <>
@@ -83,5 +81,3 @@ const PodiumCard = async ({
     </>
   )
 }
-
-export default PodiumCard

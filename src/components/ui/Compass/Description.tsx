@@ -2,8 +2,10 @@
 
 import { cva } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
-import { Icon, IconName } from '@/components/ui/Icon'
-import { Tooltip, TooltipProps } from '@/components/ui/Tooltip'
+import { Icon } from '@/components/ui'
+import { IconName } from './Icon'
+import { Tooltip } from '@/components/ui'
+import { TooltipProps } from './Tooltip'
 import type { ReactNode } from 'react'
 import { NvColorScheme } from '@/types/compass/types'
 

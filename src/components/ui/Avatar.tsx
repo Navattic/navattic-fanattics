@@ -1,10 +1,10 @@
-import type { User, Avatar } from '@/payload-types'
+import type { User, Avatar as AvatarType } from '@/payload-types'
 import Image from 'next/image'
 import { cn } from '@/lib/utils'
 import clsx from 'clsx'
-import { Tooltip } from '@/components/ui/Tooltip'
+import { Tooltip } from '@/components/ui'
 
-export default function Avatar({
+export const Avatar = ({
   user,
   size = 'md',
   className,
@@ -14,23 +14,35 @@ export default function Avatar({
   size?: 'sm' | 'md' | 'lg' | 'xl'
   className?: string
   showCompany?: boolean
-}) {
+}) => {
   const sizes = {
     sm: {
       width: 20,
-      src: (user?.avatar as Avatar)?.sizes?.profile?.url || (user?.avatar as Avatar)?.url || '',
+      src:
+        (user?.avatar as AvatarType)?.sizes?.profile?.url ||
+        (user?.avatar as AvatarType)?.url ||
+        '',
     },
     md: {
       width: 32,
-      src: (user?.avatar as Avatar)?.sizes?.profile?.url || (user?.avatar as Avatar)?.url || '',
+      src:
+        (user?.avatar as AvatarType)?.sizes?.profile?.url ||
+        (user?.avatar as AvatarType)?.url ||
+        '',
     },
     lg: {
       width: 56,
-      src: (user?.avatar as Avatar)?.sizes?.profile?.url || (user?.avatar as Avatar)?.url || '',
+      src:
+        (user?.avatar as AvatarType)?.sizes?.profile?.url ||
+        (user?.avatar as AvatarType)?.url ||
+        '',
     },
     xl: {
       width: 112,
-      src: (user?.avatar as Avatar)?.sizes?.profile?.url || (user?.avatar as Avatar)?.url || '',
+      src:
+        (user?.avatar as AvatarType)?.sizes?.profile?.url ||
+        (user?.avatar as AvatarType)?.url ||
+        '',
     },
   }
 
@@ -60,7 +72,7 @@ export default function Avatar({
             className="block aspect-square size-full object-cover"
             src={size ? sizes[size].src : sizes.md.src}
             quality={90}
-            alt={`${(user?.avatar as Avatar)?.alt || `${user?.firstName}'s avatar`}`}
+            alt={`${(user?.avatar as AvatarType)?.alt || `${user?.firstName}'s avatar`}`}
             width={size ? sizes[size].width : sizes.md.width}
             height={size ? sizes[size].width : sizes.md.width}
           />
@@ -68,7 +80,7 @@ export default function Avatar({
           // fallback to initials
           <div
             className={cn(
-              'flex h-full w-full items-center justify-center rounded-full bg-gradient-to-b from-gray-100 to-gray-200 text-gray-500 uppercase [text-shadow:-1px_1px_0px_rgba(255,255,255,0.5)]',
+              'flex h-full w-full items-center justify-center rounded-full bg-gradient-to-b from-gray-100 to-gray-200 text-gray-500 uppercase [box-shadow:0_-2px_2px_0_rgba(0,0,0,0.03)_inset,0_-3px_8px_0_rgba(0,0,0,0.015)_inset] [text-shadow:-1px_1px_0px_rgba(255,255,255,0.3)]',
               size === 'sm' && 'text-xs',
               size === 'md' && 'text-xs',
               size === 'lg' && 'text-md',

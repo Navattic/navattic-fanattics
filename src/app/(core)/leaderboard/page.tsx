@@ -1,13 +1,8 @@
 import { payload } from '@/lib/payloadClient'
-import PageHeader from '@/components/ui/PageHeader'
-import { Container } from '@/components/ui/Container'
-import PodiumCard from '@/components/ui/Leaderboard/PodiumCard'
-import LeaderboardTable from '@/components/ui/Leaderboard/LeaderboardTable'
-import PageTitle from '@/components/ui/PageTitle'
-import { Button } from '@/components/ui/Button'
-import { Icon } from '@/components/ui'
+import { PageHeader, Container, PageTitle, Button, Icon } from '@/components/ui'
+import { PodiumCard } from '@/components/ui/Leaderboard/PodiumCard'
+import { LeaderboardTable } from '@/components/ui/Leaderboard/LeaderboardTable'
 import { User, Ledger, Comment } from '@/payload-types'
-// import OpenProfileDrawer from '@/components/ui/UserProfilePreviewModal/OpenProfileDrawer'
 import { calculateUserPoints } from '@/lib/users/points'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/authOptions'
@@ -41,7 +36,7 @@ const Leaderboard = async () => {
   const usersWithStats: UserWithStats[] = users.map((user) => {
     // Calculate completed challenges by counting unique challenge_id entries in ledger
     const completedChallenges = new Set(
-      user.ledgerEntries?.docs  
+      user.ledgerEntries?.docs
         ?.filter(
           (entry: Ledger) =>
             entry.amount > 0 && // Only count positive point entries
@@ -99,7 +94,7 @@ const Leaderboard = async () => {
     <>
       <PageHeader userPoints={currentUserPoints} />
       <div className="min-h-screen bg-gray-50">
-        <Container className="max-w-6xl">
+        <Container>
           <PageTitle
             title="Leaderboard"
             description="See the most active Fanattics and view their profile."

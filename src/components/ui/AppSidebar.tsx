@@ -31,12 +31,12 @@ import {
   UserIcon,
   LucideIcon,
 } from 'lucide-react'
-import { NavatticLogo } from './NavatticLogo'
+import { NavatticLogo } from '@/components/ui/NavatticLogo'
 import Link from 'next/link'
 import { signIn, signOut, useSession } from 'next-auth/react'
 import { usePathname } from 'next/navigation'
 import React from 'react'
-import Avatar from './Avatar'
+import { Avatar } from '@/components/ui'
 import { useUser } from '../Providers'
 
 interface FooterItem {

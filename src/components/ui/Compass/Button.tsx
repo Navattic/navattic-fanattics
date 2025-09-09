@@ -3,6 +3,7 @@ import { cn } from '@/lib/utils'
 import { Link } from '@/components/ui/Link'
 import { VariantProps, cva } from 'class-variance-authority'
 
+
 const buttonVariants = cva(
   [
     'relative flex items-center justify-center whitespace-nowrap transition-all border outline-none focus-visible:outline-none group w-fit cursor-pointer',
@@ -128,7 +129,7 @@ const buttonVariants = cva(
   },
 )
 
-type ButtonProps = {
+export type ButtonProps = {
   variant?: VariantProps<typeof buttonVariants>['variant']
   colorScheme?: VariantProps<typeof buttonVariants>['colorScheme']
   size?: VariantProps<typeof buttonVariants>['size']

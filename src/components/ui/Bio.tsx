@@ -3,7 +3,7 @@ import { Icon, Link } from '@/components/ui'
 import { formatDate } from '@/utils/formatDate'
 import { User } from '@/payload-types'
 
-const Bio = ({ user }: { user: User }) => {
+export const Bio = ({ user }: { user: User }) => {
   return (
     <div className="inset-shadow space-y-3 rounded-2xl border border-gray-100 bg-white p-5">
       {user.bio && <div className="mb-5 text-sm text-gray-700">{user.bio}</div>}
@@ -32,5 +32,3 @@ const Bio = ({ user }: { user: User }) => {
     </div>
   )
 }
-
-export default Bio

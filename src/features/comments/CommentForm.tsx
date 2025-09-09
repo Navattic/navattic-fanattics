@@ -1,12 +1,10 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import Avatar from '@/components/ui/Avatar'
+import { Avatar, Icon, Button } from '@/components/ui'
 import { Challenge, User } from '@/payload-types'
-import { Button } from '@/components/ui'
 import { createComment } from './actions'
 import { useOptimisticComments } from './OptimisticCommentsContext'
-import { Icon } from '@/components/ui/Icon'
 
 interface CommentFormProps {
   user: User

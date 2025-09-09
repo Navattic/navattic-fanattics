@@ -4,7 +4,7 @@ import { formatTimeRemaining } from '@/utils/formatTimeRemaining'
 import Link from 'next/link'
 import { payload } from '@/lib/payloadClient'
 
-const ChallengesList = async ({
+export const ChallengesList = async ({
   challengesData,
   userLedgerEntries,
 }: {
@@ -79,5 +79,3 @@ const ChallengesList = async ({
     </div>
   )
 }
-
-export default ChallengesList

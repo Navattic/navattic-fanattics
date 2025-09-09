@@ -1,16 +1,14 @@
 'use client'
 import { useState, useEffect } from 'react'
-import { Button } from '@/components/ui/Button'
 import { signIn } from 'next-auth/react'
 import Link from 'next/link'
 import Image from 'next/image'
-import LoadingSpinner from '@/components/ui/icons/LoadingSpinner'
 import { useSearchParams } from 'next/navigation'
 import { Input } from '@/components/shadcn/ui/input'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Icon } from '@/components/ui/Icon'
+import { Icon, Button } from '@/components/ui'
 
 const emailSchema = z.object({
   email: z.string().email('Please enter a valid email address'),

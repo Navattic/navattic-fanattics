@@ -1,7 +1,7 @@
 'use client'
 
 import { createContext, useContext, useState, ReactNode, useEffect } from 'react'
-import { Comment, User, Challenge } from '@/payload-types'
+import { Comment } from '@/payload-types'
 
 export interface OptimisticComment extends Omit<Comment, 'id' | 'createdAt' | 'updatedAt'> {
   id: string // Use string for optimistic IDs

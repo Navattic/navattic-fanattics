@@ -5,8 +5,8 @@ import { LabelProps as LabelRootProps, Root as LabelRoot } from '@radix-ui/react
 import { cva } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui'
-import { Icon, IconName } from '@/components/ui/Icon'
-import { Tooltip } from '@/components/ui/Tooltip'
+import { Icon, Tooltip } from '@/components/ui'
+import { IconName } from './Icon'
 
 export interface FieldSetProps
   extends Omit<React.ComponentPropsWithoutRef<'fieldset'>, 'children'> {

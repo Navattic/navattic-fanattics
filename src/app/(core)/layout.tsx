@@ -1,5 +1,5 @@
 import '../styles/globals.css'
-import Providers from '@/components/Providers'
+import { Providers } from '@/components/Providers'
 import localFont from 'next/font/local'
 import { AppSidebar } from '@/components/ui/AppSidebar'
 import { getServerSession } from 'next-auth'

@@ -1,13 +1,11 @@
 import { payload } from '@/lib/payloadClient'
-import PageHeader from '@/components/ui/PageHeader'
-import PageTitle from '@/components/ui/PageTitle'
-import { Container } from '@/components/ui/Container'
+import { PageHeader, PageTitle, Empty } from '@/components/ui'
+import { Container } from '@/components/ui'
 import { Event, Media } from '@/payload-types'
 import Image from 'next/image'
 import { Badge, Button, Icon, Link } from '@/components/ui'
 import { ArrowUpRightIcon } from 'lucide-react'
 import { formatDate } from '@/utils/formatDate'
-import Empty from '@/components/ui/Empty'
 import { calculateUserPoints } from '@/lib/users/points'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/authOptions'
@@ -126,7 +124,7 @@ const EventSchedule = async () => {
     <>
       <PageHeader title="Event Schedule" userPoints={userPoints} />
       <div className="min-h-screen bg-gray-50">
-        <Container className="max-w-6xl">
+        <Container>
           <PageTitle
             title="Event Schedule"
             description="See upcoming virtual and in-person Navattic events."

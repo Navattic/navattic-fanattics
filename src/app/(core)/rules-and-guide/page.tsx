@@ -1,7 +1,5 @@
 import { payload } from '@/lib/payloadClient'
-import PageHeader from '@/components/ui/PageHeader'
-import { Container } from '@/components/ui/Container'
-import GuideContent from '@/components/ui/GuideContent'
+import { GuideContent, PageHeader, Container, PageTitle, Empty } from '@/components/ui'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/authOptions'
 import { calculateUserPoints } from '@/lib/users/points'
@@ -29,7 +27,21 @@ const GuideAndRules = async () => {
     <>
       <PageHeader title="Rules & Guide" userPoints={userPoints} />
       <div className="min-h-screen bg-gray-50">
-        <Container className="py-10">{guide && <GuideContent guide={guide} />}</Container>
+        <Container>
+          <PageTitle
+            title="Rules & Guide"
+            description="Learn about the rules and guide for the Navattic Portal."
+          />
+          {guide ? (
+            <GuideContent guide={guide} />
+          ) : (
+            <Empty
+              title="No rules and guide uploaded yet"
+              description="Check back soon for updates."
+              iconName="book-open"
+            />
+          )}
+        </Container>
       </div>
     </>
   )

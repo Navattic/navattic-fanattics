@@ -6,14 +6,12 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/shadcn/ui/table'
-import Avatar from '../Avatar'
 import type { User } from '@/payload-types'
-import { Icon } from '../Icon'
+import { Icon, Avatar } from '@/components/ui'
 import { cn } from '@/lib/utils'
-import OpenProfileDrawer from '../UserProfilePreviewModal/OpenProfileDrawer'
+import { OpenProfileDrawer } from '../UserProfilePreviewModal/OpenProfileDrawer'
 
 // TODO: Add pagination
-// TODO: Add user modal
 // TODO: Add empty state
 
 interface UserWithStats {
@@ -23,7 +21,7 @@ interface UserWithStats {
   lastCommentDate: string | null
 }
 
-const LeaderboardTable = ({ users }: { users: UserWithStats[] }) => {
+export const LeaderboardTable = ({ users }: { users: UserWithStats[] }) => {
   return (
     <div className="mt-10 overflow-hidden rounded-xl border border-gray-100 bg-white shadow-xs">
       <Table>
@@ -89,5 +87,3 @@ const LeaderboardTable = ({ users }: { users: UserWithStats[] }) => {
     </div>
   )
 }
-
-export default LeaderboardTable

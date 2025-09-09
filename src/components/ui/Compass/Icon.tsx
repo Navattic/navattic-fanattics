@@ -3,7 +3,7 @@
 import { forwardRef } from 'react'
 import { cva, VariantProps } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
-import { IconName } from './icons/generated/icon-name'
+import { IconName } from '@/components/ui/icons/generated/icon-name'
 
 export type { IconName }
 

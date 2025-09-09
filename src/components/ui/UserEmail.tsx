@@ -1,6 +1,6 @@
 'use client'
 
-import { Icon } from '@/components/ui/Icon'
+import { Icon } from '@/components/ui'
 import { useState } from 'react'
 import clsx from 'clsx'
 
@@ -9,7 +9,7 @@ interface UserEmailProps {
   size?: 'sm' | 'md'
 }
 
-export default function UserEmail({ email, size = 'md' }: UserEmailProps) {
+export const UserEmail = ({ email, size = 'md' }: UserEmailProps) => {
   const [copied, setCopied] = useState(false)
 
   const handleCopyEmail = async () => {

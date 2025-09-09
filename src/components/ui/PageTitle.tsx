@@ -1,4 +1,4 @@
-const PageTitle = ({
+export const PageTitle = ({
   title,
   description,
   button,
@@ -17,5 +17,3 @@ const PageTitle = ({
     </div>
   )
 }
-
-export default PageTitle

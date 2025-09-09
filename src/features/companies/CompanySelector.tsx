@@ -2,9 +2,9 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { Check, ChevronsUpDown, PlusCircle, X } from 'lucide-react'
-import { Button } from '@/components/ui/Button'
+import { Button, Icon } from '@/components/ui'
 import { cn } from '@/lib/utils'
-import type { Company, CompanyLogo } from '@/payload-types'
+import type { Company } from '@/payload-types'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/shadcn/ui/popover'
 import {
   Command,
@@ -19,8 +19,7 @@ import { Input } from '@/components/shadcn/ui/input'
 import { Label } from '@/components/shadcn/ui/label'
 import { FormControl, FormField, FormMessage } from '@/components/shadcn/ui/form'
 import { useFormContext } from 'react-hook-form'
-import { FieldSet } from '@/components/ui/FieldSet'
-import { Icon } from '@/components/ui'
+import { FieldSet } from '@/components/ui'
 import { CompanyLogo as CompanyLogoComponent } from './CompanyLogo'
 
 type CompanySelectorProps = {

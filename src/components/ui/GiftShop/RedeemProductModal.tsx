@@ -17,15 +17,14 @@ interface RedeemProductModalProps {
   isRedeeming: boolean
 }
 
-function RedeemProductModal({
+export const RedeemProductModal = ({
   isOpen,
   onClose,
   product,
-  user,
   onConfirm,
   userPoints,
   isRedeeming,
-}: RedeemProductModalProps) {
+}: RedeemProductModalProps) => {
   const [isFlipped, setIsFlipped] = useState(false)
   const [showConfetti, setShowConfetti] = useState(false)
   const { width, height } = useWindowSize()
@@ -186,5 +185,3 @@ function RedeemProductModal({
     </div>
   )
 }
-
-export default RedeemProductModal

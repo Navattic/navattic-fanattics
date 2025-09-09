@@ -17,12 +17,7 @@ interface OpenProfileDrawerProps {
   className?: string
 }
 
-export default function OpenProfileDrawer({
-  children,
-  user,
-  stats,
-  className,
-}: OpenProfileDrawerProps) {
+export const OpenProfileDrawer = ({ children, user, stats, className }: OpenProfileDrawerProps) => {
   const { setOpen, setUser } = useProfileDrawer()
 
   const handleClick = () => {

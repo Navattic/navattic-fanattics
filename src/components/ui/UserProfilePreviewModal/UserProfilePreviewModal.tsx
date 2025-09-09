@@ -9,13 +9,13 @@ import {
   DrawerTitle,
   DrawerClose,
 } from '../../shadcn/ui/drawer'
-import Avatar from '../Avatar'
-import UserEmail from '../UserEmail'
-import { Icon, IconName } from '../Icon'
+import { UserEmail } from '../UserEmail'
+import { Icon, Avatar } from '@/components/ui'
+import { IconName } from '@/components/ui/Compass/Icon'
 import { formatDate } from '@/utils/formatDate'
 import { ArrowUpRightIcon } from 'lucide-react'
 
-function UserProfilePreviewModal() {
+export const UserProfilePreviewModal = () => {
   const { open, setOpen, user, stats } = useProfileDrawer()
 
   const company = user?.company as Company | undefined
@@ -163,5 +163,3 @@ function UserProfilePreviewModal() {
     </Drawer>
   )
 }
-
-export default UserProfilePreviewModal

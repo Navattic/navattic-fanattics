@@ -3,16 +3,14 @@ import { notFound } from 'next/navigation'
 import { RichText } from '@payloadcms/richtext-lexical/react'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/authOptions'
+import { PageHeader, Container, Badge, Icon } from '@/components/ui'
 import { Comments } from '@/components/ui/Comments'
-import PageHeader from '@/components/ui/PageHeader'
-import { Container } from '@/components/ui/Container'
-import { formatDate } from '@/utils/formatDate'
-import { Badge, Icon } from '@/components/ui'
 import { formatTimeRemaining } from '@/utils/formatTimeRemaining'
 import { calculateUserPoints } from '@/lib/users/points'
 import { Challenge, Ledger, Comment } from '@/payload-types'
 import { unstable_cache } from 'next/cache'
 import { Suspense } from 'react'
+import { formatDate } from '@/utils/formatDate'
 
 interface PopulatedChallenge extends Challenge {
   comments?: Comment[]

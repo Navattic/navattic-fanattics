@@ -1,6 +1,5 @@
 'use client'
 
-import Avatar from '@/components/ui/Avatar'
 import { User, Comment, Challenge } from '@/payload-types'
 import { useState } from 'react'
 import CommentReplyForm from '@/features/comments/CommentReplyForm'
@@ -8,8 +7,8 @@ import { CommentActions } from '@/features/comments/CommentActions'
 import { formatPostDate } from '@/utils/formatDate'
 import { CommentEditForm } from '@/features/comments/CommentEditForm'
 import { softDeleteComment } from '@/features/comments/actions'
-import { Icon } from '../Icon'
-import OpenProfileDrawer from '../UserProfilePreviewModal/OpenProfileDrawer'
+import { Icon, Avatar } from '@/components/ui'
+import { OpenProfileDrawer } from '../UserProfilePreviewModal/OpenProfileDrawer'
 import { OptimisticComment } from '@/features/comments/OptimisticCommentsContext'
 
 // Type guard to check if comment is optimistic

@@ -11,8 +11,9 @@ import {
 } from 'react'
 import { cva } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
-import { FieldSet, FieldSetProps } from '@/components/ui/FieldSet'
-import { Icon, IconName } from '@/components/ui/Icon'
+import { FieldSet, FieldSetProps } from '@/components/ui/Compass/FieldSet'
+import { Icon } from '@/components/ui'
+import { IconName } from './Icon'
 import { useDebouncedCallback } from 'use-debounce'
 
 // Replace the imported types with direct definitions

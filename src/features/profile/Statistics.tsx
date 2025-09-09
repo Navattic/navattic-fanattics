@@ -1,6 +1,6 @@
 import { CoinsIcon, HandCoinsIcon, BicepsFlexed, MessageCircleReplyIcon } from 'lucide-react'
 
-const StatisticCard = ({
+export const StatisticCard = ({
   icon,
   label,
   value,
@@ -10,7 +10,7 @@ const StatisticCard = ({
   value: number
 }) => {
   return (
-    <div className="inset-shadow flex gap-4 rounded-xl border border-gray-100 bg-white p-4 px-6 shadow-xs">
+    <div className="inset-shadow flex gap-4 rounded-2xl border border-gray-100 bg-white p-6 px-8 shadow-xs">
       <span className="mt-1 text-gray-500">{icon}</span>
       <div className="flex flex-col">
         <p className="text-lg font-bold text-gray-900">{value}</p>
@@ -27,7 +27,7 @@ interface UserStats {
   commentsWritten: number
 }
 
-const Statistics = ({ userStats }: { userStats: UserStats }) => {
+export const Statistics = ({ userStats }: { userStats: UserStats }) => {
   const StatisticData = [
     {
       icon: <CoinsIcon />,
@@ -52,12 +52,10 @@ const Statistics = ({ userStats }: { userStats: UserStats }) => {
   ]
 
   return (
-    <div className="grid grid-cols-2 gap-2">
+    <div className="grid grid-cols-2 gap-3">
       {StatisticData.map((statistic) => (
         <StatisticCard key={statistic.label} {...statistic} />
       ))}
     </div>
   )
 }
-
-export default Statistics

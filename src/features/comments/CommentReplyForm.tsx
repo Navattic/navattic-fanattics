@@ -1,9 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import Avatar from '@/components/ui/Avatar'
+import { Avatar, Button } from '@/components/ui'
 import { Challenge, User, Comment as PayloadComment } from '@/payload-types'
-import { Button } from '@/components/ui'
 import { createComment } from './actions'
 import { useOptimisticComments } from './OptimisticCommentsContext'
 

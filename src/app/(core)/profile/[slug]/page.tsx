@@ -1,16 +1,11 @@
 import { notFound } from 'next/navigation'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/authOptions'
-import { Container } from '@/components/ui/Container'
-import Avatar from '@/components/ui/Avatar'
-import Statistics from '@/features/profile/Statistics'
-import PageHeader from '@/components/ui/PageHeader'
-import UserEmail from '@/components/ui/UserEmail'
-import Bio from '@/components/ui/Bio'
+import { Container, Avatar, PageHeader, Icon, UserEmail, Bio } from '@/components/ui'
+import { Statistics } from '@/features/profile/Statistics'
 import { calculateUserPoints } from '@/lib/users/points'
 import { payload } from '@/lib/payloadClient'
 import { User, Ledger, Comment } from '@/payload-types'
-import { Icon } from '@/components/ui'
 import { ArrowUpRightIcon } from 'lucide-react'
 
 interface PopulatedUser extends User {

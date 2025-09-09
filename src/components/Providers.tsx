@@ -4,7 +4,7 @@ import { SessionProvider } from 'next-auth/react'
 import React, { ReactNode, createContext, useContext } from 'react'
 import { SidebarProvider } from '@/components/shadcn/ui/sidebar'
 import { UserProfilePreviewModalProvider } from './ui/UserProfilePreviewModal/UserProfilePreviewModalContext'
-import UserProfilePreviewModal from './ui/UserProfilePreviewModal/UserProfilePreviewModal'
+import { UserProfilePreviewModal } from './ui/UserProfilePreviewModal/UserProfilePreviewModal'
 import { User } from '@/payload-types'
 
 // Create the UserContext with loading and error states
@@ -17,7 +17,7 @@ interface UserContextType {
 const UserContext = createContext<UserContextType | undefined>(undefined)
 
 // Create the useUser hook with better error handling
-export function useUser() {
+export const useUser = () => {
   const context = useContext(UserContext)
   if (context === undefined) {
     throw new Error('useUser must be used within a UserProvider')
@@ -32,7 +32,7 @@ interface Props {
   error?: string | null
 }
 
-const Providers = ({ children, user, isLoading = false, error = null }: Props) => {
+export const Providers = ({ children, user, isLoading = false, error = null }: Props) => {
   return (
     <SessionProvider>
       <UserContext.Provider value={{ user, isLoading, error }}>
@@ -46,5 +46,3 @@ const Providers = ({ children, user, isLoading = false, error = null }: Props) =
     </SessionProvider>
   )
 }
-
-export default Providers

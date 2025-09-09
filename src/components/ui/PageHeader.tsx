@@ -1,15 +1,13 @@
 'use client'
 
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
-import { Tooltip } from '@/components/ui/Tooltip'
 import { Home } from 'lucide-react'
 
 import { usePathname } from 'next/navigation'
-import { Icon } from '@/components/ui/Icon'
 import Link from 'next/link'
-import { Badge } from '@/components/ui/Badge'
+import { Tooltip, Icon } from '@/components/ui'
 
-const PageHeader = ({
+export const PageHeader = ({
   title,
   userPoints,
   noUser,
@@ -59,14 +57,10 @@ const PageHeader = ({
               side="bottom"
             >
               <span className="flex items-center text-sm font-medium">
-                {/* <span className="pr-2 text-gray-500">Balance</span> */}
                 <div className="flex items-center gap-1 rounded-lg border border-blue-100 bg-blue-50 px-2 py-0.5">
                   <Icon name="coins" className="size-4 text-blue-400" />
                   <span className="text-blue-500">{userPoints} points</span>
                 </div>
-                {/* <Badge colorScheme="brand" size="md" iconLeft="coins">
-                  {userPoints} points
-                </Badge> */}
               </span>
             </Tooltip>
           </div>
@@ -75,5 +69,3 @@ const PageHeader = ({
     </div>
   )
 }
-
-export default PageHeader

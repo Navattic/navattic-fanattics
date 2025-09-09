@@ -1,12 +1,8 @@
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/authOptions'
-import { Container } from '@/components/ui/Container'
-import ChallengesList from '@/components/ui/ChallengesList'
-import PageHeader from '@/components/ui/PageHeader'
+import { Container, PageHeader, PageTitle, Button, Icon } from '@/components/ui'
+import { ChallengesList } from '@/components/ui/ChallengesList'
 import { payload } from '@/lib/payloadClient'
-import PageTitle from '@/components/ui/PageTitle'
-import { Button } from '@/components/ui/Button'
-import { Icon } from '@/components/ui'
 import { calculateUserPoints } from '@/lib/users/points'
 
 const Home = async () => {
@@ -28,7 +24,7 @@ const Home = async () => {
       <>
         <PageHeader userPoints={0} noUser={true} />
         <div className="min-h-screen bg-gray-50">
-          <Container className="max-w-6xl">
+          <Container>
             <PageTitle title={<>Welcome!</>} description="Please sign in to view the portal." />
           </Container>
         </div>
@@ -73,7 +69,7 @@ const Home = async () => {
     <>
       <PageHeader userPoints={userPoints} />
       <div className="min-h-screen bg-gray-50">
-        <Container className="max-w-6xl">
+        <Container>
           <PageTitle
             title={
               <>

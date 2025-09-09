@@ -4,10 +4,10 @@ import { Media, Product, User } from '@/payload-types'
 import Image from 'next/image'
 import { Button, Badge, Icon } from '@/components/ui'
 import { useState } from 'react'
-import RedeemProductModal from './RedeemProductModal'
+import { RedeemProductModal } from './RedeemProductModal'
 import { redeemProduct } from '@/features/giftShop/actions'
 
-const ProductCard = ({
+export const ProductCard = ({
   product,
   user,
   userPoints,
@@ -99,7 +99,7 @@ const ProductCard = ({
   )
 }
 
-const GiftShopGrid = ({
+export const GiftShopGrid = ({
   products,
   user,
   userPoints,
@@ -109,12 +109,10 @@ const GiftShopGrid = ({
   userPoints: number
 }) => {
   return (
-    <div className="relative grid w-full grid-cols-1 gap-4 md:grid-cols-2">
+    <div className="relative grid w-full grid-cols-1 gap-4 pb-20 md:grid-cols-2">
       {products.map((product) => (
         <ProductCard key={product.id} product={product} user={user} userPoints={userPoints} />
       ))}
     </div>
   )
 }
-
-export default GiftShopGrid
