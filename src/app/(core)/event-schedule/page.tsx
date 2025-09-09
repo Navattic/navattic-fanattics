@@ -15,8 +15,8 @@ import { authOptions } from '@/lib/authOptions'
 const EventEntry = ({ event, isPastEvent }: { event: Event; isPastEvent?: boolean }) => {
   return (
     <div className="inset-shadow flex justify-between rounded-3xl border border-gray-100 bg-white p-4 pl-6 [:last-child]:mb-20">
-      <div className="flex flex-col justify-between p-2 pt-1 pr-8">
-        <div className="space-y-2">
+      <div className="flex flex-col justify-between p-2 pt-3 pr-8">
+        <div className="space-y-3 pb-4">
           <div className="text-lg font-semibold text-balance text-gray-800">{event.title}</div>
           <Button
             variant={isPastEvent ? 'outline' : 'solid'}
@@ -31,8 +31,8 @@ const EventEntry = ({ event, isPastEvent }: { event: Event; isPastEvent?: boolea
         </div>
         <div className="mt-5 flex flex-col gap-4">
           <div className="flex items-center gap-3">
-            <div className="grid aspect-square h-full min-h-8 w-auto min-w-8 place-items-center rounded-md border border-gray-200">
-              <Icon name="map-pin" className="size- 4 text-gray-400" />
+            <div className="grid aspect-square h-full min-h-8 w-auto min-w-8 place-items-center rounded-md border border-gray-200 bg-gradient-to-b from-white to-gray-50">
+              <Icon name="map-pin" className="size-4 text-gray-400" />
             </div>
             <div className="text-sm text-gray-500">
               <div className="font-semibold text-gray-800">
@@ -53,7 +53,7 @@ const EventEntry = ({ event, isPastEvent }: { event: Event; isPastEvent?: boolea
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <div className="grid aspect-square h-full min-h-8 w-auto min-w-8 place-items-center rounded-md border border-gray-200">
+            <div className="grid aspect-square h-full min-h-8 w-auto min-w-8 place-items-center rounded-md border border-gray-200 bg-gradient-to-b from-white to-gray-50">
               <Icon name="calendar" className="size-4 text-gray-400" />
             </div>
             <div className="text-sm text-gray-500">
@@ -139,9 +139,13 @@ const EventSchedule = async () => {
               ))}
             </div>
           ) : (
-            <Empty title="No upcoming events" iconName="calendar" />
+            <Empty
+              title="No upcoming events"
+              description="Check back soon for updates."
+              iconName="calendar"
+            />
           )}
-          <div className="text-md mt-8 mb-3 font-semibold text-gray-600">Past Events</div>
+          <div className="text-md mt-16 mb-3 font-semibold text-gray-600">Past Events</div>
           {pastEvents.length > 0 ? (
             <div className="flex flex-col gap-4">
               {pastEvents.map((event) => (
@@ -149,7 +153,11 @@ const EventSchedule = async () => {
               ))}
             </div>
           ) : (
-            <Empty title="No past events" iconName="calendar" />
+            <Empty
+              title="No past events yet"
+              description="Events that have taken place will appear here."
+              iconName="calendar"
+            />
           )}
         </Container>
       </div>

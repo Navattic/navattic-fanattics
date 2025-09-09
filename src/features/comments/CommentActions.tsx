@@ -59,7 +59,7 @@ export function CommentActions({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-48 rounded-xl">
-          {user?.roles?.includes('admin') && (
+          {/* {user?.roles?.includes('admin') && (
             <DropdownMenuItem
               onClick={() => console.log('Award points')}
               className="!h-8 rounded-lg px-3 py-0 pr-2.5 hover:bg-gray-100"
@@ -67,7 +67,7 @@ export function CommentActions({
               <Icon name="coins" size="sm" className="mr-1 text-gray-500" />
               Award Points
             </DropdownMenuItem>
-          )}
+          )} */}
           {!isCurrentUserComment && (
             <DropdownMenuItem
               onClick={() => console.log('Report comment')}

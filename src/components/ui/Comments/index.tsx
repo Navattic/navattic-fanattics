@@ -20,7 +20,7 @@ export const Comments = ({
           <div className="flex flex-col gap-4">
             <h2 className="text-base font-medium">Comments</h2>
             <CommentForm user={user} challenge={challenge} />
-            <CommentSection challenge={challenge} />
+            <CommentSection challenge={challenge} currentUser={user} />
           </div>
         </div>
       </OptimisticCommentsProvider>

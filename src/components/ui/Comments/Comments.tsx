@@ -19,15 +19,15 @@ function isOptimisticComment(comment: Comment | OptimisticComment): comment is O
 
 export function CommentBlock({
   comment: initialComment,
-  user,
+  currentUser,
   challenge,
-  isLastChildOfParent,
   hasChild,
+  isLastChildOfParent,
   hasParent,
   parentHasSiblings,
 }: {
   comment: Comment | OptimisticComment
-  user: User
+  currentUser: User
   challenge: Challenge
   hasChild: boolean
   isLastChildOfParent: boolean
@@ -54,6 +54,8 @@ export function CommentBlock({
   // Don't show actions for optimistic comments
   const showActions = !isOptimisticComment(comment)
 
+  const commentAuthor = comment.user as User
+
   return (
     <>
       <div key={comment.id} className="flex flex-col">
@@ -67,25 +69,33 @@ export function CommentBlock({
                 <Icon name="user" size="md" className="text-gray-600" />
               </div>
             ) : (
-              <Avatar user={user} size="md" />
+              <Avatar user={commentAuthor} size="md" />
             )}
           </div>
           <div className="flex items-center gap-2">
             {comment.deleted ? (
               <div className="text-base font-medium text-gray-600">[removed]</div>
-            ) : (
+            ) : commentAuthor ? (
               <OpenProfileDrawer
-                user={user}
+                user={commentAuthor}
                 className="cursor-pointer text-base font-semibold text-gray-800 capitalize hover:underline"
               >
-                {user.firstName} {user.lastName}
+                {commentAuthor.firstName} {commentAuthor.lastName}
               </OpenProfileDrawer>
+            ) : (
+              <div className="text-base font-medium text-gray-600">[User not found]</div>
             )}
             <div className="text-sm text-gray-400">
-              • {formatPostDate(comment.createdAt)}
-              {isOptimisticComment(comment) && (
-                <span className="ml-1 text-blue-500">(posting...)</span>
-              )}
+              •
+              <span className="ml-2 inline-flex text-gray-500">
+                {isOptimisticComment(comment) ? (
+                  <div className="inline-flex items-center gap-1">
+                    posting <Icon name="spinner" size="sm" />
+                  </div>
+                ) : (
+                  formatPostDate(comment.createdAt)
+                )}
+              </span>
             </div>
           </div>
         </div>
@@ -114,7 +124,7 @@ export function CommentBlock({
                 setOpenReply={setOpenReply}
                 openReply={openReply}
                 comment={comment}
-                user={user}
+                user={currentUser}
                 setIsEditing={setIsEditing}
                 onDelete={handleCommentDelete}
               />
@@ -125,7 +135,7 @@ export function CommentBlock({
       {openReply && showActions && (
         <CommentReplyForm
           parentComment={comment}
-          user={user}
+          user={currentUser}
           challenge={challenge}
           setOpenReply={setOpenReply}
           hasReplies={hasChild}

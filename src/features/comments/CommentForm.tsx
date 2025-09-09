@@ -6,6 +6,7 @@ import { Challenge, User } from '@/payload-types'
 import { Button } from '@/components/ui'
 import { createComment } from './actions'
 import { useOptimisticComments } from './OptimisticCommentsContext'
+import { Icon } from '@/components/ui/Icon'
 
 interface CommentFormProps {
   user: User
@@ -130,7 +131,8 @@ function CommentForm({ user, challenge }: CommentFormProps) {
             size="md"
             disabled={!comment.trim() || status === 'executing'}
           >
-            {status === 'executing' ? 'Posting...' : 'Post comment'}
+            {status === 'executing' ? 'Posting' : 'Post comment'}
+            {status === 'executing' && <Icon name="spinner" size="sm" />}
           </Button>
         </div>
       </form>

@@ -148,7 +148,8 @@ export default function LoginForm() {
         </div>
         <h1 className="text-lg font-bold text-gray-800">Check your email</h1>
         <p className="text-gray-600">
-          We sent you a magic link. Click the link in your email to sign in.
+          We sent you a magic link. Click the link in your email to sign in. This may take a few
+          minutes.
         </p>
       </div>
     )

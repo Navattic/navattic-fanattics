@@ -67,7 +67,7 @@ const Home = async () => {
   const userHasPoints = `You have ${userPoints} points (${completedChallengesCount} challenge${completedChallengesCount === 1 ? '' : 's'} completed)`
 
   const userPointsDescription =
-    userPoints === 0 ? 'No points yet - complete challenges to start earning!' : userHasPoints
+    userPoints === 0 ? 'No points yet - complete challenges to start earning.' : userHasPoints
 
   return (
     <>

@@ -7,12 +7,12 @@ import { useOptimisticComments, OptimisticComment } from './OptimisticCommentsCo
 
 function CommentTree({
   comment,
-  user,
+  currentUser,
   challenge,
   repliesMap,
 }: {
   comment: Comment | OptimisticComment
-  user: User
+  currentUser: User
   challenge: Challenge
   repliesMap: Record<string, (Comment | OptimisticComment)[]>
 }) {
@@ -30,7 +30,7 @@ function CommentTree({
     <div className="w-full">
       <CommentBlock
         comment={comment}
-        user={user}
+        currentUser={currentUser}
         challenge={challenge}
         hasChild={hasChild}
         hasParent={hasParent}
@@ -38,14 +38,13 @@ function CommentTree({
         parentHasSiblings={parentHasSiblings}
       />
       {replies.map((reply) => {
-        const replyUser = reply.user as User
         return (
           <div className={cn('relative flex pl-4')} key={reply.id}>
             <div className="h-9 w-[20px] rounded-bl-2xl border-b-2 border-l-2 border-gray-200"></div>
             <CommentTree
               key={reply.id}
               comment={reply}
-              user={replyUser}
+              currentUser={currentUser}
               challenge={challenge}
               repliesMap={repliesMap}
             />
@@ -56,7 +55,13 @@ function CommentTree({
   )
 }
 
-const CommentSection = ({ challenge }: { challenge: Challenge & { comments: Comment[] } }) => {
+const CommentSection = ({
+  challenge,
+  currentUser,
+}: {
+  challenge: Challenge & { comments: Comment[] }
+  currentUser: User // Add this prop
+}) => {
   const { optimisticComments, realComments } = useOptimisticComments()
 
   // Merge real comments with optimistic comments
@@ -92,12 +97,11 @@ const CommentSection = ({ challenge }: { challenge: Challenge & { comments: Comm
   return (
     <div>
       {topLevelComments.map((comment) => {
-        const user = comment.user as User
         return (
           <Suspense key={comment.id} fallback={<CommentSkeleton />}>
             <CommentTree
               comment={comment}
-              user={user}
+              currentUser={currentUser}
               challenge={challenge}
               repliesMap={repliesMap}
             />
