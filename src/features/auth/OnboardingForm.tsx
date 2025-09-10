@@ -11,6 +11,7 @@ import { Session } from 'next-auth'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { CompanySelector } from '@/features/companies/CompanySelector'
+import { LocationSelector } from '@/components/ui/LocationSelector'
 
 const formSchema = z.object({
   firstName: z.string().min(2, 'First name must be at least 2 characters').max(30),
@@ -19,6 +20,7 @@ const formSchema = z.object({
   avatar: z.instanceof(File).optional(),
   bio: z.string().max(500).optional(),
   company: z.number().optional(),
+  location: z.string().optional(),
   linkedinUrl: z
     .string()
     .optional()
@@ -90,6 +92,7 @@ export default function OnboardingForm({ session }: OnboardingFormProps) {
       avatar: undefined,
       bio: '',
       company: undefined,
+      location: '',
       linkedinUrl: '',
       interactiveDemoUrl: '',
     },
@@ -261,6 +264,7 @@ export default function OnboardingForm({ session }: OnboardingFormProps) {
           email: values.email,
           bio: values.bio,
           company: values.company,
+          location: values.location || undefined,
           linkedinUrl: values.linkedinUrl || undefined,
           interactiveDemoUrl: values.interactiveDemoUrl || undefined,
           avatar: finalAvatarId,
@@ -418,21 +422,25 @@ export default function OnboardingForm({ session }: OnboardingFormProps) {
           {step === 1 ? (
             <>
               {/* Step 1 content */}
-              <FieldSet
-                label="First Name"
-                promptText={getFieldErrorMessage('firstName')}
-                state={getFieldState('firstName')}
-              >
-                <Input {...form.register('firstName')} placeholder="ex: John" />
-              </FieldSet>
+              <div className="relative flex w-full gap-3">
+                <FieldSet
+                  className="flex-1"
+                  label="First Name"
+                  promptText={getFieldErrorMessage('firstName')}
+                  state={getFieldState('firstName')}
+                >
+                  <Input {...form.register('firstName')} placeholder="ex: John" />
+                </FieldSet>
 
-              <FieldSet
-                label="Last Name"
-                promptText={getFieldErrorMessage('lastName')}
-                state={getFieldState('lastName')}
-              >
-                <Input {...form.register('lastName')} placeholder="ex: Doe" />
-              </FieldSet>
+                <FieldSet
+                  className="flex-1"
+                  label="Last Name"
+                  promptText={getFieldErrorMessage('lastName')}
+                  state={getFieldState('lastName')}
+                >
+                  <Input {...form.register('lastName')} placeholder="ex: Doe" />
+                </FieldSet>
+              </div>
 
               <FieldSet
                 label="Email"
@@ -541,6 +549,21 @@ export default function OnboardingForm({ session }: OnboardingFormProps) {
                 />
               </FieldSet>
 
+              <FieldSet
+                label="Location"
+                description="Where are you based? (optional)"
+                promptText={getFieldErrorMessage('location')}
+                state={getFieldState('location')}
+              >
+                <LocationSelector
+                  value={form.watch('location')}
+                  onChange={(value) => form.setValue('location', value)}
+                  error={getFieldErrorMessage('location')}
+                  state={getFieldState('location')}
+                  placeholder="Select your location..."
+                />
+              </FieldSet>
+
               <div className="flex justify-between">
                 <Button
                   type="button"
@@ -601,7 +624,7 @@ export default function OnboardingForm({ session }: OnboardingFormProps) {
                   disabled={isSubmitting}
                   onClick={() => console.log('Submit button clicked!')}
                 >
-                  {isSubmitting ? 'Saving...' : 'Enter portal'}
+                  {isSubmitting ? 'Saving' : 'Enter portal'}
                   {isSubmitting ? <Icon name="spinner" /> : <Icon name="arrow-right" />}
                 </Button>
               </div>

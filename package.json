@@ -39,6 +39,7 @@
     "@tailwindcss/container-queries": "^0.1.1",
     "@tailwindcss/forms": "^0.5.10",
     "@tailwindcss/postcss": "^4.0.0",
+    "cities.json": "^1.1.50",
     "class-variance-authority": "^0.7.1",
     "cmdk": "^1.1.1",
     "cross-env": "^7.0.3",

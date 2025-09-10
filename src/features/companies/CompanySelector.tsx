@@ -735,7 +735,7 @@ export function CompanySelector({ userEmail, name, label, description }: Company
                       ) : (
                         'Select company'
                       )}
-                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      <Icon name="chevrons-up-down" className="ml-2 shrink-0 opacity-50" />
                     </div>
                   </Button>
                 </FormControl>
@@ -761,7 +761,7 @@ export function CompanySelector({ userEmail, name, label, description }: Company
                         <>
                           <CommandEmpty>
                             <div className="flex flex-col items-center gap-3 px-4">
-                              <p className="text-gray-600 text-center text-sm text-balance">
+                              <p className="text-center text-sm text-balance text-gray-600">
                                 No companies found with that name. Be the first to add it!
                               </p>
                             </div>
@@ -870,8 +870,8 @@ export function CompanySelector({ userEmail, name, label, description }: Company
                         }
                       }}
                     >
-                      <Icon name="plus-circle" size="md" className="mr-1" />
                       Add your company
+                      <Icon name="plus-circle" size="md" />
                     </Button>
                   </div>
                 </div>
@@ -907,7 +907,7 @@ export function CompanySelector({ userEmail, name, label, description }: Company
           children: isCreating ? (
             <>
               Saving
-              <Icon name="spinner" className="ml-1 h-3 w-3 animate-spin" />
+              <Icon name="spinner" size="lg" className="ml-1 animate-spin" />
             </>
           ) : (
             'Save'

@@ -131,7 +131,7 @@ export const modalOverlayVariants = cva([
   'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
 ])
 
-export const modalTitleStyles = 'text-xl font-semibold text-gray-900'
+export const modalTitleStyles = 'text-lg font-semibold text-gray-900'
 export const modalDescriptionStyles = 'text-sm text-gray-500'
 
 // ------ Modal Composition Components ------
@@ -202,7 +202,7 @@ ModalContent.displayName = ModalPrimitive.Content.displayName
 export type ModalHeaderProps = Omit<React.HTMLAttributes<HTMLDivElement>, 'title'>
 
 export const ModalHeader = ({ className, ...props }: ModalHeaderProps) => (
-  <div className={cn('px-6 py-4', className)} {...props} />
+  <div className={cn('px-6 py-4 text-lg', className)} {...props} />
 )
 ModalHeader.displayName = 'ModalHeader'
 
