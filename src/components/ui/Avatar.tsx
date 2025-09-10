@@ -8,7 +8,7 @@ export const Avatar = ({
   user,
   size = 'md',
   className,
-  showCompany = true,
+  showCompany = false,
 }: {
   user?: User | null
   size?: 'sm' | 'md' | 'lg' | 'xl'
@@ -52,9 +52,6 @@ export const Avatar = ({
   const logoSrc = typeof company?.logoSrc === 'object' ? company.logoSrc : null
   const companyLogoSrc = logoSrc?.defaultUrl
 
-  // Check if the URL is a valid Brandfetch URL
-  const isValidBrandfetchUrl = companyLogoSrc?.includes('cdn.brandfetch.io')
-
   return (
     <div
       className={cn(
@@ -91,22 +88,42 @@ export const Avatar = ({
           </div>
         )}
       </div>
-      {showCompany && companyLogoSrc && isValidBrandfetchUrl && (
-        <Tooltip content={company?.name || 'Company'} side="bottom" offset={4}>
-          <Image
-            className={clsx(
-              'absolute -right-1 -bottom-1 z-10 aspect-square rounded-full border border-gray-200 bg-white object-contain p-px',
-              size === 'sm' && 'size-3',
-              size === 'md' && 'size-4',
-              size === 'lg' && 'size-4',
-              size === 'xl' && 'size-4',
-            )}
-            src={companyLogoSrc}
-            alt={`${company?.name || 'Company'} logo`}
-            width={size === 'sm' ? 12 : 16}
-            height={size === 'sm' ? 12 : 16}
-          />
-        </Tooltip>
+      {showCompany && companyLogoSrc && (
+        <div className="absolute -right-1 -bottom-1 z-10">
+          <Tooltip
+            content={
+              <div className="flex flex-col gap-1">
+                {company?.name || 'Company'}{' '}
+                {company?.website && (
+                  <a
+                    className="text-xs text-gray-400 hover:underline"
+                    href={company.website}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {company?.website}
+                  </a>
+                )}
+              </div>
+            }
+            side="bottom"
+            offset={4}
+          >
+            <Image
+              className={clsx(
+                'z-10 aspect-square rounded-full border border-gray-200 bg-white object-contain p-px',
+                size === 'sm' && 'size-3',
+                size === 'md' && 'size-4',
+                size === 'lg' && 'size-5',
+                size === 'xl' && 'size-4',
+              )}
+              src={companyLogoSrc}
+              alt={`${company?.name || 'Company'} logo`}
+              width={size === 'sm' ? 12 : 16}
+              height={size === 'sm' ? 12 : 16}
+            />
+          </Tooltip>
+        </div>
       )}
     </div>
   )

@@ -65,7 +65,7 @@ export const UserProfilePreviewModal = () => {
           <div className="relative flex w-full justify-between">
             <DrawerHeader className="relative w-full p-0">
               <DrawerTitle className="flex items-center gap-2">
-                <Avatar user={user} size="lg" showCompany={true} />
+                <Avatar user={user} size="lg" />
                 <div className="flex flex-col gap-1">
                   <span className="capitalize">
                     {user?.firstName} {user?.lastName}
@@ -81,21 +81,17 @@ export const UserProfilePreviewModal = () => {
                     <div className="flex flex-col gap-2">
                       {company?.name && (
                         <div className="flex items-center gap-2 text-sm text-gray-500">
-                          <Icon name="map-pin" className="size-4 text-gray-400" />
-                          {company.name}
-                        </div>
-                      )}
-                      {company?.website && (
-                        <div className="flex items-center gap-2 text-sm text-gray-500">
                           <Icon name="building" className="size-4 text-gray-400" />
-                          <a
-                            href={company.website}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-blue-500 hover:underline"
-                          >
-                            {company.website}
-                          </a>
+                          <div className="flex flex-col">
+                            <a
+                              href={company.website || ''}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-500 hover:underline"
+                            >
+                              {company.name}
+                            </a>
+                          </div>
                         </div>
                       )}
                       {user?.linkedinUrl && (

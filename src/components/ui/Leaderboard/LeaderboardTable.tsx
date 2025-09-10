@@ -58,7 +58,7 @@ export const LeaderboardTable = ({ users }: { users: UserWithStats[] }) => {
                   user={userWithStats.user}
                   className="group flex items-center gap-2 text-sm"
                 >
-                  <Avatar user={userWithStats.user} size="md" />
+                  <Avatar user={userWithStats.user} size="md" showCompany={true} />
                   <div className="ml-1 cursor-pointer hover:underline">
                     {userWithStats.user.firstName} {userWithStats.user.lastName}
                   </div>

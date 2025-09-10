@@ -68,7 +68,7 @@ export function CommentBlock({
                 <Icon name="user" size="md" className="text-gray-600" />
               </div>
             ) : (
-              <Avatar user={commentAuthor} size="md" />
+              <Avatar user={commentAuthor} size="md" showCompany={true} />
             )}
           </div>
           <div className="flex items-center gap-2">

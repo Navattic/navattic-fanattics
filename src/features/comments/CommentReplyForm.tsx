@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Avatar, Button } from '@/components/ui'
 import { Challenge, User, Comment as PayloadComment } from '@/payload-types'
 import { createComment } from './actions'
@@ -26,6 +26,16 @@ function CommentReplyForm({
   const [error, setError] = useState<string | null>(null)
   const { addOptimisticComment, removeOptimisticComment, replaceOptimisticComment } =
     useOptimisticComments()
+
+  // Add ref to track if component is mounted
+  const isMountedRef = useRef(true)
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false
+    }
+  }, [])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -63,17 +73,27 @@ function CommentReplyForm({
         parentComment,
       })
 
-      // Replace optimistic comment with real one
-      if (optimisticId) {
-        replaceOptimisticComment(optimisticId, result)
+      // Only update state if component is still mounted
+      if (isMountedRef.current) {
+        // Replace optimistic comment with real one
+        if (optimisticId) {
+          replaceOptimisticComment(optimisticId, result)
+        }
+        setStatus('idle')
+      } else {
+        // Component unmounted but we still need to replace the optimistic comment
+        if (optimisticId) {
+          replaceOptimisticComment(optimisticId, result)
+        }
+      }
+    } catch (err) {
+      // Only update local state if component is still mounted
+      if (isMountedRef.current) {
+        setStatus('error')
+        setError('Failed to post reply. Please try again.')
       }
 
-      setStatus('idle')
-    } catch (err) {
-      setStatus('error')
-      setError('Failed to post reply. Please try again.')
-
-      // Remove optimistic comment on error
+      // Always remove optimistic comment on error, even if unmounted
       if (optimisticId) {
         removeOptimisticComment(optimisticId)
       }
@@ -94,7 +114,7 @@ function CommentReplyForm({
         {hasReplies && <div className="h-full w-0.5 bg-gray-300"></div>}
       </div>
       <div className="mt-4">
-        <Avatar user={user} />
+        <Avatar user={user} showCompany={true} />
       </div>
       <form className="mt-4 flex w-full flex-col gap-3" onSubmit={handleSubmit}>
         <textarea
