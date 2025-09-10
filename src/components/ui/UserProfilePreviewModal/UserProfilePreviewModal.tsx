@@ -13,6 +13,7 @@ import { UserEmail } from '../UserEmail'
 import { Icon, Avatar } from '@/components/ui'
 import { IconName } from '@/components/ui/Compass/Icon'
 import { formatDate } from '@/utils/formatDate'
+import { parseLocation } from '@/utils/parseLocation'
 import { ArrowUpRightIcon } from 'lucide-react'
 
 export const UserProfilePreviewModal = () => {
@@ -54,6 +55,9 @@ export const UserProfilePreviewModal = () => {
     },
   ]
 
+  // Parse the location from the stored format
+  const parsedLocation = parseLocation(user?.location)
+
   return (
     <Drawer open={open} onOpenChange={setOpen} direction="right">
       <DrawerContent
@@ -79,6 +83,12 @@ export const UserProfilePreviewModal = () => {
                   <div className="flex w-full flex-col gap-4 rounded-lg border border-gray-100 bg-gray-50 p-5">
                     {user?.bio && <div className="text-sm text-gray-700">{user.bio}</div>}
                     <div className="flex flex-col gap-2">
+                      {parsedLocation && (
+                        <div className="flex items-center gap-2 text-sm text-gray-500">
+                          <Icon name="map-pin" className="size-4 text-gray-400" />
+                          <span>{parsedLocation}</span>
+                        </div>
+                      )}
                       {company?.name && (
                         <div className="flex items-center gap-2 text-sm text-gray-500">
                           <Icon name="building" className="size-4 text-gray-400" />

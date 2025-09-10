@@ -131,11 +131,12 @@ export function LocationSelector({
       .slice(0, 50)
   }, [searchTerm])
 
-  // Create a unique key for each city since there's no ID field
-  const getCityKey = (city: City, index: number) =>
-    `${city.name}-${city.country}-${city.admin1}-${index}`
+  // Create a stable unique key that doesn't depend on array position
+  const getCityKey = (city: City) =>
+    `${city.name}-${city.country}-${city.admin1}-${city.lat}-${city.lng}`
 
-  const selectedCity = (cities as City[]).find((city, index) => getCityKey(city, index) === value)
+  // Find selected city using the stable key
+  const selectedCity = (cities as City[]).find((city) => getCityKey(city) === value)
 
   const getCountryName = (countryCode: string) => {
     return countryNames[countryCode] || countryCode
@@ -187,8 +188,8 @@ export function LocationSelector({
     setOpen(false)
   }
 
-  const handleCitySelect = (city: City, index: number) => {
-    onChange(getCityKey(city, index))
+  const handleCitySelect = (city: City) => {
+    onChange(getCityKey(city))
     setOpen(false)
     setSearchTerm('')
     setIsSearching(false)
@@ -237,7 +238,7 @@ export function LocationSelector({
         {selectedCity && !isSearching && (
           <Icon
             name="chevrons-up-down"
-            className="opacity-50 absolute top-1/2 right-3 -translate-y-1/2"
+            className="absolute top-1/2 right-3 -translate-y-1/2 opacity-50"
           />
         )}
       </div>
@@ -273,19 +274,19 @@ export function LocationSelector({
               ) : (
                 filteredCities.map((city, index) => (
                   <div
-                    key={getCityKey(city, index)}
-                    onClick={() => handleCitySelect(city, index)}
+                    key={getCityKey(city)}
+                    onClick={() => handleCitySelect(city)}
                     className={cn(
                       'relative flex cursor-pointer items-center rounded-sm px-2 py-1.5 text-sm outline-none select-none',
                       'hover:bg-accent hover:text-accent-foreground',
                       'focus:bg-accent focus:text-accent-foreground',
-                      value === getCityKey(city, index) && 'bg-accent text-accent-foreground',
+                      value === getCityKey(city) && 'bg-accent text-accent-foreground',
                     )}
                   >
                     <Check
                       className={cn(
                         'mr-2 h-4 w-4 flex-shrink-0',
-                        value === getCityKey(city, index) ? 'opacity-100' : 'opacity-0',
+                        value === getCityKey(city) ? 'opacity-100' : 'opacity-0',
                       )}
                     />
                     <div className="flex min-w-0 flex-1 flex-col">
