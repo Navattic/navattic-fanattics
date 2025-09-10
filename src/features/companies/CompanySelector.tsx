@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
-import { Check, ChevronsUpDown, PlusCircle, X } from 'lucide-react'
-import { Button, Icon } from '@/components/ui'
+import { useState, useEffect, useRef, useCallback } from 'react'
+import { Check, ChevronsUpDown, PlusCircle, X, Upload, AlertTriangle } from 'lucide-react'
+import { Button, Description, Icon, Modal, FieldSet } from '@/components/ui'
 import { cn } from '@/lib/utils'
 import type { Company } from '@/payload-types'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/shadcn/ui/popover'
@@ -19,7 +19,6 @@ import { Input } from '@/components/shadcn/ui/input'
 import { Label } from '@/components/shadcn/ui/label'
 import { FormControl, FormField, FormMessage } from '@/components/shadcn/ui/form'
 import { useFormContext } from 'react-hook-form'
-import { FieldSet } from '@/components/ui'
 import { CompanyLogo as CompanyLogoComponent } from './CompanyLogo'
 
 type CompanySelectorProps = {
@@ -29,22 +28,273 @@ type CompanySelectorProps = {
   description?: string
 }
 
+type DuplicateCompany = {
+  id: number
+  name: string
+  website?: string | null
+  matchType: 'name' | 'website' | 'both'
+}
+
+// Move the modal content component outside to prevent re-renders
+const NewCompanyModalContent = ({
+  newCompanyName,
+  setNewCompanyName,
+  newCompanyWebsite,
+  setNewCompanyWebsite,
+  newCompanyLogo,
+  isFetchingFavicon,
+  isProcessingWebsite,
+  duplicateCompanies,
+  showDuplicateWarning,
+  companies,
+  suggestedCompanies,
+  handleSelectCompany,
+  resetNewCompanyForm,
+  getLogoUrl,
+  handleFileUpload,
+  handleLogoRemove,
+  fileInputRef,
+  logoError,
+  uploadedLogoFile,
+}: {
+  newCompanyName: string
+  setNewCompanyName: (name: string) => void
+  newCompanyWebsite: string
+  setNewCompanyWebsite: (website: string) => void
+  newCompanyLogo: string | null
+  isFetchingFavicon: boolean
+  isProcessingWebsite: boolean
+  duplicateCompanies: DuplicateCompany[]
+  showDuplicateWarning: boolean
+  companies: Company[]
+  suggestedCompanies: Company[]
+  handleSelectCompany: (company: Company) => void
+  resetNewCompanyForm: () => void
+  getLogoUrl: (logoSrc: Company['logoSrc']) => string | null
+  handleFileUpload: (event: React.ChangeEvent<HTMLInputElement>) => void
+  handleLogoRemove: () => void
+  fileInputRef: React.RefObject<HTMLInputElement | null>
+  logoError: string | null
+  uploadedLogoFile: File | null
+}) => (
+  <>
+    {/* Hidden file input */}
+    <input
+      ref={fileInputRef}
+      type="file"
+      accept="image/png,image/jpeg,image/jpg,image/svg+xml"
+      onChange={handleFileUpload}
+      className="sr-only"
+    />
+
+    <div className="space-y-4">
+      {/* Matching companies count and dropdown */}
+      {showDuplicateWarning && duplicateCompanies.length > 0 && (
+        <div className="space-y-3">
+          {/* Dropdown with existing companies */}
+          <div className="rounded-lg border border-gray-200 bg-blue-50 p-3">
+            <Description
+              title={`${duplicateCompanies.length} matching${' '}
+                ${duplicateCompanies.length === 1 ? 'company' : 'companies'} found`}
+              description="Use existing company data (suggested):"
+            />
+            <div className="mt-3 space-y-2">
+              {duplicateCompanies.map((duplicate) => {
+                const company =
+                  companies.find((c) => c.id === duplicate.id) ||
+                  suggestedCompanies.find((c) => c.id === duplicate.id)
+
+                return (
+                  <button
+                    key={duplicate.id}
+                    onClick={() => {
+                      if (company) {
+                        handleSelectCompany(company)
+                        resetNewCompanyForm()
+                      }
+                    }}
+                    className="flex w-full items-center gap-3 rounded-lg border border-gray-200 bg-white p-2 pl-4 text-left transition-colors hover:border-blue-300 hover:bg-blue-50"
+                  >
+                    {/* Company Logo */}
+                    <div className="flex-shrink-0">
+                      <CompanyLogoComponent
+                        src={company ? getLogoUrl(company.logoSrc) : null}
+                        alt={duplicate.name}
+                        className="h-6 w-6"
+                      />
+                    </div>
+
+                    {/* Company Details */}
+                    <div className="min-w-0 flex-1">
+                      <div className="text-sm font-medium text-gray-900">{duplicate.name}</div>
+                      {duplicate.website && (
+                        <div className="text-xs text-gray-500">{duplicate.website}</div>
+                      )}
+                    </div>
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Company Name */}
+      <div className="space-y-2">
+        <Label className="block" htmlFor="new-company-name">
+          Company name
+        </Label>
+        <Input
+          id="new-company-name"
+          value={newCompanyName}
+          onChange={(e) => setNewCompanyName(e.target.value)}
+          placeholder="e.g. Acme Inc."
+          className="w-full"
+        />
+      </div>
+
+      {/* Company Website */}
+      <div className="space-y-2">
+        <Label htmlFor="new-company-website" className="flex items-center gap-1">
+          Company website
+          {isProcessingWebsite && <Icon name="spinner" size="sm" className="animate-spin" />}
+        </Label>
+        <Input
+          id="new-company-website"
+          value={newCompanyWebsite}
+          onChange={(e) => setNewCompanyWebsite(e.target.value)}
+          placeholder="e.g. https://example.com"
+          className="w-full"
+          required
+        />
+      </div>
+
+      {/* Company Logo - Only show after website is entered */}
+      {newCompanyWebsite && (
+        <div className="space-y-2">
+          <Label>Company logo</Label>
+
+          {isFetchingFavicon && (
+            <div className="flex items-center justify-center py-4">
+              <Icon name="spinner" className="text-muted-foreground h-4 w-4 animate-spin" />
+              <span className="text-muted-foreground ml-2 text-sm">Fetching logo...</span>
+            </div>
+          )}
+
+          {!isFetchingFavicon && (
+            <>
+              {newCompanyLogo ? (
+                <div className="flex items-center gap-3 py-1">
+                  <div className="relative grid h-12 w-12 place-items-center overflow-hidden rounded-lg border border-gray-200">
+                    <CompanyLogoComponent
+                      src={newCompanyLogo}
+                      alt="Company logo"
+                      className="h-7 w-7"
+                    />
+                  </div>
+                  <div className="flex gap-1">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="h-7"
+                    >
+                      <Upload className="mr-1 h-3 w-3" />
+                      Replace
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleLogoRemove}
+                      className="h-7 text-gray-500"
+                    >
+                      <Icon name="x" className="h-3 w-3" />
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                /* Only show upload option if no favicon found or manually removed */
+                <div className="space-y-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="md"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="w-full"
+                  >
+                    <Upload className="mr-2 h-4 w-4" />
+                    Upload logo
+                  </Button>
+                  <div className="flex items-start gap-1.5 text-xs text-gray-500">
+                    <Icon name="info" size="sm" className="mt-0.5 flex-shrink-0" />
+                    <span>PNG, JPG, JPEG, SVG (max 5MB)</span>
+                  </div>
+                </div>
+              )}
+
+              {logoError && <p className="text-sm text-red-600">{logoError}</p>}
+            </>
+          )}
+        </div>
+      )}
+    </div>
+  </>
+)
+
 export function CompanySelector({ userEmail, name, label, description }: CompanySelectorProps) {
   const form = useFormContext()
   const [open, setOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [companies, setCompanies] = useState<Company[]>([])
+  const [suggestedCompanies, setSuggestedCompanies] = useState<Company[]>([])
   const [isLoading, setIsLoading] = useState(false)
-  const [showNewCompanyForm, setShowNewCompanyForm] = useState(false)
+  const [showNewCompanyModal, setShowNewCompanyModal] = useState(false)
   const [newCompanyName, setNewCompanyName] = useState('')
   const [newCompanyWebsite, setNewCompanyWebsite] = useState('')
   const [newCompanyLogo, setNewCompanyLogo] = useState<string | null>(null)
+  const [uploadedLogoFile, setUploadedLogoFile] = useState<File | null>(null)
   const [isLogoManuallyRemoved, setIsLogoManuallyRemoved] = useState(false)
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null)
-  const [isFetchingBrandfetch, setIsFetchingBrandfetch] = useState(false)
-  const [hasSearchedBrandfetch, setHasSearchedBrandfetch] = useState(false)
+  const [isFetchingFavicon, setIsFetchingFavicon] = useState(false)
+  const [isProcessingWebsite, setIsProcessingWebsite] = useState(false)
+  const [duplicateCompanies, setDuplicateCompanies] = useState<DuplicateCompany[]>([])
+  const [showDuplicateWarning, setShowDuplicateWarning] = useState(false)
+  const [isCreating, setIsCreating] = useState(false)
+  const [logoError, setLogoError] = useState<string | null>(null)
 
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const websiteTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const duplicateCheckTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const fileInputRef = useRef<HTMLInputElement | null>(null)
+
+  // Extract domain from email
+  const getEmailDomain = useCallback((email: string) => {
+    try {
+      const domain = email.split('@')[1]?.toLowerCase()
+      return domain || null
+    } catch {
+      return null
+    }
+  }, [])
+
+  // Get suggested company name from email domain
+  const getSuggestedCompanyName = useCallback((domain: string) => {
+    // Remove common TLDs and convert to title case
+    const baseName = domain
+      .replace(/\.(com|org|net|edu|gov|co\.uk|co|io|ai|tech)$/i, '')
+      .split('.')
+      .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+      .join(' ')
+
+    return baseName
+  }, [])
+
+  // Get website URL from domain
+  const getWebsiteFromDomain = useCallback((domain: string) => {
+    return `https://${domain}`
+  }, [])
+
+  const emailDomain = getEmailDomain(userEmail)
 
   // Load initial company data if form has a company value
   useEffect(() => {
@@ -52,27 +302,38 @@ export function CompanySelector({ userEmail, name, label, description }: Company
     if (companyId && !selectedCompany) {
       const fetchCompanyData = async () => {
         try {
-          console.log(`[CompanySelector] Fetching company data for ID: ${companyId}`)
-          // Fetch the specific company by ID
           const response = await fetch(`/api/companies/${companyId}`)
           if (response.ok) {
             const company = await response.json()
-            console.log(`[CompanySelector] Fetched company data:`, company)
-            const logoSrc = company.logoSrc
-            console.log(`[CompanySelector] Company logo URL: ${logoSrc || '(none)'}`)
-
             setSelectedCompany(company)
-          } else {
-            console.error(`[CompanySelector] Error response:`, await response.text())
           }
         } catch (error) {
           console.error('[CompanySelector] Error fetching initial company data:', error)
         }
       }
-
       fetchCompanyData()
     }
   }, [form, name, selectedCompany])
+
+  // Fetch suggested companies based on email domain
+  useEffect(() => {
+    if (emailDomain && open) {
+      const fetchSuggestedCompanies = async () => {
+        try {
+          const response = await fetch(
+            `/api/companies/suggestions?domain=${encodeURIComponent(emailDomain)}`,
+          )
+          if (response.ok) {
+            const { companies: suggested } = await response.json()
+            setSuggestedCompanies(suggested || [])
+          }
+        } catch (error) {
+          console.error('[CompanySelector] Error fetching suggested companies:', error)
+        }
+      }
+      fetchSuggestedCompanies()
+    }
+  }, [emailDomain, open])
 
   // Fetch companies when search query changes
   useEffect(() => {
@@ -82,55 +343,23 @@ export function CompanySelector({ userEmail, name, label, description }: Company
 
     if (!open) return
 
-    if (searchQuery) {
-      searchTimeoutRef.current = setTimeout(async () => {
-        setIsLoading(true)
-        try {
-          console.log(`[CompanySelector] Searching companies with query: ${searchQuery}`)
-          const response = await fetch(`/api/companies?query=${encodeURIComponent(searchQuery)}`)
-          const data = await response.json()
-          console.log(`[CompanySelector] Company search results:`, data.docs)
-
-          const companyOptions: Company[] = data.docs.map((company: Company) => {
-            console.log(
-              `[CompanySelector] Company ${company.name} logo: ${company.logoSrc || '(none)'}`,
-            )
-            return company
-          })
-
-          setCompanies(companyOptions)
-        } catch (error) {
-          console.error('[CompanySelector] Error fetching companies:', error)
-        } finally {
-          setIsLoading(false)
-        }
-      }, 300)
-    } else {
-      // Fetch all companies when no search query
-      const fetchAllCompanies = async () => {
-        setIsLoading(true)
-        try {
-          console.log(`[CompanySelector] Fetching all companies`)
-          const response = await fetch('/api/companies')
-          const data = await response.json()
-          console.log(`[CompanySelector] All companies results:`, data.docs)
-
-          const companyOptions: Company[] = data.docs.map((company: Company) => {
-            console.log(
-              `[CompanySelector] Company ${company.name} logo: ${company.logoSrc || '(none)'}`,
-            )
-            return company
-          })
-
-          setCompanies(companyOptions)
-        } catch (error) {
-          console.error('[CompanySelector] Error fetching companies:', error)
-        } finally {
-          setIsLoading(false)
-        }
+    const fetchCompanies = async () => {
+      setIsLoading(true)
+      try {
+        const response = await fetch(`/api/companies?query=${encodeURIComponent(searchQuery)}`)
+        const data = await response.json()
+        setCompanies(data.docs || [])
+      } catch (error) {
+        console.error('[CompanySelector] Error fetching companies:', error)
+      } finally {
+        setIsLoading(false)
       }
+    }
 
-      fetchAllCompanies()
+    if (searchQuery) {
+      searchTimeoutRef.current = setTimeout(fetchCompanies, 300)
+    } else {
+      fetchCompanies()
     }
 
     return () => {
@@ -140,69 +369,218 @@ export function CompanySelector({ userEmail, name, label, description }: Company
     }
   }, [searchQuery, open])
 
-  // Generate Brandfetch CDN URL for a domain
-  const generateBrandfetchLogoUrl = (domain: string) => {
-    return `https://cdn.brandfetch.io/${domain}/w/48/h/42/symbol?c=1idjh-kE7Sr91f3HSWS`
+  // Generate Google Favicon URL for a domain
+  const generateFaviconUrl = (domain: string) => {
+    return `https://www.google.com/s2/favicons?domain=${domain}&sz=64`
   }
 
-  // Fetch from Brandfetch when create new company
-  const fetchBrandfetchData = async (companyName: string) => {
-    if (!companyName) return
-
-    setIsFetchingBrandfetch(true)
-    setHasSearchedBrandfetch(false)
+  // Extract domain from URL
+  const extractDomain = (url: string) => {
     try {
-      console.log(`[CompanySelector] Fetching Brandfetch data for: ${companyName}`)
-      const response = await fetch(`/api/brandfetch?name=${encodeURIComponent(companyName)}`)
-      const { data } = await response.json()
-      console.log(`[CompanySelector] Brandfetch response:`, data)
+      // Handle URLs that might not have protocol
+      let processedUrl = url.trim()
 
-      if (data) {
-        if (data.website) {
-          setNewCompanyWebsite(data.website)
-        }
-        if (data.logoSrc) {
-          setNewCompanyLogo(data.logoSrc)
-        } else {
-          setNewCompanyLogo(null)
-        }
-      } else {
-        console.log(`[CompanySelector] No data returned from Brandfetch`)
-        setNewCompanyLogo(null)
+      // If URL doesn't start with http/https, add https://
+      if (!processedUrl.match(/^https?:\/\//)) {
+        processedUrl = `https://${processedUrl}`
+      }
+
+      const urlObj = new URL(processedUrl)
+      return urlObj.hostname.replace(/^www\./, '')
+    } catch {
+      return null
+    }
+  }
+
+  // Check for duplicate companies
+  const checkForDuplicates = async (name: string, website?: string) => {
+    try {
+      const response = await fetch('/api/companies/check-duplicates', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: name.trim(), website: website?.trim() }),
+      })
+
+      if (response.ok) {
+        const { duplicates } = await response.json()
+        setDuplicateCompanies(duplicates || [])
+        setShowDuplicateWarning(duplicates && duplicates.length > 0)
       }
     } catch (error) {
-      console.error('[CompanySelector] Error fetching from Brandfetch:', error)
-      setNewCompanyLogo(null)
-    } finally {
-      setIsFetchingBrandfetch(false)
-      setHasSearchedBrandfetch(true)
+      console.error('[CompanySelector] Error checking duplicates:', error)
     }
   }
 
-  // Debounced fetch from Brandfetch when name changes
-  useEffect(() => {
-    if (showNewCompanyForm && newCompanyName.length > 2) {
-      const timer = setTimeout(() => {
-        fetchBrandfetchData(newCompanyName)
-      }, 500)
-      return () => clearTimeout(timer)
-    }
-  }, [newCompanyName, showNewCompanyForm])
+  // Auto-populate company details from email domain
+  const autoPopulateFromEmail = useCallback(() => {
+    if (!emailDomain) return
 
-  // Generate logo URL when website changes
+    const suggestedName = getSuggestedCompanyName(emailDomain)
+    const suggestedWebsite = getWebsiteFromDomain(emailDomain)
+
+    setNewCompanyName(suggestedName)
+    setNewCompanyWebsite(suggestedWebsite)
+    setIsLogoManuallyRemoved(false)
+    setUploadedLogoFile(null)
+
+    // Auto-fetch favicon for the suggested domain
+    setIsProcessingWebsite(true)
+    const faviconUrl = generateFaviconUrl(emailDomain)
+
+    const img = new Image()
+    img.onload = () => {
+      setNewCompanyLogo(faviconUrl)
+      setIsFetchingFavicon(false)
+      setIsProcessingWebsite(false)
+    }
+    img.onerror = () => {
+      setNewCompanyLogo(null)
+      setIsFetchingFavicon(false)
+      setIsProcessingWebsite(false)
+    }
+    img.src = faviconUrl
+  }, [emailDomain, getSuggestedCompanyName, getWebsiteFromDomain])
+
+  // Debounced favicon fetching
+  const debouncedFaviconFetch = useCallback((website: string) => {
+    // Clear existing timeout
+    if (websiteTimeoutRef.current) {
+      clearTimeout(websiteTimeoutRef.current)
+    }
+
+    // Set processing state
+    setIsProcessingWebsite(true)
+
+    // Set new timeout for favicon fetching
+    websiteTimeoutRef.current = setTimeout(() => {
+      const domain = extractDomain(website)
+      if (domain) {
+        setIsFetchingFavicon(true)
+        const faviconUrl = generateFaviconUrl(domain)
+
+        // Test if the favicon loads successfully
+        const img = new Image()
+        img.onload = () => {
+          setNewCompanyLogo(faviconUrl)
+          setIsFetchingFavicon(false)
+          setIsProcessingWebsite(false)
+        }
+        img.onerror = () => {
+          setNewCompanyLogo(null)
+          setIsFetchingFavicon(false)
+          setIsProcessingWebsite(false)
+        }
+        img.src = faviconUrl
+      } else {
+        // Invalid domain, clear favicon loading state
+        setIsFetchingFavicon(false)
+        setNewCompanyLogo(null)
+        setIsProcessingWebsite(false)
+      }
+    }, 750) // 750ms delay for website input
+  }, [])
+
+  // Debounced duplicate checking - fix the dependencies
+  const debouncedDuplicateCheck = useCallback((name: string, website?: string) => {
+    // Clear existing timeout
+    if (duplicateCheckTimeoutRef.current) {
+      clearTimeout(duplicateCheckTimeoutRef.current)
+    }
+
+    // Set new timeout for duplicate checking
+    duplicateCheckTimeoutRef.current = setTimeout(() => {
+      checkForDuplicates(name, website)
+    }, 1000) // Increased from 500ms to 1000ms
+  }, []) // Remove dependencies to prevent recreation
+
+  // Fetch favicon when website changes (debounced)
   useEffect(() => {
-    if (showNewCompanyForm && newCompanyWebsite && !newCompanyLogo && !isLogoManuallyRemoved) {
-      try {
-        const url = new URL(newCompanyWebsite)
-        const domain = url.hostname
-        const logoUrl = generateBrandfetchLogoUrl(domain)
-        setNewCompanyLogo(logoUrl)
-        console.log(`[CompanySelector] Set new company logo from website: ${logoUrl}`)
-      } catch (error) {
-        // Invalid URL, ignore
+    if (showNewCompanyModal && newCompanyWebsite && !isLogoManuallyRemoved && !uploadedLogoFile) {
+      debouncedFaviconFetch(newCompanyWebsite)
+    } else if (!newCompanyWebsite) {
+      // Clear favicon when website is cleared
+      setNewCompanyLogo(null)
+      setIsFetchingFavicon(false)
+      setIsProcessingWebsite(false)
+    }
+
+    // Cleanup timeout on unmount or dependency change
+    return () => {
+      if (websiteTimeoutRef.current) {
+        clearTimeout(websiteTimeoutRef.current)
       }
     }
-  }, [newCompanyWebsite, showNewCompanyForm, newCompanyLogo, isLogoManuallyRemoved])
+  }, [
+    newCompanyWebsite,
+    showNewCompanyModal,
+    isLogoManuallyRemoved,
+    uploadedLogoFile,
+    debouncedFaviconFetch,
+  ])
+
+  // Check for duplicates when name or website changes (debounced)
+  useEffect(() => {
+    if (showNewCompanyModal && newCompanyName.trim().length >= 3) {
+      debouncedDuplicateCheck(newCompanyName, newCompanyWebsite)
+    } else {
+      setDuplicateCompanies([])
+      setShowDuplicateWarning(false)
+    }
+
+    // Cleanup timeout on unmount or dependency change
+    return () => {
+      if (duplicateCheckTimeoutRef.current) {
+        clearTimeout(duplicateCheckTimeoutRef.current)
+      }
+    }
+  }, [newCompanyName, newCompanyWebsite, showNewCompanyModal, debouncedDuplicateCheck])
+
+  // Cleanup all timeouts on unmount
+  useEffect(() => {
+    return () => {
+      if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current)
+      if (websiteTimeoutRef.current) clearTimeout(websiteTimeoutRef.current)
+      if (duplicateCheckTimeoutRef.current) clearTimeout(duplicateCheckTimeoutRef.current)
+    }
+  }, [])
+
+  // Validate uploaded file
+  const validateFile = (file: File): string | null => {
+    const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/svg+xml']
+    if (!allowedTypes.includes(file.type)) {
+      return 'Please upload a PNG, JPG, JPEG, or SVG file'
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      // 5MB limit
+      return 'File size must be less than 5MB'
+    }
+
+    return null
+  }
+
+  // Handle file upload
+  const handleFileUpload = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    const error = validateFile(file)
+    if (error) {
+      setLogoError(error)
+      return
+    }
+
+    setLogoError(null)
+    setUploadedLogoFile(file)
+    setIsLogoManuallyRemoved(false)
+
+    // Create preview URL
+    const reader = new FileReader()
+    reader.onload = () => {
+      setNewCompanyLogo(reader.result as string)
+    }
+    reader.readAsDataURL(file)
+  }, [])
 
   // Handle company selection
   const handleSelectCompany = (company: Company) => {
@@ -217,372 +595,355 @@ export function CompanySelector({ userEmail, name, label, description }: Company
     setSelectedCompany(null)
   }
 
-  // Handle logo upload
-  const handleLogoUpload = async (file: File) => {
-    if (!selectedCompany) return
+  // Reset new company form
+  const resetNewCompanyForm = () => {
+    setShowNewCompanyModal(false)
+    setNewCompanyName('')
+    setNewCompanyWebsite('')
+    setNewCompanyLogo(null)
+    setUploadedLogoFile(null)
+    setIsLogoManuallyRemoved(false)
+    setDuplicateCompanies([])
+    setShowDuplicateWarning(false)
+    setLogoError(null)
+    setIsProcessingWebsite(false)
 
-    try {
-      const formData = new FormData()
-      formData.append('file', file)
-      formData.append('companyId', selectedCompany.id.toString())
-
-      const response = await fetch('/api/companies/upload-logo', {
-        method: 'POST',
-        body: formData,
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to upload logo')
-      }
-
-      const { company } = await response.json()
-      setSelectedCompany(company)
-    } catch (error) {
-      console.error('[CompanySelector] Error uploading logo:', error)
-    }
+    // Clear any pending timeouts
+    if (websiteTimeoutRef.current) clearTimeout(websiteTimeoutRef.current)
+    if (duplicateCheckTimeoutRef.current) clearTimeout(duplicateCheckTimeoutRef.current)
   }
 
   // Handle logo removal
-  const handleLogoRemove = async () => {
-    if (!selectedCompany) return
-
-    try {
-      const response = await fetch(`/api/companies/${selectedCompany.id}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          logoSrc: {
-            uploadedLogo: null,
-          },
-        }),
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to remove logo')
-      }
-
-      const { doc: company } = await response.json()
-      setSelectedCompany(company)
-    } catch (error) {
-      console.error('[CompanySelector] Error removing logo:', error)
+  const handleLogoRemove = () => {
+    setNewCompanyLogo(null)
+    setUploadedLogoFile(null)
+    setIsLogoManuallyRemoved(true)
+    setLogoError(null)
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''
     }
   }
 
-  const getLogoUrl = (logoSrc: Company['logoSrc']) => {
+  // Create new company
+  const handleCreateCompany = async () => {
+    if (!newCompanyName.trim()) return
+    if (!newCompanyWebsite.trim()) return
+
+    setIsCreating(true)
+    try {
+      // Upload logo file if present
+      let logoData = null
+      if (uploadedLogoFile) {
+        const formData = new FormData()
+        formData.append('file', uploadedLogoFile)
+
+        const uploadResponse = await fetch('/api/companies/upload-logo-file', {
+          method: 'POST',
+          body: formData,
+        })
+
+        if (uploadResponse.ok) {
+          const { logoId } = await uploadResponse.json()
+          logoData = { uploadedLogo: logoId }
+        }
+      } else if (newCompanyLogo && !isLogoManuallyRemoved) {
+        logoData = { defaultUrl: newCompanyLogo }
+      }
+
+      const response = await fetch('/api/companies/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: newCompanyName.trim(),
+          website: newCompanyWebsite.trim(),
+          logoData,
+        }),
+      })
+
+      if (response.ok) {
+        const { company } = await response.json()
+        setSelectedCompany(company)
+        form.setValue(name, company.id)
+        setOpen(false)
+        resetNewCompanyForm()
+      }
+    } catch (error) {
+      console.error('[CompanySelector] Error creating company:', error)
+    } finally {
+      setIsCreating(false)
+    }
+  }
+
+  // Get logo URL from company data
+  const getLogoUrl = (logoSrc: Company['logoSrc']): string | null => {
     if (!logoSrc) return null
 
-    // If it's a CompanyLogo object
     if (typeof logoSrc === 'object') {
-      // First try the uploaded logo
       if ('uploadedLogo' in logoSrc && logoSrc.uploadedLogo) {
         const uploadedLogo = logoSrc.uploadedLogo
         if (typeof uploadedLogo === 'object' && 'url' in uploadedLogo) {
-          return uploadedLogo.url
+          return uploadedLogo.url || null
         }
       }
-      // Then try the default URL
       if ('defaultUrl' in logoSrc && logoSrc.defaultUrl) {
         return logoSrc.defaultUrl
       }
       return null
     }
 
-    // If it's a string (direct URL), treat it as defaultUrl
     if (typeof logoSrc === 'string') {
       return logoSrc
     }
 
-    // If it's a number (ID), return null as we can't use it directly
     return null
   }
 
   return (
-    <FormField
-      control={form.control}
-      name={name}
-      render={({ field }) => (
-        <FieldSet
-          label={label}
-          description={description}
-          promptText={form.formState.errors[name]?.message as string}
-          state={form.formState.errors[name] ? 'error' : 'default'}
-        >
-          <Popover open={open} onOpenChange={setOpen}>
-            <PopoverTrigger asChild>
-              <FormControl>
-                <Button
-                  variant="outline"
-                  role="combobox"
-                  size="md"
-                  aria-expanded={open}
-                  className={cn(
-                    'h-[36px] w-full justify-between text-base text-gray-300',
-                    !field.value && 'text-gray-300',
-                  )}
-                >
-                  <div className="flex w-full items-center justify-between">
-                    {selectedCompany ? (
-                      <div className="flex items-center gap-2">
-                        <CompanyLogoComponent
-                          src={getLogoUrl(selectedCompany.logoSrc)}
-                          alt={selectedCompany.name}
-                          size={20}
-                        />
-                        <span>{selectedCompany.name}</span>
-                      </div>
-                    ) : (
-                      'Select company'
+    <>
+      <FormField
+        control={form.control}
+        name={name}
+        render={({ field }) => (
+          <FieldSet
+            label={label}
+            description={description}
+            promptText={form.formState.errors[name]?.message as string}
+            state={form.formState.errors[name] ? 'error' : 'default'}
+          >
+            <Popover open={open} onOpenChange={setOpen}>
+              <PopoverTrigger asChild>
+                <FormControl>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    size="md"
+                    aria-expanded={open}
+                    className={cn(
+                      'h-[36px] w-full justify-between text-base text-gray-300',
+                      !field.value && 'text-gray-300',
                     )}
-                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                  </div>
-                </Button>
-              </FormControl>
-            </PopoverTrigger>
-            <PopoverContent className="w-[350px] p-0">
-              {!showNewCompanyForm ? (
-                <Command>
-                  <CommandInput
-                    placeholder="Search companies..."
-                    value={searchQuery}
-                    onValueChange={setSearchQuery}
-                  />
-                  <CommandList>
-                    {isLoading ? (
-                      <div className="flex items-center justify-center p-4">
-                        <Icon
-                          name="spinner"
-                          className="text-muted-foreground h-4 w-4 animate-spin"
-                        />
-                        <span className="text-muted-foreground ml-2 text-sm">Loading...</span>
-                      </div>
-                    ) : (
-                      <>
-                        <CommandEmpty>
-                          <div className="flex flex-col items-center gap-3 px-4">
-                            <p className="text-muted-foreground pb-2 text-center text-sm text-balance">
-                              No companies found with that name. Be the first to add it!
-                            </p>
-                            <Button
-                              variant="solid"
-                              size="md"
-                              onClick={() => {
-                                setShowNewCompanyForm(true)
-                                setNewCompanyName(searchQuery)
-                                if (searchQuery) {
-                                  fetchBrandfetchData(searchQuery)
-                                }
-                              }}
-                              className="w-full"
-                            >
-                              <PlusCircle className="mr-2 h-4 w-4" />
-                              Create new company
-                            </Button>
-                          </div>
-                        </CommandEmpty>
-                        <CommandGroup heading="Existing companies">
-                          {companies.map((company) => (
-                            <CommandItem
-                              key={company.id}
-                              value={company.name}
-                              onSelect={() => handleSelectCompany(company)}
-                              className="flex cursor-pointer items-center gap-2"
-                            >
-                              <CompanyLogoComponent
-                                src={getLogoUrl(company.logoSrc)}
-                                alt={company.name}
-                                size={20}
-                              />
-                              <span>{company.name}</span>
-                              <Check
-                                className={cn(
-                                  'ml-auto h-4 w-4',
-                                  selectedCompany?.id === company.id ? 'opacity-100' : 'opacity-0',
-                                )}
-                              />
-                            </CommandItem>
-                          ))}
-                        </CommandGroup>
-                        <CommandSeparator />
-                        <CommandGroup>
-                          <CommandItem
-                            onSelect={() => {
-                              setShowNewCompanyForm(true)
-                              setNewCompanyName(searchQuery)
-                              if (searchQuery) {
-                                fetchBrandfetchData(searchQuery)
-                              }
-                            }}
-                            className="cursor-pointer text-blue-600"
-                          >
-                            <PlusCircle className="mr-2 h-4 w-4" />
-                            Enter your company
-                          </CommandItem>
-                        </CommandGroup>
-                      </>
-                    )}
-                  </CommandList>
-                </Command>
-              ) : (
-                <div className="space-y-4 p-4">
-                  <div className="flex items-center justify-between">
-                    <h4 className="text-sm font-medium">Add new company</h4>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => {
-                        setShowNewCompanyForm(false)
-                        setNewCompanyName('')
-                        setNewCompanyWebsite('')
-                        setNewCompanyLogo(null)
-                        setIsLogoManuallyRemoved(false)
-                      }}
-                      className="h-6 w-6"
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="new-company-name">Company name</Label>
-                    <Input
-                      id="new-company-name"
-                      value={newCompanyName}
-                      onChange={(e) => setNewCompanyName(e.target.value)}
-                      placeholder="e.g. Acme Inc."
-                      className="w-full"
-                    />
-                  </div>
-
-                  {isFetchingBrandfetch && (
-                    <div className="flex items-center justify-center py-2">
-                      <Icon name="spinner" className="text-muted-foreground h-4 w-4 animate-spin" />
-                      <span className="text-muted-foreground ml-2 text-sm">
-                        Searching for company...
-                      </span>
+                  >
+                    <div className="flex w-full items-center justify-between">
+                      {selectedCompany ? (
+                        <div className="flex items-center gap-2">
+                          <CompanyLogoComponent
+                            src={getLogoUrl(selectedCompany.logoSrc)}
+                            alt={selectedCompany.name}
+                          />
+                          <span>{selectedCompany.name}</span>
+                        </div>
+                      ) : (
+                        'Select company'
+                      )}
+                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </div>
-                  )}
-
-                  {hasSearchedBrandfetch && (
-                    <>
-                      <div className="space-y-2">
-                        <Label htmlFor="new-company-website">Company website</Label>
-                        <Input
-                          id="new-company-website"
-                          value={newCompanyWebsite}
-                          onChange={(e) => setNewCompanyWebsite(e.target.value)}
-                          placeholder="e.g. https://example.com"
-                          className="w-full"
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label>Company logo</Label>
-                        {newCompanyLogo ? (
-                          <div className="flex items-center gap-2">
-                            <div className="relative h-10 w-10 overflow-hidden rounded border border-gray-200">
-                              <CompanyLogoComponent
-                                src={newCompanyLogo}
-                                alt="Company logo"
-                                size={40}
-                              />
+                  </Button>
+                </FormControl>
+              </PopoverTrigger>
+              <PopoverContent className="w-[400px] p-0">
+                <div className="flex flex-col">
+                  <Command>
+                    <CommandInput
+                      placeholder="Search companies..."
+                      value={searchQuery}
+                      onValueChange={setSearchQuery}
+                    />
+                    <CommandList>
+                      {isLoading ? (
+                        <div className="flex items-center justify-center p-4">
+                          <Icon
+                            name="spinner"
+                            className="text-muted-foreground h-4 w-4 animate-spin"
+                          />
+                          <span className="text-muted-foreground ml-2 text-sm">Loading...</span>
+                        </div>
+                      ) : (
+                        <>
+                          <CommandEmpty>
+                            <div className="flex flex-col items-center gap-3 px-4">
+                              <p className="text-gray-600 text-center text-sm text-balance">
+                                No companies found with that name. Be the first to add it!
+                              </p>
                             </div>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => {
-                                setNewCompanyLogo(null)
-                                setIsLogoManuallyRemoved(true)
-                              }}
-                              className="h-7"
-                            >
-                              Remove
-                            </Button>
-                          </div>
-                        ) : (
-                          <div className="flex h-16 items-center justify-center rounded-md border border-dashed border-gray-300">
-                            <span className="text-muted-foreground text-sm">
-                              {isLogoManuallyRemoved ? 'No logo selected' : 'No logo found'}
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                    </>
-                  )}
+                          </CommandEmpty>
 
-                  <div className="flex justify-end gap-2 pt-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setShowNewCompanyForm(false)}
-                    >
-                      Cancel
-                    </Button>
+                          {/* Suggested Companies from Email Domain */}
+                          {suggestedCompanies.length > 0 && (
+                            <>
+                              <CommandGroup
+                                heading={
+                                  <>
+                                    Suggested
+                                    <Icon name="sparkles" size="sm" className="ml-1" />
+                                  </>
+                                }
+                              >
+                                {suggestedCompanies.map((company) => (
+                                  <CommandItem
+                                    key={`suggested-${company.id}`}
+                                    value={`suggested-${company.name}`}
+                                    onSelect={() => handleSelectCompany(company)}
+                                    className="flex cursor-pointer items-center gap-2"
+                                  >
+                                    <CompanyLogoComponent
+                                      src={getLogoUrl(company.logoSrc)}
+                                      alt={company.name}
+                                    />
+                                    <div className="flex flex-col">
+                                      <span>{company.name}</span>
+                                      {company.website && (
+                                        <span className="text-xs text-gray-500">
+                                          {company.website}
+                                        </span>
+                                      )}
+                                    </div>
+                                    <div className="ml-auto flex items-center gap-1">
+                                      <Check
+                                        className={cn(
+                                          'h-4 w-4',
+                                          selectedCompany?.id === company.id
+                                            ? 'opacity-100'
+                                            : 'opacity-0',
+                                        )}
+                                      />
+                                    </div>
+                                  </CommandItem>
+                                ))}
+                              </CommandGroup>
+                              <CommandSeparator />
+                            </>
+                          )}
+
+                          {/* Regular Company Results */}
+                          <CommandGroup
+                            heading={
+                              suggestedCompanies.length > 0
+                                ? 'Other companies'
+                                : 'Existing companies'
+                            }
+                          >
+                            {companies.map((company) => (
+                              <CommandItem
+                                key={company.id}
+                                value={`other-${company.name}`}
+                                onSelect={() => handleSelectCompany(company)}
+                                className="flex cursor-pointer items-center gap-2"
+                              >
+                                <CompanyLogoComponent
+                                  src={getLogoUrl(company.logoSrc)}
+                                  alt={company.name}
+                                />
+                                <div className="flex flex-col">
+                                  <span>{company.name}</span>
+                                  {company.website && (
+                                    <span className="text-xs text-gray-500">{company.website}</span>
+                                  )}
+                                </div>
+                                <Check
+                                  className={cn(
+                                    'ml-auto h-4 w-4',
+                                    selectedCompany?.id === company.id
+                                      ? 'opacity-100'
+                                      : 'opacity-0',
+                                  )}
+                                />
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </>
+                      )}
+                    </CommandList>
+                  </Command>
+                  <div className="border-t p-2">
                     <Button
                       variant="solid"
                       size="sm"
-                      onClick={async () => {
-                        if (!newCompanyName) return
-
-                        try {
-                          const response = await fetch('/api/companies/create', {
-                            method: 'POST',
-                            headers: {
-                              'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify({
-                              name: newCompanyName,
-                              website: newCompanyWebsite,
-                              logoSrc: newCompanyLogo,
-                            }),
-                          })
-
-                          const { company, isNew } = await response.json()
-
-                          // Select the newly created or existing company
-                          setSelectedCompany(company)
-                          setShowNewCompanyForm(false)
-                          setNewCompanyName('')
-                          setNewCompanyWebsite('')
-                          setNewCompanyLogo(null)
-                          setOpen(false)
-
-                          if (!isNew) {
-                            // Show a message that the company already existed
-                            console.log('Company already exists, using existing record')
-                          }
-                        } catch (error) {
-                          console.error('[CompanySelector] Error creating company:', error)
+                      className="w-full"
+                      onClick={() => {
+                        setShowNewCompanyModal(true)
+                        setOpen(false)
+                        // Auto-populate from email if no search query
+                        if (!searchQuery && emailDomain) {
+                          autoPopulateFromEmail()
+                        } else {
+                          setNewCompanyName(searchQuery)
                         }
                       }}
-                      disabled={!newCompanyName.trim()}
                     >
-                      Save
+                      <Icon name="plus-circle" size="md" className="mr-1" />
+                      Add your company
                     </Button>
                   </div>
                 </div>
-              )}
-            </PopoverContent>
-          </Popover>
+              </PopoverContent>
+            </Popover>
 
-          {selectedCompany && (
-            <div className="flex">
-              <Button
-                variant="ghost"
-                size="xs"
-                onClick={handleClearSelection}
-                className="text-muted-foreground hover:text-destructive h-6 px-2"
-              >
-                <Icon name="x" className="size-4" />
-                Clear selection
-              </Button>
-            </div>
-          )}
+            {selectedCompany && (
+              <div className="flex">
+                <Button
+                  variant="ghost"
+                  size="xs"
+                  onClick={handleClearSelection}
+                  className="text-muted-foreground hover:text-destructive h-6 px-2"
+                >
+                  <Icon name="x" className="size-4" />
+                  Clear selection
+                </Button>
+              </div>
+            )}
 
-          <FormMessage />
-        </FieldSet>
-      )}
-    />
+            <FormMessage />
+          </FieldSet>
+        )}
+      />
+
+      {/* New Company Modal */}
+      <Modal
+        open={showNewCompanyModal}
+        onOpenChange={setShowNewCompanyModal}
+        title="Add new company"
+        description="Create a new company entry for your organization."
+        primaryButton={{
+          children: isCreating ? (
+            <>
+              Saving
+              <Icon name="spinner" className="ml-1 h-3 w-3 animate-spin" />
+            </>
+          ) : (
+            'Save'
+          ),
+          onClick: handleCreateCompany,
+          disabled: !newCompanyName.trim() || !newCompanyWebsite.trim() || isCreating,
+        }}
+        secondaryButton={{
+          children: 'Cancel',
+          onClick: resetNewCompanyForm,
+          disabled: isCreating,
+        }}
+        showCloseButton={false}
+      >
+        <NewCompanyModalContent
+          newCompanyName={newCompanyName}
+          setNewCompanyName={setNewCompanyName}
+          newCompanyWebsite={newCompanyWebsite}
+          setNewCompanyWebsite={setNewCompanyWebsite}
+          newCompanyLogo={newCompanyLogo}
+          isFetchingFavicon={isFetchingFavicon}
+          isProcessingWebsite={isProcessingWebsite}
+          duplicateCompanies={duplicateCompanies}
+          showDuplicateWarning={showDuplicateWarning}
+          companies={companies}
+          suggestedCompanies={suggestedCompanies}
+          handleSelectCompany={handleSelectCompany}
+          resetNewCompanyForm={resetNewCompanyForm}
+          getLogoUrl={getLogoUrl}
+          handleFileUpload={handleFileUpload}
+          handleLogoRemove={handleLogoRemove}
+          fileInputRef={fileInputRef}
+          logoError={logoError}
+          uploadedLogoFile={uploadedLogoFile}
+        />
+      </Modal>
+    </>
   )
 }

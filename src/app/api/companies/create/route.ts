@@ -11,13 +11,13 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { name, website, logoSrc } = await req.json()
+    const { name, website, logoData } = await req.json()
 
     if (!name) {
       return NextResponse.json({ error: 'Company name is required' }, { status: 400 })
     }
 
-    // Get user ID from Payload first
+    // Get user ID from Payload
     const users = await payload.find({
       collection: 'users',
       where: {
@@ -28,7 +28,6 @@ export async function POST(req: Request) {
     })
 
     if (!users.docs.length) {
-      console.error('[Companies] User not found:', session.user.email)
       return NextResponse.json(
         { error: 'User not found when trying to create company' },
         { status: 404 },
@@ -36,70 +35,76 @@ export async function POST(req: Request) {
     }
 
     const userId = users.docs[0].id
-    console.log('[Companies] Found user ID:', userId)
 
-    // Check if company already exists
+    // Check if company already exists (exact name match or same domain)
     const existingCompanies = await payload.find({
       collection: 'companies',
       where: {
-        name: {
-          equals: name,
-        },
+        or: [
+          {
+            name: {
+              equals: name.trim(),
+            },
+          },
+          ...(website
+            ? [
+                {
+                  website: {
+                    contains: extractDomain(website),
+                  },
+                },
+              ]
+            : []),
+        ],
       },
     })
 
-    console.log('[Companies] Search results:', {
-      query: name,
-      found: existingCompanies.docs.length,
-      companies: existingCompanies.docs.map((c) => ({ id: c.id, name: c.name })),
+    // Filter for exact matches
+    const exactMatch = existingCompanies.docs.find((company) => {
+      const isNameMatch = company.name.toLowerCase().trim() === name.toLowerCase().trim()
+      const isDomainMatch =
+        website && company.website && extractDomain(company.website) === extractDomain(website)
+      return isNameMatch || isDomainMatch
     })
 
-    if (existingCompanies.docs.length > 0) {
-      // For existing company, just update the user's profile
-      const existingCompany = existingCompanies.docs[0]
+    if (exactMatch) {
+      // Update user's company reference
       await payload.update({
         collection: 'users',
         id: userId,
         data: {
-          company: existingCompany.id,
+          company: exactMatch.id,
         },
       })
-      console.log('[Companies] Updated user profile with existing company reference')
 
       return NextResponse.json({
-        company: existingCompany,
+        company: exactMatch,
         isNew: false,
       })
     }
 
-    // Create a new company logo record if a logo URL is provided
+    // Create company logo record if logo data is provided
     let logoId = null
-    if (logoSrc) {
+    if (logoData) {
       const logo = await payload.create({
         collection: 'company-logos',
         data: {
-          defaultUrl: logoSrc,
           alt: `${name} logo`,
+          ...logoData,
         },
       })
       logoId = logo.id
-      console.log('[Companies] Created logo record:', logoId)
     }
 
-    // Create the company with author only for new companies
+    // Create the company
     const company = await payload.create({
       collection: 'companies',
       data: {
-        name,
-        website,
+        name: name.trim(),
+        website: website?.trim() || null,
         logoSrc: logoId,
-        author: userId, // Only set author for new companies
+        author: userId,
       },
-    })
-    console.log('[Companies] Created new company:', {
-      id: company.id,
-      name: company.name,
-      author: userId,
     })
 
     // Update the user's profile with the company reference
@@ -110,7 +115,6 @@ export async function POST(req: Request) {
         company: company.id,
       },
     })
-    console.log('[Companies] Updated user profile with new company reference')
 
     return NextResponse.json({
       company,
@@ -119,5 +123,14 @@ export async function POST(req: Request) {
   } catch (error) {
     console.error('[Companies] Error creating company:', error)
     return NextResponse.json({ error: 'Failed to create company' }, { status: 500 })
+  }
+}
+
+function extractDomain(url: string): string | null {
+  try {
+    const urlObj = new URL(url.startsWith('http') ? url : `https://${url}`)
+    return urlObj.hostname.replace('www.', '')
+  } catch {
+    return null
   }
 }

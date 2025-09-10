@@ -1,6 +1,6 @@
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/authOptions'
-import { Container, PageHeader, PageTitle, Button, Icon } from '@/components/ui'
+import { Container, PageHeader, PageTitle, Button, Icon, InlineBanner } from '@/components/ui'
 import { ChallengesList } from '@/components/ui/ChallengesList'
 import { payload } from '@/lib/payloadClient'
 import { calculateUserPoints } from '@/lib/users/points'
@@ -25,7 +25,11 @@ const Home = async () => {
         <PageHeader userPoints={0} noUser={true} />
         <div className="min-h-screen bg-gray-50">
           <Container>
-            <PageTitle title={<>Welcome!</>} description="Please sign in to view the portal." />
+            <PageTitle
+              title={<>Welcome!</>}
+              description="Please sign in or create an account to view the portal."
+            />
+            <Button href="/login">Sign in</Button>
           </Container>
         </div>
       </>
@@ -84,13 +88,31 @@ const Home = async () => {
               </Button>
             }
           />
-          {challengesData && (
-            <ChallengesList
-              // sessionUser={sessionUser}
-              challengesData={challengesData}
-              userLedgerEntries={userLedgerEntries}
+          <div className="flex flex-col gap-4">
+            <InlineBanner
+              title="Welcome to the Fanattic Portal!"
+              icon="info"
+              description="New here? Read the rules and guide to get started."
+              colorScheme="brand"
+              actionButton={{
+                href: '/rules-and-guide',
+                colorScheme: 'brand',
+                size: 'sm',
+                children: (
+                  <>
+                    Rules & Guide <Icon name="arrow-right" className="size-4" />
+                  </>
+                ),
+              }}
             />
-          )}
+            {challengesData && (
+              <ChallengesList
+                // sessionUser={sessionUser}
+                challengesData={challengesData}
+                userLedgerEntries={userLedgerEntries}
+              />
+            )}
+          </div>
         </Container>
       </div>
     </>

@@ -8,14 +8,13 @@ import { Icon } from '@/components/ui'
 type CompanyLogoProps = {
   src: string | CompanyLogoType | null | undefined
   alt: string
-  size?: number
   className?: string
 }
 
-export function CompanyLogo({ src, alt, size = 4, className }: CompanyLogoProps) {
+export function CompanyLogo({ src, alt, className }: CompanyLogoProps) {
   // If no src, show fallback icon
   if (!src) {
-    return <Icon name="building" />
+    return <Icon size='md' name="building" className={className} />
   }
 
   // Get the URL from either string or CompanyLogo object
@@ -23,17 +22,17 @@ export function CompanyLogo({ src, alt, size = 4, className }: CompanyLogoProps)
     typeof src === 'string' ? src : src && typeof src === 'object' && 'url' in src ? src.url : null
 
   if (!imageUrl || typeof imageUrl !== 'string') {
-    return <Icon name="building" />
+    return <Icon size='md' name="building" className={className} />
   }
 
-  // Check if it's a Brandfetch CDN URL
-  if (imageUrl.includes('cdn.brandfetch.io')) {
+  // Check if it's a Brandfetch CDN URL or Google favicon
+  if (imageUrl.includes('cdn.brandfetch.io') || imageUrl.includes('www.google.com/s2/favicons')) {
     return (
       <Image
         src={imageUrl}
         alt={alt}
-        width={size}
-        height={size}
+        width={16}
+        height={16}
         className={cn('object-contain', className)}
         unoptimized={true}
       />
@@ -44,8 +43,8 @@ export function CompanyLogo({ src, alt, size = 4, className }: CompanyLogoProps)
     <Image
       src={imageUrl}
       alt={alt}
-      width={size}
-      height={size}
+      width={16}
+      height={16}
       className={cn('object-contain', className)}
     />
   )

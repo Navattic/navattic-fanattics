@@ -3,6 +3,7 @@
 import { SessionProvider } from 'next-auth/react'
 import React, { ReactNode, createContext, useContext } from 'react'
 import { SidebarProvider } from '@/components/shadcn/ui/sidebar'
+import { TooltipProvider } from '@/components/ui/Compass/Tooltip'
 import { UserProfilePreviewModalProvider } from './ui/UserProfilePreviewModal/UserProfilePreviewModalContext'
 import { UserProfilePreviewModal } from './ui/UserProfilePreviewModal/UserProfilePreviewModal'
 import { User } from '@/payload-types'
@@ -36,12 +37,14 @@ export const Providers = ({ children, user, isLoading = false, error = null }: P
   return (
     <SessionProvider>
       <UserContext.Provider value={{ user, isLoading, error }}>
-        <SidebarProvider>
-          <UserProfilePreviewModalProvider>
-            {children}
-            <UserProfilePreviewModal />
-          </UserProfilePreviewModalProvider>
-        </SidebarProvider>
+        <TooltipProvider>
+          <SidebarProvider>
+            <UserProfilePreviewModalProvider>
+              {children}
+              <UserProfilePreviewModal />
+            </UserProfilePreviewModalProvider>
+          </SidebarProvider>
+        </TooltipProvider>
       </UserContext.Provider>
     </SessionProvider>
   )

@@ -27,8 +27,13 @@ const nextConfig = {
         hostname: 'cdn.brandfetch.io',
         pathname: '**',
       },
+      {
+        protocol: 'https',
+        hostname: 'www.google.com',
+        pathname: '/s2/favicons**',
+      },
     ],
-    domains: ['cdn.brandfetch.io'],
+    domains: ['cdn.brandfetch.io', 'www.google.com'],
   },
 }
 
