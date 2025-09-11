@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/authOptions'
 import { Container, Avatar, PageHeader, Icon, UserEmail, Bio } from '@/components/ui'
 import { Statistics } from '@/features/profile/Statistics'
+import { ProfileEditButton } from '@/features/profile/ProfileEditButton'
 import { calculateUserPoints } from '@/lib/users/points'
 import { payload } from '@/lib/payloadClient'
 import { User, Ledger, Comment } from '@/payload-types'
@@ -33,6 +34,19 @@ const ProfilePage = async ({ params }: { params: Promise<{ slug: string }> }) =>
     )
   }
 
+  // Fetch the current user to check if this is their own profile
+  const currentUserResponse = await payload.find({
+    collection: 'users',
+    where: {
+      email: {
+        equals: session.user.email,
+      },
+    },
+    limit: 1,
+  })
+
+  const currentUser = currentUserResponse.docs[0]
+
   // Fetch the user profile with populated data
   const userResponse = await payload.find({
     collection: 'users',
@@ -61,6 +75,9 @@ const ProfilePage = async ({ params }: { params: Promise<{ slug: string }> }) =>
   }
 
   const user = userResponse.docs[0] as PopulatedUser
+
+  // Check if this is the user's own profile
+  const isOwnProfile = currentUser && currentUser.id === user.id
 
   // Calculate total points earned (only positive entries)
   const totalPointsEarned =
@@ -107,17 +124,23 @@ const ProfilePage = async ({ params }: { params: Promise<{ slug: string }> }) =>
       <PageHeader title={`${user.firstName} ${user.lastName}`} userPoints={currentBalance} />
       <div className="min-h-screen bg-gray-50">
         <Container className="pt-10">
-          <div className="flex flex-row items-center gap-8 pb-8">
-            <Avatar user={user} size="xl" />
-            <div className="relative space-y-2">
-              <div className="space-y-0">
-                <h1 className="text-lg font-medium capitalize">
-                  {user.firstName} {user.lastName}
-                </h1>
+          <div className="flex flex-row items-center justify-between pb-8">
+            <div className="flex flex-row items-center gap-8">
+              <Avatar user={user} size="xl" />
+              <div className="relative space-y-2">
+                <div className="space-y-0">
+                  <h1 className="text-lg font-medium capitalize">
+                    {user.firstName} {user.lastName}
+                  </h1>
+                </div>
+                <UserEmail email={user.email} />
               </div>
-              <UserEmail email={user.email} />
             </div>
+
+            {/* Edit profile button - only shown on own profile */}
+            <ProfileEditButton isOwnProfile={isOwnProfile} />
           </div>
+
           <div className="mt-4">
             <h2 className="mb-2 text-base font-medium">About</h2>
             <Bio user={user} />

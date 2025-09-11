@@ -4,6 +4,55 @@ import { getPayload } from 'payload'
 import config from '@/payload.config'
 import { NextResponse } from 'next/server'
 
+export async function GET() {
+  try {
+    const session = await getServerSession(authOptions)
+
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const payload = await getPayload({ config })
+
+    // Find the user by email with populated avatar and company
+    const users = await payload.find({
+      collection: 'users',
+      where: {
+        email: {
+          equals: session.user.email,
+        },
+      },
+      depth: 2,
+    })
+
+    if (!users.docs.length) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 })
+    }
+
+    const user = users.docs[0]
+
+    // Format the response data
+    const profileData = {
+      firstName: user.firstName || '',
+      lastName: user.lastName || '',
+      email: user.email,
+      bio: user.bio || '',
+      company: typeof user.company === 'object' ? user.company?.id : user.company,
+      location: user.location || '',
+      linkedinUrl: user.linkedinUrl || '',
+      interactiveDemoUrl: user.interactiveDemoUrl || '',
+      avatar: typeof user.avatar === 'object' ? user.avatar?.id : user.avatar,
+      avatarUrl: typeof user.avatar === 'object' ? user.avatar?.url : null,
+      loginMethod: user.loginMethod || 'email',
+    }
+
+    return NextResponse.json(profileData)
+  } catch (error) {
+    console.error('Error fetching profile data:', error)
+    return NextResponse.json({ error: 'Failed to fetch profile data' }, { status: 500 })
+  }
+}
+
 export async function POST(req: Request) {
   try {
     const session = await getServerSession(authOptions)
