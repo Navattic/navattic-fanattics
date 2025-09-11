@@ -14,7 +14,6 @@ import { Icon, Avatar } from '@/components/ui'
 import { IconName } from '@/components/ui/Compass/Icon'
 import { formatDate } from '@/utils/formatDate'
 import { parseLocation } from '@/utils/parseLocation'
-import { ArrowUpRightIcon } from 'lucide-react'
 
 export const UserProfilePreviewModal = () => {
   const { open, setOpen, user, stats } = useProfileDrawer()
@@ -100,7 +99,7 @@ export const UserProfilePreviewModal = () => {
                               className="group flex text-sm text-blue-500"
                             >
                               {company.name}
-                              <ArrowUpRightIcon className="ml-0.5 size-3 opacity-50 transition-all duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:scale-[104%] group-hover:opacity-100" />
+                              <Icon name="arrow-up-right" className="ml-0.5 size-3 opacity-50 transition-all duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:scale-[104%] group-hover:opacity-100" />
                             </a>
                           </div>
                         </div>
@@ -115,7 +114,7 @@ export const UserProfilePreviewModal = () => {
                             className="group flex text-sm text-blue-500"
                           >
                             LinkedIn Profile
-                            <ArrowUpRightIcon className="ml-0.5 size-3 opacity-50 transition-all duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:scale-[104%] group-hover:opacity-100" />
+                            <Icon name="arrow-up-right" className="ml-0.5 size-3 opacity-50 transition-all duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:scale-[104%] group-hover:opacity-100" />
                           </a>
                         </div>
                       )}
@@ -129,7 +128,7 @@ export const UserProfilePreviewModal = () => {
                             className="group flex text-sm text-blue-500"
                           >
                             Favorite Interactive Demo
-                            <ArrowUpRightIcon className="ml-0.5 size-3 opacity-50 transition-all duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:scale-[104%] group-hover:opacity-100" />
+                            <Icon name="arrow-up-right" className="ml-0.5 size-3 opacity-50 transition-all duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:scale-[104%] group-hover:opacity-100" />
                           </a>
                         </div>
                       )}

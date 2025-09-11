@@ -1,4 +1,4 @@
-import { CoinsIcon, HandCoinsIcon, BicepsFlexed, MessageCircleReplyIcon } from 'lucide-react'
+import { Icon } from '@/components/ui'
 
 export const StatisticCard = ({
   icon,
@@ -30,22 +30,22 @@ interface UserStats {
 export const Statistics = ({ userStats }: { userStats: UserStats }) => {
   const StatisticData = [
     {
-      icon: <CoinsIcon />,
+      icon: <Icon name="coins" />,
       label: 'Total points earned',
       value: userStats.points,
     },
     {
-      icon: <BicepsFlexed />,
+      icon: <Icon name="biceps-flexed" />,
       label: 'Challenges completed',
       value: userStats.challengesCompleted,
     },
     {
-      icon: <HandCoinsIcon />,
+      icon: <Icon name="hand-coins" />,
       label: 'Items redeemed',
       value: userStats.itemsRedeemed,
     },
     {
-      icon: <MessageCircleReplyIcon />,
+      icon: <Icon name="message-circle-reply" />,
       label: 'Comments written',
       value: userStats.commentsWritten,
     },

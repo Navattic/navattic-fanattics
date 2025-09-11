@@ -2,7 +2,7 @@
 
 import * as React from 'react'
 import * as AccordionPrimitive from '@radix-ui/react-accordion'
-import { ChevronDownIcon } from 'lucide-react'
+import { Icon } from '@/components/ui'
 
 import { cn } from '@/lib/utils'
 
@@ -17,7 +17,7 @@ function AccordionItem({
   return (
     <AccordionPrimitive.Item
       data-slot="accordion-item"
-      className={cn('border-b last:border-b-0 w-full', className)}
+      className={cn('w-full border-b last:border-b-0', className)}
       {...props}
     />
   )
@@ -39,7 +39,11 @@ function AccordionTrigger({
         {...props}
       >
         {children}
-        <ChevronDownIcon className="text-muted-foreground pointer-events-none size-5 shrink-0 translate-y-0.5 transition-transform duration-200" />
+        <Icon
+          size="lg"
+          name="chevron-down"
+          className="text-muted-foreground pointer-events-none shrink-0 translate-y-0.5 transition-transform duration-200"
+        />
       </AccordionPrimitive.Trigger>
     </AccordionPrimitive.Header>
   )

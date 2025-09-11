@@ -1051,6 +1051,7 @@ export interface Guide {
           | 'heading-5'
           | 'heading-6'
           | 'help-circle'
+          | 'home'
           | 'hotel'
           | 'house'
           | 'id-card'

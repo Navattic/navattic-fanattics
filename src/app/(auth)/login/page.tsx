@@ -12,9 +12,9 @@ export default async function Page() {
   }
 
   return (
-    <section className="bg-gray-50 flex flex-col items-center justify-center h-screen">
-      <div className="w-xl bg-white rounded-xl p-8 shadow-sm">
-        <LoginForm />
+    <section className="flex h-screen flex-col items-center justify-center bg-gray-50">
+      <div className="w-xl rounded-xl bg-white p-8 shadow-sm">
+        <LoginForm mode="signin" />
       </div>
     </section>
   )

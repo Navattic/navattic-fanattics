@@ -2,7 +2,6 @@
 
 import { useState, useMemo } from 'react'
 import { Input } from '@/components/shadcn/ui/input'
-import { Check, Search, X, ChevronDown } from 'lucide-react'
 import { Button, Icon } from '@/components/ui'
 import { cn } from '@/lib/utils'
 import cities from 'cities.json' with { type: 'json' }
@@ -221,7 +220,11 @@ export function LocationSelector({
       <div className="relative">
         {/* Search icon - only show when searching or no selection */}
         {(isSearching || !selectedCity) && (
-          <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
+          <Icon
+            name="search"
+            size="sm"
+            className="text-muted-foreground absolute top-1/2 left-3 -translate-y-1/2"
+          />
         )}
 
         <Input
@@ -283,7 +286,8 @@ export function LocationSelector({
                       value === getCityKey(city) && 'bg-accent text-accent-foreground',
                     )}
                   >
-                    <Check
+                    <Icon
+                      name="check"
                       className={cn(
                         'mr-2 h-4 w-4 flex-shrink-0',
                         value === getCityKey(city) ? 'opacity-100' : 'opacity-0',

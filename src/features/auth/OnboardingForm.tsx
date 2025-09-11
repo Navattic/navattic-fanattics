@@ -365,10 +365,10 @@ export default function OnboardingForm({ session }: OnboardingFormProps) {
 
   const title =
     step === 1
-      ? '1. Basic Information'
+      ? '1. Basic information'
       : step === 2
-        ? '2. Profile Details (optional)'
-        : '3. Social Links (optional)'
+        ? '2. Profile details (optional)'
+        : '3. Social links (optional)'
 
   // Helper function to get field error message only if validation has been attempted
   const getFieldErrorMessage = (fieldName: keyof z.infer<typeof formSchema>) => {
@@ -538,7 +538,7 @@ export default function OnboardingForm({ session }: OnboardingFormProps) {
 
               <FieldSet
                 label="Bio"
-                description="A short bio about yourself (optional)"
+                description="A short bio about yourself"
                 promptText={getFieldErrorMessage('bio')}
                 state={getFieldState('bio')}
               >
@@ -551,7 +551,7 @@ export default function OnboardingForm({ session }: OnboardingFormProps) {
 
               <FieldSet
                 label="Location"
-                description="Where are you based? (optional)"
+                description="Where are you based?"
                 promptText={getFieldErrorMessage('location')}
                 state={getFieldState('location')}
               >
@@ -560,7 +560,7 @@ export default function OnboardingForm({ session }: OnboardingFormProps) {
                   onChange={(value) => form.setValue('location', value)}
                   error={getFieldErrorMessage('location')}
                   state={getFieldState('location')}
-                  placeholder="Select your location..."
+                  placeholder="Search your city..."
                 />
               </FieldSet>
 
@@ -584,7 +584,7 @@ export default function OnboardingForm({ session }: OnboardingFormProps) {
               {/* Step 3 validation summary */}
               <FieldSet
                 label="LinkedIn Profile"
-                description="Your LinkedIn profile URL (optional)"
+                description="Your LinkedIn profile URL"
                 promptText={getFieldErrorMessage('linkedinUrl')}
                 state={getFieldState('linkedinUrl')}
               >
@@ -597,7 +597,7 @@ export default function OnboardingForm({ session }: OnboardingFormProps) {
 
               <FieldSet
                 label="Favorite Interactive Demo"
-                description="Share a link to your favorite interactive demo or project (optional)"
+                description="Share a link to your favorite interactive demo or project"
                 promptText={getFieldErrorMessage('interactiveDemoUrl')}
                 state={getFieldState('interactiveDemoUrl')}
               >

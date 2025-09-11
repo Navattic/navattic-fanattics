@@ -18,13 +18,19 @@ type EmailFormData = z.infer<typeof emailSchema>
 
 type LoadingState = 'idle' | 'email' | 'google'
 
-export default function LoginForm() {
+interface LoginFormProps {
+  mode?: 'signin' | 'signup'
+}
+
+export default function LoginForm({ mode = 'signin' }: LoginFormProps) {
   const [loadingState, setLoadingState] = useState<LoadingState>('idle')
   const [emailSent, setEmailSent] = useState(false)
   const [authError, setAuthError] = useState<string | null>(null)
   const searchParams = useSearchParams()
   const isVerifying = searchParams.get('verify') === 'true'
   const errorParam = searchParams.get('error')
+
+  const isSignUp = mode === 'signup'
 
   // Handle error from URL parameters
   useEffect(() => {
@@ -51,20 +57,20 @@ export default function LoginForm() {
     resolver: zodResolver(emailSchema),
   })
 
-  const handleGoogleSignIn = async () => {
+  const handleGoogleAuth = async () => {
     setLoadingState('google')
     setAuthError(null)
     try {
-      // Use redirect: true for Google sign-in so we can handle errors through URL parameters
+      // Use redirect: true for Google auth so we can handle errors through URL parameters
       await signIn('google', { redirect: true })
     } catch (error) {
-      console.error('Error signing in with Google:', error)
+      console.error(`Error ${isSignUp ? 'signing up' : 'signing in'} with Google:`, error)
       setAuthError('An unexpected error occurred. Please try again.')
       setLoadingState('idle')
     }
   }
 
-  const handleEmailSignIn = async (data: EmailFormData) => {
+  const handleEmailAuth = async (data: EmailFormData) => {
     setLoadingState('email')
     setAuthError(null)
     try {
@@ -79,10 +85,24 @@ export default function LoginForm() {
 
       if (checkResponse.ok) {
         const checkData = await checkResponse.json()
-        if (checkData.exists && checkData.loginMethod === 'google') {
-          setAuthError(
-            'This account uses Google sign-in. Please use the Google sign-in option instead.',
-          )
+        if (checkData.exists) {
+          if (isSignUp) {
+            // For sign up, if user exists, show appropriate error
+            if (checkData.loginMethod === 'google') {
+              setAuthError(
+                'This account uses Google sign-in. Please use the Google sign-in option instead.',
+              )
+            } else {
+              setAuthError('An account with this email already exists. Please sign in instead.')
+            }
+          } else {
+            // For sign in, if user exists but uses different method
+            if (checkData.loginMethod === 'google') {
+              setAuthError(
+                'This account uses Google sign-in. Please use the Google sign-in option instead.',
+              )
+            }
+          }
           setLoadingState('idle')
           return
         }
@@ -90,19 +110,23 @@ export default function LoginForm() {
 
       const result = await signIn('email', {
         email: data.email,
-        callbackUrl: '/',
+        callbackUrl: isSignUp ? '/register' : '/',
         redirect: false,
       })
 
       if (result?.error) {
-        setAuthError('An error occurred during sign in. Please try again.')
+        setAuthError(
+          `An error occurred during ${isSignUp ? 'sign up' : 'sign in'}. Please try again.`,
+        )
       } else if (result?.ok === false) {
-        setAuthError('An error occurred during sign in. Please try again.')
+        setAuthError(
+          `An error occurred during ${isSignUp ? 'sign up' : 'sign in'}. Please try again.`,
+        )
       } else {
         setEmailSent(true)
       }
     } catch (error) {
-      console.error('Error sending magic link:', error)
+      console.error(`Error sending magic link:`, error)
       setAuthError('An unexpected error occurred. Please try again.')
     } finally {
       setLoadingState('idle')
@@ -124,8 +148,8 @@ export default function LoginForm() {
         </div>
         <h1 className="text-lg font-bold text-gray-800">Check your email</h1>
         <p className="text-gray-600">
-          We sent you a magic link. Click the link in your email to sign in. This may take a few
-          minutes.
+          We sent you a magic link. Click the link in your email to{' '}
+          {isSignUp ? 'complete your registration' : 'sign in'}. This may take a few minutes.
         </p>
       </div>
     )
@@ -146,8 +170,8 @@ export default function LoginForm() {
         </div>
         <h1 className="text-lg font-bold text-gray-800">Check your email</h1>
         <p className="text-gray-600">
-          We sent you a magic link. Click the link in your email to sign in. This may take a few
-          minutes.
+          We sent you a magic link. Click the link in your email to{' '}
+          {isSignUp ? 'complete your registration' : 'sign in'}. This may take a few minutes.
         </p>
       </div>
     )
@@ -165,7 +189,9 @@ export default function LoginForm() {
           className="translate-y-1"
         />
       </div>
-      <h1 className="pb-6 text-lg font-bold text-gray-800">Sign in to Fanattic Portal</h1>
+      <h1 className="pb-6 text-lg font-bold text-gray-800">
+        {isSignUp ? 'Sign up for Fanattic Portal' : 'Sign in to Fanattic Portal'}
+      </h1>
 
       {authError && (
         <div className="rounded-md bg-yellow-50 p-3">
@@ -180,11 +206,11 @@ export default function LoginForm() {
         </div>
       )}
 
-      <form onSubmit={handleSubmit(handleEmailSignIn)} className="space-y-4">
+      <form onSubmit={handleSubmit(handleEmailAuth)} className="space-y-4">
         <div>
           <Input
             type="email"
-            placeholder="Enter your email"
+            placeholder="Enter your work email"
             {...register('email')}
             className={errors.email ? 'border-red-500' : ''}
           />
@@ -198,11 +224,11 @@ export default function LoginForm() {
         >
           {loadingState === 'email' ? (
             <span className="flex items-center justify-center gap-1">
-              Sending magic link
+              {isSignUp ? 'Sending magic link' : 'Sending magic link'}
               <Icon name="spinner" />
             </span>
           ) : (
-            'Sign in with Email'
+            `${isSignUp ? 'Sign up' : 'Sign in'} with Email`
           )}
         </Button>
       </form>
@@ -221,7 +247,7 @@ export default function LoginForm() {
         variant="outline"
         size="lg"
         className="w-full text-base"
-        onClick={handleGoogleSignIn}
+        onClick={handleGoogleAuth}
         disabled={loadingState !== 'idle'}
       >
         {loadingState === 'google' ? (
@@ -250,16 +276,16 @@ export default function LoginForm() {
               />
               <path d="M1 1h22v22H1z" fill="none" />
             </svg>
-            Sign in with Google
+            {isSignUp ? 'Sign up with Google' : 'Sign in with Google'}
           </>
         )}
       </Button>
 
       <div className="mt-4 text-center">
         <p className="text-sm text-gray-500">
-          Don&apos;t have an account?{' '}
-          <Link href="/register" className="text-blue-600 hover:underline">
-            Register
+          {isSignUp ? 'Already have an account? ' : "Don't have an account? "}
+          <Link href={isSignUp ? '/login' : '/register'} className="text-blue-600 hover:underline">
+            {isSignUp ? 'Sign in' : 'Register'}
           </Link>
         </p>
       </div>

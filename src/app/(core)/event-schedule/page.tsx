@@ -4,7 +4,6 @@ import { Container } from '@/components/ui'
 import { Event, Media } from '@/payload-types'
 import Image from 'next/image'
 import { Badge, Button, Icon, Link } from '@/components/ui'
-import { ArrowUpRightIcon } from 'lucide-react'
 import { formatDate } from '@/utils/formatDate'
 import { calculateUserPoints } from '@/lib/users/points'
 import { getServerSession } from 'next-auth'
@@ -36,7 +35,7 @@ const EventEntry = ({ event, isPastEvent }: { event: Event; isPastEvent?: boolea
               <div className="font-semibold text-gray-800">
                 <Link href={event.location.link ?? ''} target="_blank" className="group flex">
                   {event.location.name}
-                  <ArrowUpRightIcon className="ml-0.5 size-3 opacity-50 transition-all duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:scale-[104%] group-hover:opacity-100" />
+                  <Icon name="arrow-right" className="ml-0.5 size-3 opacity-50 transition-all duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:scale-[104%] group-hover:opacity-100" />
                 </Link>
               </div>
               <div className="whitespace-nowrap">

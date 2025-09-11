@@ -7,7 +7,6 @@ import { ProfileEditButton } from '@/features/profile/ProfileEditButton'
 import { calculateUserPoints } from '@/lib/users/points'
 import { payload } from '@/lib/payloadClient'
 import { User, Ledger, Comment } from '@/payload-types'
-import { ArrowUpRightIcon } from 'lucide-react'
 
 interface PopulatedUser extends User {
   ledgerEntries?: {
@@ -163,7 +162,7 @@ const ProfilePage = async ({ params }: { params: Promise<{ slug: string }> }) =>
                         className="group flex text-sm text-blue-500"
                       >
                         LinkedIn Profile
-                        <ArrowUpRightIcon className="ml-0.5 size-3 opacity-50 transition-all duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:scale-[104%] group-hover:opacity-100" />
+                        <Icon name="arrow-up-right" className="ml-0.5 size-3 opacity-50 transition-all duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:scale-[104%] group-hover:opacity-100" />
                       </a>
                     </div>
                   </div>
@@ -181,7 +180,7 @@ const ProfilePage = async ({ params }: { params: Promise<{ slug: string }> }) =>
                         className="group flex text-sm text-blue-500"
                       >
                         Favorite Interactive Demo
-                        <ArrowUpRightIcon className="ml-0.5 size-3 opacity-50 transition-all duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:scale-[104%] group-hover:opacity-100" />
+                        <Icon name="arrow-up-right" className="ml-0.5 size-3 opacity-50 transition-all duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:scale-[104%] group-hover:opacity-100" />
                       </a>
                     </div>
                   </div>

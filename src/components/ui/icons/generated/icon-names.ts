@@ -172,6 +172,7 @@ export const IconNames = [
   'heading-5',
   'heading-6',
   'help-circle',
+  'home',
   'hotel',
   'house',
   'id-card',

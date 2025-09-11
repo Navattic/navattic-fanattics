@@ -2,8 +2,8 @@
 
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
-import { ChevronRight, Home } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { Icon } from '@/components/ui'
 
 interface BreadcrumbsProps {
   homeLabel?: string
@@ -17,7 +17,7 @@ function Breadcrumbs({
   title,
   homeLabel = 'Home',
   className,
-  separator = <ChevronRight className="h-4 w-4 text-gray-400" />,
+  separator = <Icon name="chevron-right" className="text-gray-400" />,
   transformLabel = (segment) =>
     segment.charAt(0).toUpperCase() + segment.slice(1).replace(/-/g, ' '),
 }: BreadcrumbsProps) {
@@ -36,7 +36,7 @@ function Breadcrumbs({
               href="/"
               className="text-muted-foreground flex items-center transition-colors hover:text-gray-800"
             >
-              <Home className="mr-1 h-4 w-4" />
+              <Icon name="home" className="mr-1" />
               <span className="sr-only">{homeLabel}</span>
             </Link>
           </li>
@@ -72,7 +72,7 @@ function Breadcrumbs({
                   href={breadcrumb.href}
                   className="text-muted-foreground flex items-center transition-colors hover:text-gray-800"
                 >
-                  <Home className="mr-1 h-4 w-4" />
+                  <Icon name="home" className="mr-1" />
                   <span className="sr-only">{breadcrumb.label}</span>
                 </Link>
               ) : isLast ? (
