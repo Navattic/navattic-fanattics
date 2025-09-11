@@ -259,7 +259,7 @@ export function LocationSelector({
         </div>
       )}
 
-      {open && (isSearching || !selectedCity) && (
+      {open && isSearching && searchTerm && (
         <>
           {/* Backdrop */}
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
