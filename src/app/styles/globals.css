@@ -485,7 +485,7 @@
 
 @layer utilities {
   .content-container {
-    @apply w-full border border-gray-100 bg-gradient-to-b from-white to-[#F6F8F9] rounded-2xl shadow-sm;
+    @apply w-full bg-gradient-to-b from-white to-[#F6F8F9] rounded-2xl shadow-sm;
   }
   .shadow-solid-button-active,
   :where(button, a):active .shadow-solid-button-active,

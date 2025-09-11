@@ -14,7 +14,7 @@ export interface DescriptionProps {
   subtitle?: ReactNode
   description?: ReactNode
   iconLeft?: IconName
-  iconColorScheme?: NvColorScheme
+  iconColorScheme?: NvColorScheme | 'gradient'
   tooltip?: TooltipProps['content']
   'data-test-id'?: string
   id?: HTMLLabelElement['id']
@@ -34,6 +34,7 @@ const iconVariants = cva('flex h-10 w-10 shrink-0 items-center justify-center ro
       pink: 'bg-pink-100 text-pink-700',
       red: 'bg-red-100 text-red-700',
       purple: 'bg-purple-100 text-purple-700',
+      gradient: 'border border-gray-100 bg-gradient-to-b from-white to-gray-50 text-gray-700',
     },
   },
 })

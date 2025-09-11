@@ -107,7 +107,7 @@ const ChallengePage = async ({ params }: { params: Promise<{ slug: string }> }) 
       <div className="min-h-screen bg-gray-50">
         <Container className="pt-10">
           <div className="content-container">
-            <div className="space-y-4 border-b border-gray-200 p-8 py-6">
+            <div className="space-y-4 border-b border-gray-200 p-14 py-10">
               <div className="flex items-start justify-between">
                 <div>
                   <h1 className="text-xl font-medium">{challenge.title}</h1>
@@ -139,8 +139,13 @@ const ChallengePage = async ({ params }: { params: Promise<{ slug: string }> }) 
                 </div>
               </div>
             </div>
-            <div className="max-w-prose p-8 pt-6 pb-2 text-base text-gray-600">
-              <RichText data={challenge.content} className="payload-rich-text" />
+            <div className="mx-14">
+              <div className="border-b border-gray-100 pt-10 pb-4 text-lg font-medium text-gray-800">
+                Challenge details
+              </div>
+              <div className="max-w-prose p-8 pb-2 text-base text-gray-800">
+                <RichText data={challenge.content} className="payload-rich-text" />
+              </div>
             </div>
           </div>
           {/* Make comments section dynamic */}

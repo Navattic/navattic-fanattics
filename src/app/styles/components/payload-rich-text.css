@@ -1,6 +1,6 @@
 .payload-rich-text {
   & > img {
-    @apply rounded-xl shadow-sm;
+    @apply mx-auto my-8 rounded-lg shadow-sm;
   }
 
   & > hr {
@@ -32,7 +32,7 @@
   }
 
   & > p {
-    @apply mb-2 text-base leading-relaxed;
+    @apply mb-4 text-base leading-relaxed;
   }
 
   & * > a {

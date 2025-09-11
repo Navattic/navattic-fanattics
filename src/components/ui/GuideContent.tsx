@@ -34,7 +34,7 @@ export const GuideContent = ({ guide }: { guide: Guide }) => {
                     <AccordionTrigger className="!cursor-pointer py-4 pr-6 pl-5 hover:bg-gray-50/50">
                       <Description
                         iconLeft={(info.icon as IconName) ?? undefined}
-                        iconColorScheme="brand"
+                        iconColorScheme="gradient"
                         title={info.title}
                         description={info.description}
                         className="cursor-pointer"
