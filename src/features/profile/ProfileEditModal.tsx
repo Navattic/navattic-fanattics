@@ -62,6 +62,12 @@ type ProfileData = {
   loginMethod: string
 }
 
+// Access the cache from the global scope (set by ProfileEditButton)
+declare global {
+  var profileDataCache: any
+  var profileDataPromise: Promise<any> | null
+}
+
 export function ProfileEditModal({ open, onOpenChange }: ProfileEditModalProps) {
   const router = useRouter()
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
@@ -91,17 +97,30 @@ export function ProfileEditModal({ open, onOpenChange }: ProfileEditModalProps) 
 
   useEffect(() => {
     if (open) {
-      const fetchProfileData = async () => {
+      const loadProfileData = async () => {
         try {
           setIsLoading(true)
           setError(null)
 
-          const response = await fetch('/api/auth/update-profile')
-          if (!response.ok) {
-            throw new Error('Failed to fetch profile data')
-          }
+          let profileData: ProfileData
 
-          const profileData: ProfileData = await response.json()
+          // Check if data is already cached
+          if (globalThis.profileDataCache) {
+            profileData = globalThis.profileDataCache
+            setIsLoading(false) // No loading needed if cached
+          } else if (globalThis.profileDataPromise) {
+            // Data is being fetched, wait for it
+            profileData = await globalThis.profileDataPromise
+            setIsLoading(false)
+          } else {
+            // Fallback: fetch data now
+            const response = await fetch('/api/auth/update-profile')
+            if (!response.ok) {
+              throw new Error('Failed to fetch profile data')
+            }
+            profileData = await response.json()
+            globalThis.profileDataCache = profileData
+          }
 
           form.reset({
             // firstName: profileData.firstName,
@@ -126,7 +145,7 @@ export function ProfileEditModal({ open, onOpenChange }: ProfileEditModalProps) 
         }
       }
 
-      fetchProfileData()
+      loadProfileData()
     }
   }, [open, form])
 
@@ -247,6 +266,10 @@ export function ProfileEditModal({ open, onOpenChange }: ProfileEditModalProps) 
         throw new Error(errorData.error || 'Failed to update profile')
       }
 
+      // Clear the cache so fresh data is fetched next time
+      globalThis.profileDataCache = null
+      globalThis.profileDataPromise = null
+
       onOpenChange(false)
       router.refresh()
     } catch (error) {
@@ -344,7 +367,7 @@ export function ProfileEditModal({ open, onOpenChange }: ProfileEditModalProps) 
             </div>
           </FieldSet>
 
-          {/* Name Fields - COMMENTED OUT */}
+          {/* Name Fields */}
           {/* <div className="flex gap-3">
             <FieldSet
               className="flex-1"
