@@ -57,7 +57,7 @@ export const PageHeader = ({
               side="bottom"
             >
               <span className="flex items-center text-sm font-medium">
-                <div className="flex items-center gap-1 rounded-lg border border-blue-100 bg-blue-50 px-2 py-0.5">
+                <div className="flex items-center gap-1 rounded-lg border border-blue-100 bg-gradient-to-b from-blue-50 to-blue-100 box-shadow-[0px_-1px_1px_0px_hsla(226,88%,22%,0.14)_inset,0px_1px_2px_0px_hsla(204,100%,98%,0.5)_inset] px-2 py-0.5">
                   <Icon name="coins" className="size-4 text-blue-400" />
                   <span className="text-blue-500">{userPoints} points</span>
                 </div>

@@ -84,22 +84,23 @@ export const UserProfilePreviewModal = () => {
                     {user?.bio && <div className="text-sm text-gray-700">{user.bio}</div>}
                     <div className="flex flex-col gap-2">
                       {parsedLocation && (
-                        <div className="flex items-center gap-2 text-sm text-gray-500">
+                        <div className="flex items-center gap-3 text-sm text-gray-500">
                           <Icon name="map-pin" className="size-4 text-gray-400" />
                           <span>{parsedLocation}</span>
                         </div>
                       )}
                       {company?.name && (
-                        <div className="flex items-center gap-2 text-sm text-gray-500">
+                        <div className="flex items-center gap-3 text-sm text-gray-500">
                           <Icon name="building" className="size-4 text-gray-400" />
                           <div className="flex flex-col">
                             <a
                               href={company.website || ''}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-blue-500 hover:underline"
+                              className="group flex text-sm text-blue-500"
                             >
                               {company.name}
+                              <ArrowUpRightIcon className="ml-0.5 size-3 opacity-50 transition-all duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:scale-[104%] group-hover:opacity-100" />
                             </a>
                           </div>
                         </div>
@@ -133,7 +134,7 @@ export const UserProfilePreviewModal = () => {
                         </div>
                       )}
                       {user?.createdAt && (
-                        <div className="flex items-center gap-2 text-sm text-gray-500">
+                        <div className="flex items-center gap-3 text-sm text-gray-500">
                           <Icon name="calendar" className="size-4 text-gray-400" />
                           Joined {formatDate(user.createdAt)}
                         </div>
