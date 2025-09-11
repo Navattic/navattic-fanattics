@@ -1,16 +1,14 @@
 import { payload } from '@/lib/payloadClient'
 import { notFound } from 'next/navigation'
-import { RichText } from '@payloadcms/richtext-lexical/react'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/authOptions'
-import { PageHeader, Container, Badge, Icon } from '@/components/ui'
+import { PageHeader, Container } from '@/components/ui'
 import { Comments } from '@/components/ui/Comments'
-import { formatTimeRemaining } from '@/utils/formatTimeRemaining'
 import { calculateUserPoints } from '@/lib/users/points'
 import { Challenge, Ledger, Comment } from '@/payload-types'
 import { unstable_cache } from 'next/cache'
 import { Suspense } from 'react'
-import { formatDate } from '@/utils/formatDate'
+import { ChallengeDetails } from '@/features/challenges/ChallengeDetails'
 
 interface PopulatedChallenge extends Challenge {
   comments?: Comment[]
@@ -86,12 +84,6 @@ const ChallengePage = async ({ params }: { params: Promise<{ slug: string }> }) 
     comments: commentsResult.docs,
   } as PopulatedChallenge
 
-  // Filter user's ledger entries from the populated data
-  const userChallengeCompletedData =
-    challenge.ledger?.filter(
-      (ledger) => typeof ledger.user_id === 'object' && ledger.user_id?.id === sessionUser?.id,
-    ) || []
-
   if (!sessionUser) {
     return (
       <>
@@ -104,58 +96,24 @@ const ChallengePage = async ({ params }: { params: Promise<{ slug: string }> }) 
   return (
     <>
       <PageHeader userPoints={userPoints} />
-      <div className="min-h-screen bg-gray-50">
-        <Container className="pt-10">
-          <div className="content-container">
-            <div className="space-y-4 border-b border-gray-200 p-14 py-10">
-              <div className="flex items-start justify-between">
-                <div>
-                  <h1 className="text-xl font-medium">{challenge.title}</h1>
-                  <span className="text-sm text-gray-500">
-                    Published {formatDate(challenge.createdAt, { abbreviateMonth: true })}
-                  </span>
-                </div>
-                {userChallengeCompletedData.length > 0 ? (
-                  <Badge colorScheme="green">
-                    <Icon name="award" size="sm" className="mr-1" />
-                    Completed
-                  </Badge>
-                ) : (
-                  ''
-                )}
-              </div>
-              <div className="flex flex-wrap gap-5 text-sm">
-                <Badge size="md" colorScheme="brand">
-                  <Icon name="coins" size="sm" className="mr-1" />
-                  {challenge.points} points
-                </Badge>
-                <div className="flex items-center justify-center gap-1 text-gray-500">
-                  <Icon name="message-square" className="text-gray-400" />
-                  {commentsResult.totalDocs || 0}
-                </div>
-                <div className="flex items-center justify-center gap-1 text-gray-500">
-                  <Icon name="clock" className="text-gray-400" />
-                  {formatTimeRemaining(challenge.deadline)}
-                </div>
-              </div>
-            </div>
-            <div className="mx-14">
-              <div className="border-b border-gray-100 pt-10 pb-4 text-lg font-medium text-gray-800">
-                Challenge details
-              </div>
-              <div className="max-w-prose p-8 pb-2 text-base text-gray-800">
-                <RichText data={challenge.content} className="payload-rich-text" />
-              </div>
-            </div>
-          </div>
-          {/* Make comments section dynamic */}
-          <Suspense fallback={<div>Loading comments...</div>}>
-            <Comments
-              user={sessionUser}
-              challenge={challenge as Challenge & { comments: Comment[] }}
-            />
-          </Suspense>
-        </Container>
+      <div className="min-h-screen">
+        <div className="border-b border-gray-200 bg-white">
+          <ChallengeDetails
+            challenge={challenge}
+            sessionUser={sessionUser}
+            commentsResult={commentsResult}
+          />
+        </div>
+        <div className="bg-gray-50">
+          <Container className="pt-10">
+            <Suspense fallback={<div>Loading comments...</div>}>
+              <Comments
+                user={sessionUser}
+                challenge={challenge as Challenge & { comments: Comment[] }}
+              />
+            </Suspense>
+          </Container>
+        </div>
       </div>
     </>
   )
