@@ -40,9 +40,9 @@ export function CommentEditForm({
   }
 
   return (
-    <form className="w-full flex flex-col gap-3" onSubmit={handleSubmit}>
+    <form className="flex w-full flex-col gap-3" onSubmit={handleSubmit}>
       <textarea
-        className="w-full bg-white border rounded-lg p-3 h-24 resize-none"
+        className="h-24 w-full resize-none rounded-lg border bg-white p-3"
         value={content}
         onChange={(e) => setContent(e.target.value)}
         disabled={isSubmitting}
@@ -65,7 +65,7 @@ export function CommentEditForm({
           size="sm"
           disabled={!content.trim() || isSubmitting}
         >
-          Save Changes
+          Save changes
         </Button>
       </div>
     </form>

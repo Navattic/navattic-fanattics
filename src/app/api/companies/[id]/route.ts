@@ -3,7 +3,7 @@ import { authOptions } from '@/lib/authOptions'
 import { NextResponse } from 'next/server'
 import { payload } from '@/lib/payloadClient'
 
-export async function GET({ params }: any) {
+export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getServerSession(authOptions)
 
@@ -11,7 +11,7 @@ export async function GET({ params }: any) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const companyId = params.id
+    const { id: companyId } = await params
 
     if (!companyId) {
       return NextResponse.json({ error: 'Company ID is required' }, { status: 400 })

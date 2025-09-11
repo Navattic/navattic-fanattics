@@ -14,8 +14,8 @@ import { LocationSelector } from '@/components/ui/LocationSelector'
 import { useRouter } from 'next/navigation'
 
 const formSchema = z.object({
-  firstName: z.string().min(2, 'First name must be at least 2 characters').max(30),
-  lastName: z.string().min(2, 'Last name must be at least 2 characters').max(30),
+  // firstName: z.string().min(2, 'First name must be at least 2 characters').max(30),
+  // lastName: z.string().min(2, 'Last name must be at least 2 characters').max(30),
   email: z.string().email('Please enter a valid email address'),
   avatar: z.instanceof(File).optional(),
   bio: z.string().max(500).optional(),
@@ -49,8 +49,8 @@ type ProfileEditModalProps = {
 }
 
 type ProfileData = {
-  firstName: string
-  lastName: string
+  // firstName: string
+  // lastName: string
   email: string
   bio: string
   company?: number
@@ -77,8 +77,8 @@ export function ProfileEditModal({ open, onOpenChange }: ProfileEditModalProps) 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      firstName: '',
-      lastName: '',
+      // firstName: '',
+      // lastName: '',
       email: '',
       avatar: undefined,
       bio: '',
@@ -104,8 +104,8 @@ export function ProfileEditModal({ open, onOpenChange }: ProfileEditModalProps) 
           const profileData: ProfileData = await response.json()
 
           form.reset({
-            firstName: profileData.firstName,
-            lastName: profileData.lastName,
+            // firstName: profileData.firstName,
+            // lastName: profileData.lastName,
             email: profileData.email,
             bio: profileData.bio,
             company: profileData.company,
@@ -230,8 +230,8 @@ export function ProfileEditModal({ open, onOpenChange }: ProfileEditModalProps) 
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          firstName: values.firstName,
-          lastName: values.lastName,
+          // firstName: values.firstName,
+          // lastName: values.lastName,
           email: values.email,
           bio: values.bio,
           company: values.company,
@@ -344,8 +344,8 @@ export function ProfileEditModal({ open, onOpenChange }: ProfileEditModalProps) 
             </div>
           </FieldSet>
 
-          {/* Name Fields */}
-          <div className="flex gap-3">
+          {/* Name Fields - COMMENTED OUT */}
+          {/* <div className="flex gap-3">
             <FieldSet
               className="flex-1"
               label="First Name"
@@ -363,7 +363,7 @@ export function ProfileEditModal({ open, onOpenChange }: ProfileEditModalProps) 
             >
               <Input {...form.register('lastName')} placeholder="ex: Doe" />
             </FieldSet>
-          </div>
+          </div> */}
 
           {/* Email Field */}
           <FieldSet
@@ -456,7 +456,7 @@ export function ProfileEditModal({ open, onOpenChange }: ProfileEditModalProps) 
             Saving <Icon name="spinner" />
           </>
         ) : (
-          'Save Changes'
+          'Save changes'
         ),
         disabled: isSubmitting || isLoading,
         onClick: form.handleSubmit(onSubmit),
@@ -466,6 +466,7 @@ export function ProfileEditModal({ open, onOpenChange }: ProfileEditModalProps) 
         onClick: () => onOpenChange(false),
       }}
       bodyClassName="max-h-[70vh]"
+      showCloseButton={false}
     >
       {modalContent}
     </Modal>

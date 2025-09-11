@@ -146,7 +146,7 @@ export const ModalCloseButton = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof ModalPrimitive.Close>
 >(({ className, ...props }, ref) => (
   <ModalClose ref={ref} asChild className={cn(className)} {...props}>
-    <Button variant="ghost" aria-label="Close button">
+    <Button className="absolute top-2 right-2 bg-red-500" variant="ghost" aria-label="Close button">
       <Icon name="x" size="sm" />
     </Button>
   </ModalClose>
@@ -190,7 +190,7 @@ export const ModalContent = React.forwardRef<
           className={cn(modalContentVariants({ isFullScreen }), className)}
           {...props}
         >
-          {showCloseButton && <ModalCloseButton className="absolute top-4 right-4" />}
+          {showCloseButton && <ModalCloseButton className="absolute top-2 right-2" />}
           {children}
         </ModalPrimitive.Content>
       </ModalOverlay>
