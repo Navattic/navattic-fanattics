@@ -26,13 +26,13 @@ const GuideAndRules = async () => {
       <>
         <PageHeader userPoints={0} noUser={true} />
         <div className="min-h-screen bg-gray-50">
-          <Container>
+          <Container className="grid h-screen place-items-center">
             <Empty
-              title="Welcome!"
+              title="Welcome to the Fanattic Portal"
               description="Please sign in or create an account to view the portal."
               iconName="user"
               button={
-                <Button href="/login" size="md">
+                <Button href="/login" size="md" className="mt-3">
                   Sign in
                 </Button>
               }

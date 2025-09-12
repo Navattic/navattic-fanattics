@@ -82,7 +82,7 @@ const Challenges = async () => {
           <div className="min-h-screen bg-gray-50">
             <Container>
               <Empty
-                title="Welcome!"
+                title="Welcome to the Fanattic Portal"
                 description="Please sign in or create an account to view the portal."
                 iconName="user"
                 button={
