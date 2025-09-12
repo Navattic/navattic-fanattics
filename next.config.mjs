@@ -35,6 +35,19 @@ const nextConfig = {
     ],
     domains: ['cdn.brandfetch.io', 'www.google.com'],
   },
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'X-Robots-Tag',
+            value: 'noindex, nofollow, noarchive, nosnippet, noimageindex',
+          },
+        ],
+      },
+    ]
+  },
 }
 
 export default withPayload(nextConfig)
