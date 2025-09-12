@@ -77,7 +77,12 @@ export const ChallengeDetails = ({
             <h1 className="max-w-xl text-center text-2xl font-medium text-balance">
               {challenge.title}
             </h1>
-            <span className="text-sm text-gray-500">
+            {challenge.description && (
+              <h6 className="text-center text-base text-balance text-gray-700">
+                {challenge.description}
+              </h6>
+            )}
+            <span className="text-xs text-gray-500">
               Published {formatDate(challenge.createdAt, { abbreviateMonth: true })}
             </span>
           </div>
@@ -131,7 +136,7 @@ export const ChallengeDetails = ({
         </div>
       </div>
 
-      <div className="mx-auto mt-10 max-w-3xl border-t border-b border-gray-100 pt-10 pb-4">
+      <div className="mx-auto my-10 max-w-3xl border-t border-b border-gray-100 py-10 pb-4">
         <div className="pb-4 text-lg font-medium text-gray-800">Challenge details</div>
         <div className="text-base text-gray-800">
           <RichText data={challenge.content} className="payload-rich-text" />
