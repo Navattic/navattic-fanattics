@@ -89,7 +89,7 @@ const ChallengePage = async ({ params }: { params: Promise<{ slug: string }> }) 
       <>
         <PageHeader userPoints={0} noUser={true} />
         <div className="min-h-screen bg-gray-50">
-          <Container className="grid h-screen place-items-center">
+          <Container className="grid place-items-center">
             <Empty
               title="Welcome to the Fanattic Portal"
               description="Please sign in or create an account to view the portal."
