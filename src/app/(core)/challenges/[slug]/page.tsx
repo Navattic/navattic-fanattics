@@ -97,7 +97,7 @@ const ChallengePage = async ({ params }: { params: Promise<{ slug: string }> }) 
     <>
       <PageHeader userPoints={userPoints} />
       <div className="min-h-screen">
-        <div className="border-b border-gray-200 bg-white">
+        <div className="border-b border-gray-200">
           <ChallengeDetails
             challenge={challenge}
             sessionUser={sessionUser}
@@ -105,7 +105,7 @@ const ChallengePage = async ({ params }: { params: Promise<{ slug: string }> }) 
           />
         </div>
         <div className="bg-gray-50">
-          <Container className="pt-10">
+          <Container className="py-10">
             <Suspense fallback={<div>Loading comments...</div>}>
               <Comments
                 user={sessionUser}
