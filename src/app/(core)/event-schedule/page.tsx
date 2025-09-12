@@ -35,7 +35,10 @@ const EventEntry = ({ event, isPastEvent }: { event: Event; isPastEvent?: boolea
               <div className="font-semibold text-gray-800">
                 <Link href={event.location.link ?? ''} target="_blank" className="group flex">
                   {event.location.name}
-                  <Icon name="arrow-right" className="ml-0.5 size-3 opacity-50 transition-all duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:scale-[104%] group-hover:opacity-100" />
+                  <Icon
+                    name="arrow-right"
+                    className="ml-0.5 size-3 opacity-50 transition-all duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:scale-[104%] group-hover:opacity-100"
+                  />
                 </Link>
               </div>
               <div className="whitespace-nowrap">
@@ -118,6 +121,28 @@ const EventSchedule = async () => {
   ).docs[0]
 
   const userPoints = await calculateUserPoints({ user: sessionUser })
+
+  if (!session || !sessionUser) {
+    return (
+      <>
+        <PageHeader userPoints={0} noUser={true} />
+        <div className="min-h-screen bg-gray-50">
+          <Container>
+            <Empty
+              title="Welcome!"
+              description="Please sign in or create an account to view the portal."
+              iconName="user"
+              button={
+                <Button href="/login" size="md">
+                  Sign in
+                </Button>
+              }
+            />
+          </Container>
+        </div>
+      </>
+    )
+  }
 
   return (
     <>

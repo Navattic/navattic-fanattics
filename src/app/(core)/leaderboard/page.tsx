@@ -90,6 +90,28 @@ const Leaderboard = async () => {
       })
     : 0
 
+  if (!session) {
+    return (
+      <>
+        <PageHeader userPoints={0} noUser={true} />
+        <div className="min-h-screen bg-gray-50">
+          <Container>
+            <Empty
+              title="Welcome!"
+              description="Please sign in or create an account to view the portal."
+              iconName="user"
+              button={
+                <Button href="/login" size="md">
+                  Sign in
+                </Button>
+              }
+            />
+          </Container>
+        </div>
+      </>
+    )
+  }
+
   return (
     <>
       <PageHeader userPoints={currentUserPoints} />

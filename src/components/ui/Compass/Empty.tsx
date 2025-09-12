@@ -5,10 +5,12 @@ export const Empty = ({
   title,
   description,
   iconName,
+  button,
 }: {
   iconName?: string
   title?: string
   description?: string
+  button?: React.ReactNode
 }) => {
   return (
     <div className="flex h-full min-h-[225px] flex-col items-center justify-center rounded-2xl border border-gray-200 bg-gradient-to-br from-white to-gray-50 p-8 py-10">
@@ -31,6 +33,7 @@ export const Empty = ({
         <p className="text-md text-center font-medium text-gray-800">{title ?? 'No results'}</p>
         {description && <p className="text-center text-sm text-gray-400">{description}</p>}
       </div>
+      {button && button}
     </div>
   )
 }

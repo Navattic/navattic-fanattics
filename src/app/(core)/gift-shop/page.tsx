@@ -1,5 +1,5 @@
 import { payload } from '@/lib/payloadClient'
-import { PageHeader, Container, PageTitle, GiftShopGrid, Empty } from '@/components/ui'
+import { PageHeader, Container, PageTitle, GiftShopGrid, Empty, Button } from '@/components/ui'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/authOptions'
 import { calculateUserPoints } from '@/lib/users/points'
@@ -33,6 +33,28 @@ const GiftShop = async () => {
   ).docs[0]
 
   const userPoints = await calculateUserPoints({ user: sessionUser })
+
+  if (!session || !sessionUser) {
+    return (
+      <>
+        <PageHeader userPoints={0} noUser={true} />
+        <div className="min-h-screen bg-gray-50">
+          <Container>
+            <Empty
+              title="Welcome!"
+              description="Please sign in or create an account to view the portal."
+              iconName="user"
+              button={
+                <Button href="/login" size="md">
+                  Sign in
+                </Button>
+              }
+            />
+          </Container>
+        </div>
+      </>
+    )
+  }
 
   return (
     <>

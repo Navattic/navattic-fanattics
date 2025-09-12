@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/authOptions'
-import { Container, Avatar, PageHeader, Icon, UserEmail, Bio } from '@/components/ui'
+import { Container, Avatar, PageHeader, Icon, UserEmail, Bio, Button, Empty } from '@/components/ui'
 import { Statistics } from '@/features/profile/Statistics'
 import { ProfileEditButton } from '@/features/profile/ProfileEditButton'
 import { calculateUserPoints } from '@/lib/users/points'
@@ -27,9 +27,23 @@ const ProfilePage = async ({ params }: { params: Promise<{ slug: string }> }) =>
 
   if (!session) {
     return (
-      <div className="mx-auto mt-20 text-center">
-        <h1 className="text-xl font-medium">Please sign in to view profile</h1>
-      </div>
+      <>
+        <PageHeader userPoints={0} noUser={true} />
+        <div className="min-h-screen bg-gray-50">
+          <Container>
+            <Empty
+              title="Welcome!"
+              description="Please sign in or create an account to view the portal."
+              iconName="user"
+              button={
+                <Button href="/login" size="md">
+                  Sign in
+                </Button>
+              }
+            />
+          </Container>
+        </div>
+      </>
     )
   }
 
@@ -162,7 +176,10 @@ const ProfilePage = async ({ params }: { params: Promise<{ slug: string }> }) =>
                         className="group flex text-sm text-blue-500"
                       >
                         LinkedIn Profile
-                        <Icon name="arrow-up-right" className="ml-0.5 size-3 opacity-50 transition-all duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:scale-[104%] group-hover:opacity-100" />
+                        <Icon
+                          name="arrow-up-right"
+                          className="ml-0.5 size-3 opacity-50 transition-all duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:scale-[104%] group-hover:opacity-100"
+                        />
                       </a>
                     </div>
                   </div>
@@ -180,7 +197,10 @@ const ProfilePage = async ({ params }: { params: Promise<{ slug: string }> }) =>
                         className="group flex text-sm text-blue-500"
                       >
                         Favorite Interactive Demo
-                        <Icon name="arrow-up-right" className="ml-0.5 size-3 opacity-50 transition-all duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:scale-[104%] group-hover:opacity-100" />
+                        <Icon
+                          name="arrow-up-right"
+                          className="ml-0.5 size-3 opacity-50 transition-all duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:scale-[104%] group-hover:opacity-100"
+                        />
                       </a>
                     </div>
                   </div>
