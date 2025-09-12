@@ -1,6 +1,6 @@
 .payload-rich-text {
   & > img {
-    @apply mx-auto my-8 rounded-lg shadow-sm;
+    @apply mx-auto my-8 rounded-lg shadow-sm max-w-lg;
   }
 
   & > hr {

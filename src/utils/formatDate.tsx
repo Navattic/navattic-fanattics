@@ -35,6 +35,7 @@ export function formatDate(
       includeDay: true,
       includeYear: true,
       includeTime: false,
+      includeMonth: true,
       abbreviateMonth: false,
       ...options,
     }

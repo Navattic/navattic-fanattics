@@ -140,8 +140,8 @@ export default function LoginForm({ mode = 'signin' }: LoginFormProps) {
           <Image
             src="/logos/navattic-shadow.png"
             alt="Navattic Logo"
-            width={40}
-            height={40}
+            width={80}
+            height={80}
             priority
             className="translate-y-1"
           />

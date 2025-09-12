@@ -39,7 +39,7 @@ const getChallengeData = unstable_cache(
     }
   },
   ['challenge-data'],
-  { revalidate: 3600 }, // 1 hour for challenge data
+  { revalidate: 300 }, // 5 minutes for challenge data
 )
 
 // Add this export to force dynamic rendering
@@ -101,7 +101,7 @@ const ChallengePage = async ({ params }: { params: Promise<{ slug: string }> }) 
           <ChallengeDetails
             challenge={challenge}
             sessionUser={sessionUser}
-            commentsResult={commentsResult}
+            // commentsResult={commentsResult}
           />
         </div>
         <div className="bg-gray-50">
