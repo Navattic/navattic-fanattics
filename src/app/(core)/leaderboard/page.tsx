@@ -1,5 +1,5 @@
 import { payload } from '@/lib/payloadClient'
-import { PageHeader, Container, PageTitle, Button, Icon } from '@/components/ui'
+import { PageHeader, Container, PageTitle, Button, Icon, Empty } from '@/components/ui'
 import { PodiumCard } from '@/components/ui/Leaderboard/PodiumCard'
 import { LeaderboardTable } from '@/components/ui/Leaderboard/LeaderboardTable'
 import { User, Ledger, Comment } from '@/payload-types'
@@ -104,8 +104,8 @@ const Leaderboard = async () => {
               </Button>
             }
           />
-          <div className="grid grid-cols-3 gap-4">
-            {sortedUsers.length > 0 && (
+          {sortedUsers.length > 0 ? (
+            <div className="grid grid-cols-3 gap-4">
               <>
                 <PodiumCard
                   user={sortedUsers[0].user}
@@ -130,9 +130,15 @@ const Leaderboard = async () => {
                   />
                 )}
               </>
-            )}
-          </div>
-          <LeaderboardTable users={sortedUsers} />
+            </div>
+          ) : (
+            <Empty
+              title="No users found"
+              description="Check back soon for updates."
+              iconName="award"
+            />
+          )}
+          {sortedUsers.length > 0 && <LeaderboardTable users={sortedUsers} />}
         </Container>
       </div>
     </>

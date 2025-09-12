@@ -36,7 +36,7 @@ const GuideAndRules = async () => {
             <GuideContent guide={guide} />
           ) : (
             <Empty
-              title="No rules and guide uploaded yet"
+              title="We haven't added any guide content yet"
               description="Check back soon for updates."
               iconName="book-open"
             />

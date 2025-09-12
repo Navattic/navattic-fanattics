@@ -1,5 +1,5 @@
 import { payload } from '@/lib/payloadClient'
-import { PageHeader, Container, PageTitle, GiftShopGrid } from '@/components/ui'
+import { PageHeader, Container, PageTitle, GiftShopGrid, Empty } from '@/components/ui'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/authOptions'
 import { calculateUserPoints } from '@/lib/users/points'
@@ -43,8 +43,14 @@ const GiftShop = async () => {
             title="Gift Shop"
             description="Redeem your points with offerings from our gift shop!"
           />
-          {products && (
+          {products ? (
             <GiftShopGrid products={products} user={sessionUser} userPoints={userPoints} />
+          ) : (
+            <Empty
+              title="No gift shop items yet"
+              description="Check back soon for updates."
+              iconName="gift"
+            />
           )}
         </Container>
       </div>

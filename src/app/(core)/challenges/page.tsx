@@ -97,7 +97,7 @@ const Challenges = async () => {
               />
             ) : (
               <Empty
-                title="No upcoming challenges!"
+                title="No upcoming challenges yet"
                 description="Check back soon for updates."
                 iconName="award"
               />
