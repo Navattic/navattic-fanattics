@@ -40,16 +40,18 @@ const GiftShop = async () => {
         <PageHeader userPoints={0} noUser={true} />
         <div className="min-h-screen bg-gray-50">
           <Container className="grid place-items-center">
-            <Empty
-              title="Welcome to the Fanattic Portal"
-              description="Please sign in or create an account to view the portal."
-              iconName="user"
-              button={
-                <Button href="/login" size="md" className="mt-3">
-                  Sign in
-                </Button>
-              }
-            />
+            <div className="py-20">
+              <Empty
+                title="Welcome to the Fanattic Portal"
+                description="Please sign in or create an account to view the portal."
+                iconName="user"
+                button={
+                  <Button href="/login" size="md" className="mt-3">
+                    Sign in
+                  </Button>
+                }
+              />
+            </div>
           </Container>
         </div>
       </>
