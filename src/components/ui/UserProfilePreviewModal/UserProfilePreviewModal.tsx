@@ -93,13 +93,20 @@ export const UserProfilePreviewModal = () => {
                           <Icon name="building" className="size-4 text-gray-400" />
                           <div className="flex flex-col">
                             <a
-                              href={company.website || ''}
+                              href={
+                                company.website?.startsWith('http')
+                                  ? company.website
+                                  : `https://${company.website}`
+                              }
                               target="_blank"
                               rel="noopener noreferrer"
                               className="group flex text-sm text-blue-500"
                             >
                               {company.name}
-                              <Icon name="arrow-up-right" className="ml-0.5 size-3 opacity-50 transition-all duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:scale-[104%] group-hover:opacity-100" />
+                              <Icon
+                                name="arrow-up-right"
+                                className="ml-0.5 size-3 opacity-50 transition-all duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:scale-[104%] group-hover:opacity-100"
+                              />
                             </a>
                           </div>
                         </div>
@@ -114,7 +121,10 @@ export const UserProfilePreviewModal = () => {
                             className="group flex text-sm text-blue-500"
                           >
                             LinkedIn Profile
-                            <Icon name="arrow-up-right" className="ml-0.5 size-3 opacity-50 transition-all duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:scale-[104%] group-hover:opacity-100" />
+                            <Icon
+                              name="arrow-up-right"
+                              className="ml-0.5 size-3 opacity-50 transition-all duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:scale-[104%] group-hover:opacity-100"
+                            />
                           </a>
                         </div>
                       )}
@@ -128,7 +138,10 @@ export const UserProfilePreviewModal = () => {
                             className="group flex text-sm text-blue-500"
                           >
                             Favorite Interactive Demo
-                            <Icon name="arrow-up-right" className="ml-0.5 size-3 opacity-50 transition-all duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:scale-[104%] group-hover:opacity-100" />
+                            <Icon
+                              name="arrow-up-right"
+                              className="ml-0.5 size-3 opacity-50 transition-all duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:scale-[104%] group-hover:opacity-100"
+                            />
                           </a>
                         </div>
                       )}
