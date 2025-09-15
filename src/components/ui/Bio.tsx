@@ -20,9 +20,9 @@ export const Bio = ({ user }: { user: User }) => {
         <div className="flex items-center gap-4 text-gray-500">
           <Icon name="building" className="size-4 text-gray-400" />
           {user.company.website ? (
-            <Link href={user.company.website} className="text-sm">
+            <a href={user.company.website.startsWith('http') ? user.company.website : `https://${user.company.website}`} className="text-sm">
               {user.company.name}
-            </Link>
+            </a>
           ) : (
             <div className="text-sm">{user.company.name}</div>
           )}
