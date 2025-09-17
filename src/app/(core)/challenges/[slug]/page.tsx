@@ -18,6 +18,18 @@ interface PopulatedChallenge extends Challenge {
 // Cache only the challenge data (not comments)
 const getChallengeData = unstable_cache(
   async (slug: string) => {
+    // First, get only the IDs and deadlines to determine the order
+    const allChallengesResult = await payload.find({
+      collection: 'challenges',
+      sort: '-deadline', // Same order as challenges page
+      limit: 1000, // Get all challenges
+      select: {
+        id: true,
+        deadline: true,
+      },
+    })
+
+    // Find the specific challenge
     const challengeResult = await payload.find({
       collection: 'challenges',
       where: { slug: { equals: slug } },
@@ -31,11 +43,18 @@ const getChallengeData = unstable_cache(
     })
 
     if (challengeResult.totalDocs === 0) {
-      return { challenge: null }
+      return { challenge: null, challengeNumber: null }
     }
+
+    // Find the challenge number based on order
+    const challengeIndex = allChallengesResult.docs.findIndex(
+      (challenge) => challenge.id === challengeResult.docs[0].id,
+    )
+    const challengeNumber = challengeIndex + 1
 
     return {
       challenge: challengeResult.docs[0],
+      challengeNumber,
     }
   },
   ['challenge-data'],
@@ -116,6 +135,7 @@ const ChallengePage = async ({ params }: { params: Promise<{ slug: string }> }) 
           <ChallengeDetails
             challenge={challenge}
             sessionUser={sessionUser}
+            challengeNumber={challengeData.challengeNumber}
             // commentsResult={commentsResult}
           />
         </div>

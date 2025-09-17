@@ -11,10 +11,12 @@ import { RichText } from '@payloadcms/richtext-lexical/react'
 export const ChallengeDetails = ({
   challenge,
   sessionUser,
+  challengeNumber,
   // commentsResult,
 }: {
   challenge: Challenge
   sessionUser: User
+  challengeNumber?: number
   // commentsResult: PaginatedDocs<Comment>
 }) => {
   // Filter user's ledger entries from the populated data
@@ -65,7 +67,7 @@ export const ChallengeDetails = ({
           <div className="flex flex-col items-center gap-4">
             <div className="flex items-center gap-2">
               <Badge size="md" colorScheme="brand">
-                Challenge #1
+                Challenge #{challengeNumber || '?'}
               </Badge>
               {userChallengeCompletedData.length > 0 && (
                 <Badge colorScheme="green">
