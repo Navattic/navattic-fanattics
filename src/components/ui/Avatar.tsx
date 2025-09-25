@@ -1,4 +1,4 @@
-import type { User, Avatar as AvatarType } from '@/payload-types'
+import type { User, Avatar as AvatarType, Media } from '@/payload-types'
 import Image from 'next/image'
 import { cn } from '@/lib/utils'
 import clsx from 'clsx'
@@ -50,7 +50,7 @@ export const Avatar = ({
 
   const company = typeof user?.company === 'object' ? user.company : null
   const logoSrc = typeof company?.logoSrc === 'object' ? company.logoSrc : null
-  const companyLogoSrc = logoSrc?.defaultUrl
+  const companyLogoSrc = logoSrc?.defaultUrl ?? (logoSrc?.uploadedLogo as Media)?.url ?? null
 
   return (
     <div

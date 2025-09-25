@@ -1,4 +1,7 @@
 import type { CollectionConfig } from 'payload'
+import { Resend } from 'resend'
+
+const resend = new Resend(process.env.RESEND_API_KEY)
 
 export const Comments: CollectionConfig = {
   slug: 'comments',
@@ -26,6 +29,136 @@ export const Comments: CollectionConfig = {
             parent: null, // TODO: verify that this doesn't break the parent-child relationship and that comments still render if the parent user is deleted
           },
         })
+      },
+    ],
+    afterChange: [
+      async ({ doc, operation }) => {
+        // Only send notification for new comment creation
+        if (operation === 'create') {
+          try {
+            // Check if relationships are already populated or just IDs
+            let user, challenge, parentComment
+
+            if (typeof doc.user === 'object' && doc.user !== null) {
+              // User is already populated
+              user = doc.user
+            } else {
+              // User is just an ID, fetch the full user
+              const payload = await import('@/lib/payloadClient').then((m) => m.payload)
+              user = await payload.findByID({
+                collection: 'users',
+                id: doc.user,
+                depth: 1,
+              })
+            }
+
+            if (typeof doc.challenge === 'object' && doc.challenge !== null) {
+              // Challenge is already populated
+              challenge = doc.challenge
+            } else {
+              // Challenge is just an ID, fetch the full challenge
+              const payload = await import('@/lib/payloadClient').then((m) => m.payload)
+              challenge = await payload.findByID({
+                collection: 'challenges',
+                id: doc.challenge,
+                depth: 1,
+              })
+            }
+
+            // If there's a parent comment, fetch it
+            if (doc.parent) {
+              if (typeof doc.parent === 'object' && doc.parent !== null) {
+                // Parent comment is already populated
+                parentComment = doc.parent
+              } else {
+                // Parent comment is just an ID, fetch the full comment
+                const payload = await import('@/lib/payloadClient').then((m) => m.payload)
+                parentComment = await payload.findByID({
+                  collection: 'comments',
+                  id: doc.parent,
+                  depth: 1,
+                })
+              }
+            }
+
+            const { data, error } = await resend.emails.send({
+              from:
+                process.env.NODE_ENV === 'production'
+                  ? 'Fanattic Portal <noreply@mail.navattic.com>'
+                  : 'Fanattic Portal <noreply@mail.navattic.dev>',
+              to: ['fanattic@navattic.com'],
+              subject: 'New Comment Posted - Fanattic Portal',
+              html: `
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                  <h2 style="color: #333; border-bottom: 2px solid #007bff; padding-bottom: 10px;">
+                    New Comment Posted
+                  </h2>
+                  
+                  <p>A new comment has been posted on the Fanattic Portal:</p>
+                  
+                  <div style="background-color: #e8f4fd; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                    <h3 style="color: #333; margin-top: 0;">Commenter Information</h3>
+                    <p><strong>Name:</strong> ${user.firstName || ''} ${user.lastName || ''}</p>
+                    <p><strong>Email:</strong> ${user.email}</p>
+                    <p><strong>Title:</strong> ${user.title || 'Not specified'}</p>
+                    <p><strong>Company:</strong> ${user.company || 'Not specified'}</p>
+                    <p><strong>Location:</strong> ${user.location || 'Not specified'}</p>
+                  </div>
+
+                  <div style="background-color: #f0f8e8; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                    <h3 style="color: #333; margin-top: 0;">Challenge Information</h3>
+                    <p><strong>Challenge:</strong> ${challenge.title}</p>
+                    <p><strong>Description:</strong> ${challenge.description}</p>
+                    <p><strong>Points:</strong> ${challenge.points}</p>
+                    <p><strong>Deadline:</strong> ${new Date(challenge.deadline).toLocaleDateString()}</p>
+                  </div>
+
+                  <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                    <h3 style="color: #333; margin-top: 0;">Comment Details</h3>
+                    <p><strong>Comment ID:</strong> ${doc.id}</p>
+                    <p><strong>Status:</strong> ${doc.status}</p>
+                    <p><strong>Posted:</strong> ${new Date().toLocaleString()}</p>
+                    <p><strong>Type:</strong> ${doc.parent ? 'Reply' : 'Top-level Comment'}</p>
+                  </div>
+
+                  <div style="background-color: #fff3cd; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                    <h3 style="color: #333; margin-top: 0;">Comment Content</h3>
+                    <div style="background-color: white; padding: 15px; border-left: 4px solid #007bff; margin: 10px 0;">
+                      ${doc.content}
+                    </div>
+                  </div>
+
+                  ${
+                    parentComment
+                      ? `
+                  <div style="background-color: #f8d7da; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                    <h3 style="color: #333; margin-top: 0;">Parent Comment</h3>
+                    <p><strong>Parent Comment ID:</strong> ${parentComment.id}</p>
+                    <p><strong>Parent Commenter:</strong> ${parentComment.user?.firstName || ''} ${parentComment.user?.lastName || ''}</p>
+                    <div style="background-color: white; padding: 15px; border-left: 4px solid #dc3545; margin: 10px 0;">
+                      ${parentComment.content}
+                    </div>
+                  </div>
+                  `
+                      : ''
+                  }
+
+                  <p style="color: #666; font-size: 14px;">
+                    This notification was automatically sent when a new comment was posted on the Fanattic Portal.
+                  </p>
+                </div>
+              `,
+            })
+
+            if (error) {
+              console.error('Error sending comment notification email:', error)
+            } else {
+              console.log('Comment notification email sent successfully:', data)
+            }
+          } catch (error) {
+            console.error('Failed to send comment notification email:', error)
+          }
+        }
       },
     ],
   },

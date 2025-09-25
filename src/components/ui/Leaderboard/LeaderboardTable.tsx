@@ -38,50 +38,52 @@ export const LeaderboardTable = ({ users }: { users: UserWithStats[] }) => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {users.map((userWithStats, index) => (
-            <TableRow className="bg-gray-50" key={userWithStats.user.id}>
-              <TableCell className="px-4 text-base">
-                <span
+          {users.map((userWithStats, index) => {
+            return (
+              <TableRow className="bg-gray-50" key={userWithStats.user.id}>
+                <TableCell className="px-4 text-base">
+                  <span
+                    className={cn(
+                      'inline-flex w-12 items-center justify-center gap-1 rounded-full px-2 py-1 text-sm',
+                      index === 0 && 'inset-shadow bg-yellow-100 text-yellow-700',
+                      index === 1 && 'inset-shadow bg-purple-50/50 text-purple-500',
+                      index === 2 && 'inset-shadow bg-orange-100/70 text-orange-600',
+                    )}
+                  >
+                    {index <= 2 && <Icon name="award" size="sm" />}
+                    {index + 1}
+                  </span>
+                </TableCell>
+                <TableCell className="px-4 font-medium capitalize">
+                  <OpenProfileDrawer
+                    user={userWithStats.user}
+                    className="group flex items-center gap-2 text-sm"
+                  >
+                    <Avatar user={userWithStats.user} size="md" showCompany={true} />
+                    <div className="ml-1 cursor-pointer hover:underline">
+                      {userWithStats.user.firstName} {userWithStats.user.lastName}{' '}
+                    </div>
+                  </OpenProfileDrawer>
+                </TableCell>
+                <TableCell
                   className={cn(
-                    'inline-flex w-12 items-center justify-center gap-1 rounded-full px-2 py-1 text-sm',
-                    index === 0 && 'inset-shadow bg-yellow-100 text-yellow-700',
-                    index === 1 && 'inset-shadow bg-purple-50/50 text-purple-500',
-                    index === 2 && 'inset-shadow bg-orange-100/70 text-orange-600',
+                    'px-4 text-sm',
+                    userWithStats.challengesCompleted > 0 ? 'text-gray-800' : 'text-gray-400',
                   )}
                 >
-                  {index <= 2 && <Icon name="award" size="sm" />}
-                  {index + 1}
-                </span>
-              </TableCell>
-              <TableCell className="px-4 font-medium capitalize">
-                <OpenProfileDrawer
-                  user={userWithStats.user}
-                  className="group flex items-center gap-2 text-sm"
+                  {userWithStats.challengesCompleted > 0 ? userWithStats.challengesCompleted : '-'}
+                </TableCell>
+                <TableCell
+                  className={cn(
+                    'px-4 text-right text-sm',
+                    userWithStats.points > 0 ? 'text-gray-800' : 'text-gray-400',
+                  )}
                 >
-                  <Avatar user={userWithStats.user} size="md" showCompany={true} />
-                  <div className="ml-1 cursor-pointer hover:underline">
-                    {userWithStats.user.firstName} {userWithStats.user.lastName}
-                  </div>
-                </OpenProfileDrawer>
-              </TableCell>
-              <TableCell
-                className={cn(
-                  'px-4 text-sm',
-                  userWithStats.challengesCompleted > 0 ? 'text-gray-800' : 'text-gray-400',
-                )}
-              >
-                {userWithStats.challengesCompleted > 0 ? userWithStats.challengesCompleted : '-'}
-              </TableCell>
-              <TableCell
-                className={cn(
-                  'px-4 text-right text-sm',
-                  userWithStats.points > 0 ? 'text-gray-800' : 'text-gray-400',
-                )}
-              >
-                {userWithStats.points > 0 ? userWithStats.points : '-'}
-              </TableCell>
-            </TableRow>
-          ))}
+                  {userWithStats.points > 0 ? userWithStats.points : '-'}
+                </TableCell>
+              </TableRow>
+            )
+          })}
         </TableBody>
       </Table>
     </div>

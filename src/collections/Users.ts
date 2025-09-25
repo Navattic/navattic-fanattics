@@ -1,6 +1,9 @@
 import { formatSlug } from '@/utils/formatSlug'
 import type { CollectionConfig } from 'payload'
 import { v4 as uuidv4 } from 'uuid'
+import { Resend } from 'resend'
+
+const resend = new Resend(process.env.RESEND_API_KEY)
 
 export const Users: CollectionConfig = {
   slug: 'users',
@@ -47,6 +50,58 @@ export const Users: CollectionConfig = {
           data.user_id = uuidv4()
         }
         return data
+      },
+    ],
+    afterChange: [
+      async ({ doc, operation }) => {
+        // Only send notification for new user creation
+        if (operation === 'create') {
+          try {
+            const { data, error } = await resend.emails.send({
+              from:
+                process.env.NODE_ENV === 'production'
+                  ? 'Fanattic Portal <noreply@mail.navattic.com>'
+                  : 'Fanattic Portal <noreply@mail.navattic.dev>',
+              to: ['fanattic@navattic.com'],
+              subject: 'New User Registration - Fanattic Portal',
+              html: `
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                  <h2 style="color: #333; border-bottom: 2px solid #007bff; padding-bottom: 10px;">
+                    New User Registration
+                  </h2>
+                  
+                  <p>A new user has registered for the Fanattic Portal:</p>
+                  
+                  <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                    <h3 style="color: #333; margin-top: 0;">User Details</h3>
+                    <p><strong>Name:</strong> ${doc.firstName || ''} ${doc.lastName || ''}</p>
+                    <p><strong>Email:</strong> ${doc.email}</p>
+                    <p><strong>Title:</strong> ${doc.title || 'Not specified'}</p>
+                    <p><strong>Company:</strong> ${doc.company || 'Not specified'}</p>
+                    <p><strong>Location:</strong> ${doc.location || 'Not specified'}</p>
+                    <p><strong>Login Method:</strong> ${doc.loginMethod}</p>
+                    <p><strong>Registration Date:</strong> ${new Date().toLocaleString()}</p>
+                    ${doc.linkedinUrl ? `<p><strong>LinkedIn:</strong> <a href="${doc.linkedinUrl}" target="_blank">${doc.linkedinUrl}</a></p>` : ''}
+                    ${doc.interactiveDemoUrl ? `<p><strong>Interactive Demo:</strong> <a href="${doc.interactiveDemoUrl}" target="_blank">${doc.interactiveDemoUrl}</a></p>` : ''}
+                    ${doc.bio ? `<p><strong>Bio:</strong> ${doc.bio}</p>` : ''}
+                  </div>
+                  
+                  <p style="color: #666; font-size: 14px;">
+                    This notification was automatically sent when a new user registered for the Fanattic Portal.
+                  </p>
+                </div>
+              `,
+            })
+
+            if (error) {
+              console.error('Error sending new user notification email:', error)
+            } else {
+              console.log('New user notification email sent successfully:', data)
+            }
+          } catch (error) {
+            console.error('Failed to send new user notification email:', error)
+          }
+        }
       },
     ],
   },
