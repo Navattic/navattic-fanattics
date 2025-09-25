@@ -253,19 +253,17 @@ export function LocationSelector({
           <div className="bg-popover text-popover-foreground absolute z-50 mt-1 w-[400px] max-w-[calc(100vw-2rem)] rounded-lg border shadow-md">
             <div className="max-h-[200px] overflow-auto p-1">
               {isLoading ? (
-                <div className="text-muted-foreground py-6 text-center text-sm">
-                  <div className="flex items-center justify-center gap-2">
-                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-gray-600" />
-                    Searching cities...
-                  </div>
+                <div className="text-muted-foreground flex items-center justify-center gap-2 py-1.5 text-sm">
+                  <Icon name="spinner" />
+                  Searching cities...
                 </div>
               ) : apiError ? (
-                <div className="text-destructive py-6 text-center text-sm">{apiError}</div>
-              ) : cities.length === 0 ? (
-                <div className="text-muted-foreground py-6 text-center text-sm">
+                <div className="text-destructive py-1.5 text-center text-sm">{apiError}</div>
+              ) : cities.length === 0 && debouncedSearchTerm && !isLoading ? (
+                <div className="text-muted-foreground py-1.5 text-center text-sm">
                   No cities found. Try a different search term.
                 </div>
-              ) : (
+              ) : cities.length > 0 ? (
                 cities.map((city) => (
                   <div
                     key={getCityKey(city)}
@@ -284,7 +282,7 @@ export function LocationSelector({
                     </div>
                   </div>
                 ))
-              )}
+              ) : null}
             </div>
           </div>
         </>

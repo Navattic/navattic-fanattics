@@ -131,10 +131,10 @@ export default function OnboardingForm({ session }: OnboardingFormProps) {
   useEffect(() => {
     if (avatarUrl && !avatarRemoved) {
       // Ensure we have a complete URL - handle both relative and absolute URLs
-      const completeAvatarUrl = avatarUrl.startsWith('http') 
-        ? avatarUrl 
+      const completeAvatarUrl = avatarUrl.startsWith('http')
+        ? avatarUrl
         : `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}${avatarUrl}`
-      
+
       const highResGoogleAvatarUrl = completeAvatarUrl.replace('s96-c', 's192-c') // get higher res avatar
       setAvatarPreview(highResGoogleAvatarUrl)
 
