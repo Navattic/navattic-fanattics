@@ -1,19 +1,19 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Input } from '@/components/shadcn/ui/input'
 import { Button, Icon } from '@/components/ui'
 import { cn } from '@/lib/utils'
-import cities from 'cities.json' with { type: 'json' }
 
-// Based on the actual cities.json structure from https://github.com/lutangar/cities.json
+// API Ninjas City API response structure
 interface City {
   name: string
-  lat: string
-  lng: string
+  latitude: number
+  longitude: number
   country: string
-  admin1: string
-  admin2: string
+  population: number
+  region?: string
+  is_capital: boolean
 }
 
 interface LocationSelectorProps {
@@ -24,84 +24,21 @@ interface LocationSelectorProps {
   placeholder?: string
 }
 
-// Mapping for country codes to full country names
-const countryNames: Record<string, string> = {
-  US: 'United States',
-  CA: 'Canada',
-  GB: 'United Kingdom',
-  AU: 'Australia',
-  DE: 'Germany',
-  FR: 'France',
-  IT: 'Italy',
-  ES: 'Spain',
-  NL: 'Netherlands',
-  SE: 'Sweden',
-  NO: 'Norway',
-  DK: 'Denmark',
-  FI: 'Finland',
-  CH: 'Switzerland',
-  AT: 'Austria',
-  BE: 'Belgium',
-  IE: 'Ireland',
-  PT: 'Portugal',
-  PL: 'Poland',
-  CZ: 'Czech Republic',
-  HU: 'Hungary',
-  RO: 'Romania',
-  BG: 'Bulgaria',
-  HR: 'Croatia',
-  SI: 'Slovenia',
-  SK: 'Slovakia',
-  LT: 'Lithuania',
-  LV: 'Latvia',
-  EE: 'Estonia',
-  JP: 'Japan',
-  KR: 'South Korea',
-  CN: 'China',
-  IN: 'India',
-  SG: 'Singapore',
-  HK: 'Hong Kong',
-  TW: 'Taiwan',
-  TH: 'Thailand',
-  MY: 'Malaysia',
-  ID: 'Indonesia',
-  PH: 'Philippines',
-  VN: 'Vietnam',
-  BR: 'Brazil',
-  MX: 'Mexico',
-  AR: 'Argentina',
-  CL: 'Chile',
-  CO: 'Colombia',
-  PE: 'Peru',
-  ZA: 'South Africa',
-  EG: 'Egypt',
-  NG: 'Nigeria',
-  KE: 'Kenya',
-  MA: 'Morocco',
-  IL: 'Israel',
-  AE: 'United Arab Emirates',
-  SA: 'Saudi Arabia',
-  TR: 'Turkey',
-  RU: 'Russia',
-  UA: 'Ukraine',
-  BY: 'Belarus',
-  KZ: 'Kazakhstan',
-  UZ: 'Uzbekistan',
-  NZ: 'New Zealand',
-  FJ: 'Fiji',
-  IS: 'Iceland',
-  LU: 'Luxembourg',
-  MT: 'Malta',
-  CY: 'Cyprus',
-  GR: 'Greece',
-}
+// Debounce hook for API calls
+function useDebounce<T>(value: T, delay: number): T {
+  const [debouncedValue, setDebouncedValue] = useState<T>(value)
 
-// Function to normalize text by removing accents and diacritics
-const normalizeText = (text: string): string => {
-  return text
-    .normalize('NFD') // Decompose accented characters
-    .replace(/[\u0300-\u036f]/g, '') // Remove diacritical marks
-    .toLowerCase()
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value)
+    }, delay)
+
+    return () => {
+      clearTimeout(handler)
+    }
+  }, [value, delay])
+
+  return debouncedValue
 }
 
 export function LocationSelector({
@@ -109,40 +46,83 @@ export function LocationSelector({
   onChange,
   error,
   state = 'default',
-  placeholder = 'Search city or country...',
+  placeholder = 'Search city...',
 }: LocationSelectorProps) {
   const [open, setOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
   const [isSearching, setIsSearching] = useState(false)
+  const [cities, setCities] = useState<City[]>([])
+  const [isLoading, setIsLoading] = useState(false)
+  const [apiError, setApiError] = useState<string | null>(null)
+  const [selectedCity, setSelectedCity] = useState<City | null>(null)
 
-  const filteredCities = useMemo(() => {
-    if (!searchTerm) return (cities as City[]).slice(0, 50)
+  // Debounce search term to avoid too many API calls
+  const debouncedSearchTerm = useDebounce(searchTerm, 300)
 
-    const normalizedSearchTerm = normalizeText(searchTerm)
-    return (cities as City[])
-      .filter(
-        (city) =>
-          normalizeText(city.name).includes(normalizedSearchTerm) ||
-          normalizeText(city.country).includes(normalizedSearchTerm) ||
-          (countryNames[city.country] &&
-            normalizeText(countryNames[city.country]).includes(normalizedSearchTerm)),
-      )
-      .slice(0, 50)
-  }, [searchTerm])
+  // Fetch cities from our API route
+  const fetchCities = useCallback(async (query: string) => {
+    if (!query.trim()) {
+      setCities([])
+      return
+    }
 
-  // Create a stable unique key that doesn't depend on array position
-  const getCityKey = (city: City) =>
-    `${city.name}-${city.country}-${city.admin1}-${city.lat}-${city.lng}`
+    setIsLoading(true)
+    setApiError(null)
 
-  // Find selected city using the stable key
-  const selectedCity = (cities as City[]).find((city) => getCityKey(city) === value)
+    try {
+      const response = await fetch(`/api/cities/search?name=${encodeURIComponent(query)}&limit=10`)
 
-  const getCountryName = (countryCode: string) => {
-    return countryNames[countryCode] || countryCode
-  }
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || `API request failed: ${response.status}`)
+      }
+
+      const data = await response.json()
+      setCities(data.cities || [])
+    } catch (error) {
+      console.error('Error fetching cities:', error)
+      setApiError('Failed to fetch cities. Please try again.')
+      setCities([])
+    } finally {
+      setIsLoading(false)
+    }
+  }, [])
+
+  // Create a stable unique key for cities
+  const getCityKey = (city: City) => `${city.name}, ${city.country}`
+
+  // Handle external value changes (e.g., from form restoration)
+  useEffect(() => {
+    if (value && !selectedCity) {
+      // If we have a value but no selected city, try to parse it
+      const [name, country] = value.split(', ')
+      if (name && country) {
+        // Create a temporary city object for display
+        const tempCity: City = {
+          name: name.trim(),
+          country: country.trim(),
+          latitude: 0,
+          longitude: 0,
+          population: 0,
+          is_capital: false,
+        }
+        setSelectedCity(tempCity)
+      }
+    } else if (!value && selectedCity) {
+      // If value is cleared, clear selected city
+      setSelectedCity(null)
+    }
+  }, [value, selectedCity])
+
+  // Fetch cities when debounced search term changes
+  useEffect(() => {
+    if (debouncedSearchTerm && open) {
+      fetchCities(debouncedSearchTerm)
+    }
+  }, [debouncedSearchTerm, open, fetchCities])
 
   const formatLocation = (city: City) => {
-    return `${city.name}, ${getCountryName(city.country)}`
+    return `${city.name}, ${city.country}`
   }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -153,6 +133,7 @@ export function LocationSelector({
     // If user is typing and there's a selected city, clear the selection
     if (selectedCity && newValue !== formatLocation(selectedCity)) {
       onChange('')
+      setSelectedCity(null)
     }
 
     if (!open) setOpen(true)
@@ -185,10 +166,14 @@ export function LocationSelector({
     setSearchTerm('')
     setIsSearching(false)
     setOpen(false)
+    setCities([])
+    setApiError(null)
+    setSelectedCity(null)
   }
 
   const handleCitySelect = (city: City) => {
     onChange(getCityKey(city))
+    setSelectedCity(city)
     setOpen(false)
     setSearchTerm('')
     setIsSearching(false)
@@ -199,20 +184,6 @@ export function LocationSelector({
     if (isSearching) return searchTerm
     if (selectedCity) return formatLocation(selectedCity)
     return ''
-  }
-
-  // Determine input styling based on state
-  const getInputClassName = () => {
-    const hasSelection = selectedCity && !isSearching
-
-    return cn(
-      'h-[36px] w-full text-base transition-colors',
-      hasSelection
-        ? 'text-gray-900 cursor-pointer font-medium' // Selected state - darker text, bold
-        : 'text-gray-500', // Search/empty state - muted text
-      isSearching || !selectedCity ? 'pl-10 pr-4' : 'pl-4 pr-10', // Icon positioning
-      state === 'error' && 'border-destructive focus-visible:ring-destructive',
-    )
   }
 
   return (
@@ -233,20 +204,31 @@ export function LocationSelector({
           onChange={handleInputChange}
           onFocus={handleInputFocus}
           onBlur={handleInputBlur}
-          className={getInputClassName()}
-          readOnly={selectedCity && !isSearching}
+          className={cn(
+            'h-[36px] w-full text-base transition-colors',
+            selectedCity && !isSearching
+              ? 'cursor-pointer font-medium text-gray-900' // Selected state - darker text, bold
+              : 'text-gray-500', // Search/empty state - muted text
+            isSearching || !selectedCity ? 'pr-4 pl-9' : 'pr-10 pl-4', // Icon positioning
+            state === 'error' && 'border-destructive focus-visible:ring-destructive',
+          )}
+          readOnly={!!selectedCity && !isSearching}
         />
 
-        {/* Dropdown indicator - show when selected and not searching */}
-        {selectedCity && !isSearching && (
+        {/* Loading spinner or dropdown indicator */}
+        {selectedCity && !isSearching ? (
           <Icon
             name="chevrons-up-down"
             className="absolute top-1/2 right-3 -translate-y-1/2 opacity-50"
           />
-        )}
+        ) : isLoading ? (
+          <div className="absolute top-1/2 right-3 -translate-y-1/2">
+            <Icon name="spinner" />
+          </div>
+        ) : null}
       </div>
 
-      {/* Clear selection button - consistent with CompanySelector pattern */}
+      {/* Clear selection button */}
       {selectedCity && !isSearching && (
         <div className="flex">
           <Button
@@ -254,7 +236,7 @@ export function LocationSelector({
             variant="ghost"
             size="xs"
             onClick={handleClear}
-            className="text-muted-foreground hover:text-destructive h-6 px-2"
+            // className="text-muted-foreground hover:text-destructive"
           >
             <Icon name="x" className="size-4" />
             Clear selection
@@ -267,36 +249,37 @@ export function LocationSelector({
           {/* Backdrop */}
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
 
-          {/* Dropdown - Fixed width to prevent viewport overflow */}
-          <div className="bg-popover text-popover-foreground absolute z-50 mt-1 w-[400px] max-w-[calc(100vw-2rem)] rounded-md border shadow-md">
+          {/* Dropdown */}
+          <div className="bg-popover text-popover-foreground absolute z-50 mt-1 w-[400px] max-w-[calc(100vw-2rem)] rounded-lg border shadow-md">
             <div className="max-h-[200px] overflow-auto p-1">
-              {filteredCities.length === 0 ? (
+              {isLoading ? (
                 <div className="text-muted-foreground py-6 text-center text-sm">
-                  No location found.
+                  <div className="flex items-center justify-center gap-2">
+                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-gray-600" />
+                    Searching cities...
+                  </div>
+                </div>
+              ) : apiError ? (
+                <div className="text-destructive py-6 text-center text-sm">{apiError}</div>
+              ) : cities.length === 0 ? (
+                <div className="text-muted-foreground py-6 text-center text-sm">
+                  No cities found. Try a different search term.
                 </div>
               ) : (
-                filteredCities.map((city, index) => (
+                cities.map((city) => (
                   <div
                     key={getCityKey(city)}
                     onClick={() => handleCitySelect(city)}
                     className={cn(
-                      'relative flex cursor-pointer items-center rounded-sm px-2 py-1.5 text-sm outline-none select-none',
+                      'relative flex cursor-pointer items-center rounded-md py-1.5 text-sm outline-none select-none',
                       'hover:bg-accent hover:text-accent-foreground',
                       'focus:bg-accent focus:text-accent-foreground',
                       value === getCityKey(city) && 'bg-accent text-accent-foreground',
                     )}
                   >
-                    <Icon
-                      name="check"
-                      className={cn(
-                        'mr-2 h-4 w-4 flex-shrink-0',
-                        value === getCityKey(city) ? 'opacity-100' : 'opacity-0',
-                      )}
-                    />
-                    <div className="flex min-w-0 flex-1 flex-col">
-                      <span className="truncate font-medium">{city.name}</span>
-                      <span className="text-muted-foreground truncate text-xs">
-                        {getCountryName(city.country)}
+                    <div className="flex min-w-0 flex-1 flex-col px-4">
+                      <span className="truncate font-medium">
+                        {city.name}, {city.country}
                       </span>
                     </div>
                   </div>

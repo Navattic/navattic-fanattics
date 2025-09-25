@@ -75,14 +75,6 @@ export default function OnboardingForm({ session }: OnboardingFormProps) {
   // Get avatar URL from nextauth session (for Google logins)
   const avatarUrl = session.user?.image || null
 
-  // Add debugging
-  console.log('[Onboarding] Session data:', {
-    hasUser: !!session.user,
-    userImage: session.user?.image,
-    avatarUrl,
-    hasAvatarUrl: !!avatarUrl,
-  })
-
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -98,37 +90,37 @@ export default function OnboardingForm({ session }: OnboardingFormProps) {
     },
   })
 
-  // Add debug logging for form field changes
-  useEffect(() => {
-    const subscription = form.watch((value, { name, type }) => {
-      console.log(' Form field changed:', { name, type, value })
-    })
-    return () => subscription.unsubscribe()
-  }, [form])
-
-  // Add debug logging for form validation errors
-  useEffect(() => {
-    console.log('❌ Form errors:', form.formState.errors)
-  }, [form.formState.errors])
-
-  // form state persistence to localStorage
+  // Add avatar state to localStorage persistence
   useEffect(() => {
     const savedFormData = localStorage.getItem('onboarding-form-data')
     if (savedFormData) {
       try {
         const parsed = JSON.parse(savedFormData)
         form.reset(parsed)
+
+        // Restore avatar preview if it exists
+        if (parsed.avatarPreview) {
+          setAvatarPreview(parsed.avatarPreview)
+        }
+        if (parsed.avatarId) {
+          setAvatarId(parsed.avatarId)
+        }
       } catch (error) {
         console.error('Error parsing saved form data:', error)
       }
     }
   }, [form])
 
-  // Save form data on changes
+  // Save form data on changes (including avatar data)
   useEffect(() => {
     const formData = form.getValues()
-    localStorage.setItem('onboarding-form-data', JSON.stringify(formData))
-  }, [form])
+    const dataToSave = {
+      ...formData,
+      avatarPreview,
+      avatarId,
+    }
+    localStorage.setItem('onboarding-form-data', JSON.stringify(dataToSave))
+  }, [form, avatarPreview, avatarId])
 
   // Clear saved data on successful submission
   const clearSavedFormData = () => {
@@ -137,21 +129,18 @@ export default function OnboardingForm({ session }: OnboardingFormProps) {
 
   // Set avatar preview if available from Google
   useEffect(() => {
-    console.log('[Onboarding] Avatar URL effect triggered:', {
-      avatarUrl,
-      hasAvatarUrl: !!avatarUrl,
-      sessionUser: session.user,
-    })
-
     if (avatarUrl && !avatarRemoved) {
-      const highResGoogleAvatarUrl = avatarUrl.replace('s96-c', 's192-c') // get higher res avatar
-      console.log('[Onboarding] Setting avatar preview:', highResGoogleAvatarUrl)
+      // Ensure we have a complete URL - handle both relative and absolute URLs
+      const completeAvatarUrl = avatarUrl.startsWith('http') 
+        ? avatarUrl 
+        : `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}${avatarUrl}`
+      
+      const highResGoogleAvatarUrl = completeAvatarUrl.replace('s96-c', 's192-c') // get higher res avatar
       setAvatarPreview(highResGoogleAvatarUrl)
 
       // Define upload function inside useEffect to avoid dependency issues
       const uploadAvatar = async (url: string) => {
         try {
-          console.log('[Onboarding] Starting Google avatar upload:', url)
           setIsAvatarUploading(true)
 
           const response = await fetch('/api/auth/upload-avatar', {
@@ -173,7 +162,6 @@ export default function OnboardingForm({ session }: OnboardingFormProps) {
 
           const data = await response.json()
           setAvatarId(data.id) // Store the avatar ID
-          console.log('[Onboarding] Successfully uploaded Google avatar:', data)
           return data.id
         } catch (error) {
           console.error('[Onboarding] Error uploading Google avatar:', error)
@@ -186,7 +174,6 @@ export default function OnboardingForm({ session }: OnboardingFormProps) {
       // Store the promise for later use
       avatarUploadPromise.current = uploadAvatar(highResGoogleAvatarUrl)
     } else {
-      console.log('[Onboarding] No avatar URL available from session or avatar was removed')
     }
   }, [avatarUrl, avatarRemoved, session.user])
 
@@ -209,7 +196,6 @@ export default function OnboardingForm({ session }: OnboardingFormProps) {
       }
 
       const data = await response.json()
-      console.log('[Onboarding] Successfully uploaded avatar file:', data)
       setAvatarId(data.id)
       return data.id
     } catch (error) {
@@ -231,7 +217,6 @@ export default function OnboardingForm({ session }: OnboardingFormProps) {
   }, [form])
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log('onSubmit called with values:', values)
     setIsSubmitting(true)
     setError(null)
 
@@ -250,8 +235,6 @@ export default function OnboardingForm({ session }: OnboardingFormProps) {
       if (avatarRemoved) {
         finalAvatarId = null
       }
-
-      console.log('[Onboarding] Final avatar ID:', finalAvatarId)
 
       const response = await fetch('/api/auth/update-profile', {
         method: 'POST',
@@ -617,13 +600,7 @@ export default function OnboardingForm({ session }: OnboardingFormProps) {
                 >
                   Back
                 </Button>
-                <Button
-                  type="submit"
-                  variant="solid"
-                  size="md"
-                  disabled={isSubmitting}
-                  onClick={() => console.log('Submit button clicked!')}
-                >
+                <Button type="submit" variant="solid" size="md" disabled={isSubmitting}>
                   {isSubmitting ? 'Saving' : 'Enter portal'}
                   {isSubmitting ? <Icon name="spinner" /> : <Icon name="arrow-right" />}
                 </Button>
