@@ -7,16 +7,13 @@ import { authOptions } from '@/lib/authOptions'
 import { redirect } from 'next/navigation'
 import { payload } from '@/lib/payloadClient'
 import { Metadata } from 'next'
+import { BetaToast } from '../../components/ui/BetaToast'
 
 // PRE-LAUNCH TODOs:
-// TODO: Add empty state throughout
-// TODO: Add loading state throughout (skeletons)
 // TODO: Add error state throughout
 // TODO: Add pagination
-// TODO: Add user settings
 // TODO: Add Fanattic tier badge
 // TODO: Add notification system
-// TODO: Ensure all pages are gated unless signed in
 
 export const metadata: Metadata = {
   title: 'Fanattic Portal',
@@ -99,6 +96,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     <html lang="en" className={`${suisse.variable} font-sans`}>
       <body>
         <Providers user={currentUser}>
+          <BetaToast />
           <AppSidebar />
           <main className="mx-auto w-full">{children}</main>
         </Providers>
