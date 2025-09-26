@@ -77,19 +77,20 @@ const EventEntry = ({ event, isPastEvent }: { event: Event; isPastEvent?: boolea
                     })}
                   </>
                 )}
+                {event.date.timeZone && ` (${event.date.timeZone})`}
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="hidden items-stretch md:flex">
+      <div className="hidden items-stretch rounded-xl border border-gray-100 bg-gray-50 md:flex">
         <Image
           src={(event.image as Media)?.url ?? '/event-placeholder.png'}
           alt={(event.image as Media)?.alt ?? event.title}
           width={250}
           height={290}
-          className="h-full min-h-[175px] max-w-[250px] min-w-[175px] rounded-xl border border-gray-100 object-cover"
+          className="h-full min-h-[175px] max-w-[250px] min-w-[175px] object-contain"
         />
       </div>
     </div>

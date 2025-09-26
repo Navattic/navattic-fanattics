@@ -182,6 +182,10 @@ export interface User {
    * Whether the user has completed the onboarding process
    */
   onboardingCompleted?: boolean | null;
+  /**
+   * User's timezone (IANA format, e.g., 'America/New_York', 'Europe/London', 'UTC')
+   */
+  timezone: string;
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -335,7 +339,7 @@ export interface Event {
     link?: string | null;
   };
   /**
-   * Square aspect ratio image for the event. If not provided, a fallback will be used.
+   * 250x220px ratio is preferred. If an image is not provided, a fallback will be used.
    */
   image: number | Media;
   location: {
@@ -655,6 +659,7 @@ export interface UsersSelect<T extends boolean = true> {
   ledgerEntries?: T;
   userComments?: T;
   onboardingCompleted?: T;
+  timezone?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;

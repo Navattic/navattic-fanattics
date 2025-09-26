@@ -1,10 +1,32 @@
-// Helper function to format time remaining
-export function formatTimeRemaining(deadlineStr: string): string {
+// Helper function to format time remaining - timezone-aware
+export function formatTimeRemaining(deadlineStr: string, userTimezone?: string): string {
   const now = new Date()
   const deadline = new Date(deadlineStr)
-  const diffMs = deadline.getTime() - now.getTime()
 
-  // If deadline has passed
+  // Start with standard UTC calculation
+  let diffMs = deadline.getTime() - now.getTime()
+
+  if (userTimezone && userTimezone !== 'UTC') {
+    try {
+      // Helper to get offset in minutes from UTC
+      const getOffsetInMinutes = (timezone: string) => {
+        const now = new Date()
+        const utcDate = new Date(now.toLocaleString('en-US', { timeZone: 'UTC' }))
+        const targetDate = new Date(now.toLocaleString('en-US', { timeZone: timezone }))
+        return (targetDate.getTime() - utcDate.getTime()) / (1000 * 60)
+      }
+
+      const offsetMinutes = getOffsetInMinutes(userTimezone)
+      const offsetMs = offsetMinutes * 60 * 1000
+
+      // Apply the offset to the difference
+      diffMs = diffMs + offsetMs
+    } catch (error) {
+      console.warn('Error calculating timezone offset for time remaining:', error)
+      // Fall back to UTC calculation
+    }
+  }
+
   if (diffMs < 0) {
     return 'Expired'
   }
@@ -23,4 +45,20 @@ export function formatTimeRemaining(deadlineStr: string): string {
   } else {
     return `${diffSecs} ${diffSecs === 1 ? 'second' : 'seconds'} left`
   }
+}
+
+// Utility for timezone-aware deadline display
+export function formatDeadlineInTimezone(deadlineStr: string, userTimezone?: string): string {
+  const deadline = new Date(deadlineStr)
+
+  const formatOptions: Intl.DateTimeFormatOptions = {
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+    timeZone: userTimezone || 'UTC',
+  }
+
+  return deadline.toLocaleString('en-US', formatOptions)
 }

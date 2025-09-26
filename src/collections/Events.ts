@@ -57,7 +57,7 @@ export const Events: CollectionConfig = {
       relationTo: 'media',
       admin: {
         description:
-          'Square aspect ratio image for the event. If not provided, a fallback will be used.',
+          '250x220px ratio is preferred. If an image is not provided, a fallback will be used.',
       },
     },
     {

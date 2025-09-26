@@ -97,6 +97,30 @@ const Challenges = async () => {
       )
     }
 
+    // Update the comment count mapping to ensure proper key types
+    const commentCounts = await Promise.all(
+      challengesData.docs.map(async (challenge) => {
+        const comments = await payload.find({
+          collection: 'comments',
+          where: {
+            challenge: { equals: challenge.id },
+            deleted: { equals: false },
+            status: { equals: 'approved' },
+          },
+        })
+        return { challengeId: String(challenge.id), count: comments.totalDocs }
+      }),
+    )
+
+    const commentCountMap = Object.fromEntries(
+      commentCounts.map(({ challengeId, count }) => [challengeId, count]),
+    )
+
+    // Add debugging to see what's happening
+    console.log('Comment counts:', commentCounts)
+    console.log('Comment count map:', commentCountMap)
+    console.log('Challenge IDs:', challengesData.docs.map(c => ({ id: c.id, type: typeof c.id })))
+
     return (
       <>
         <PageHeader userPoints={userPoints} />
@@ -116,6 +140,8 @@ const Challenges = async () => {
               <ChallengesList
                 challengesData={challengesData.docs}
                 userLedgerEntries={userLedgerEntries}
+                commentCountMap={commentCountMap}
+                userTimezone={sessionUser?.timezone}
               />
             ) : (
               <Empty

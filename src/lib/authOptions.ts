@@ -8,7 +8,6 @@ import { Adapter, AdapterUser } from 'next-auth/adapters'
 
 // TODO: change email address to .com for prod from .dev
 
-// Add this custom adapter before the authOptions
 function PayloadAdapter(): Adapter {
   return {
     async createUser(data: AdapterUser & { account?: { provider: string } }) {
@@ -221,7 +220,6 @@ export const authOptions: NextAuthOptions = {
       clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? '',
       allowDangerousEmailAccountLinking: true,
       profile(profile) {
-        console.log('[Auth] Google profile callback:', profile)
         return {
           id: profile.sub,
           name: profile.name,

@@ -115,7 +115,7 @@ const Leaderboard = async () => {
   return (
     <>
       <PageHeader userPoints={currentUserPoints} />
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gray-50 pb-20">
         <Container>
           <PageTitle
             title="Leaderboard"

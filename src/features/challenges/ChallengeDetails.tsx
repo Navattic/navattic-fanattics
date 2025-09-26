@@ -1,8 +1,6 @@
 'use client'
 
 import { Challenge, User } from '@/payload-types'
-// import { PaginatedDocs } from 'payload'
-// import { Comment } from '@/payload-types'
 import { useState, useEffect } from 'react'
 import { Badge, Icon } from '@/components/ui'
 import { formatDate } from '@/utils/formatDate'
@@ -12,12 +10,12 @@ export const ChallengeDetails = ({
   challenge,
   sessionUser,
   challengeNumber,
-  // commentsResult,
+  userTimezone,
 }: {
   challenge: Challenge
   sessionUser: User
   challengeNumber?: number
-  // commentsResult: PaginatedDocs<Comment>
+  userTimezone?: string
 }) => {
   // Filter user's ledger entries from the populated data
   const userChallengeCompletedData =
@@ -32,12 +30,37 @@ export const ChallengeDetails = ({
     seconds: 0,
   })
 
-  // Countdown timer effect
+  // Countdown timer effect - timezone-aware
   useEffect(() => {
     const calculateTimeLeft = () => {
-      const now = new Date().getTime()
-      const deadline = new Date(challenge.deadline).getTime()
-      const difference = deadline - now
+      const now = new Date()
+      const deadline = new Date(challenge.deadline)
+
+      // Start with standard UTC calculation
+      let difference = deadline.getTime() - now.getTime()
+
+      if (userTimezone && userTimezone !== 'UTC') {
+        try {
+          // Helper to get offset in minutes from UTC
+          const getOffsetInMinutes = (timezone: string) => {
+            const now = new Date()
+            const utcDate = new Date(now.toLocaleString('en-US', { timeZone: 'UTC' }))
+            const targetDate = new Date(now.toLocaleString('en-US', { timeZone: timezone }))
+            return (targetDate.getTime() - utcDate.getTime()) / (1000 * 60)
+          }
+
+          const offsetMinutes = getOffsetInMinutes(userTimezone)
+          const offsetMs = offsetMinutes * 60 * 1000
+
+          // Apply the offset to the difference
+          // If user is ahead of UTC (positive offset), they reach the deadline "sooner"
+          // If user is behind UTC (negative offset), they reach the deadline "later"
+          difference = difference + offsetMs
+        } catch (error) {
+          console.warn('Error calculating timezone offset:', error)
+          // Fall back to UTC calculation
+        }
+      }
 
       if (difference > 0) {
         const days = Math.floor(difference / (1000 * 60 * 60 * 24))
@@ -51,15 +74,13 @@ export const ChallengeDetails = ({
       return { days: 0, hours: 0, minutes: 0, seconds: 0 }
     }
 
-    // Set initial time
     setTimeLeft(calculateTimeLeft())
-
     const timer = setInterval(() => {
       setTimeLeft(calculateTimeLeft())
     }, 1000)
 
     return () => clearInterval(timer)
-  }, [challenge.deadline])
+  }, [challenge.deadline, userTimezone])
   return (
     <div className="w-full">
       <div className="grid h-[35vh] place-items-center space-y-4 bg-gradient-to-t from-white to-blue-50 p-14 pb-0">
@@ -85,7 +106,11 @@ export const ChallengeDetails = ({
               </h6>
             )}
             <span className="text-xs text-gray-500">
-              Published {formatDate(challenge.createdAt, { abbreviateMonth: true })}
+              Published{' '}
+              {formatDate(challenge.createdAt, {
+                abbreviateMonth: true,
+                timezone: userTimezone,
+              })}
             </span>
           </div>
         </div>
@@ -128,11 +153,17 @@ export const ChallengeDetails = ({
 
           <div className="inset-shadow flex flex-col items-center justify-center gap-3 rounded-lg border border-blue-200 bg-white px-6 pt-3 pb-4">
             <span className="text-sm text-gray-500">Deadline</span>
-            <div className="flex items-center justify-center gap-2">
-              <Icon name="clock" size="sm" />
-              <span className="text-base font-semibold text-gray-700">
-                {formatDate(challenge.deadline, { abbreviateMonth: true, includeYear: false })}
-              </span>
+            <div className="flex flex-col items-center justify-center gap-1">
+              <div className="flex items-center justify-center gap-2">
+                <Icon name="clock" size="sm" />
+                <span className="text-base font-semibold text-gray-700">
+                  {formatDate(challenge.deadline, {
+                    abbreviateMonth: true,
+                    includeYear: false,
+                    timezone: userTimezone,
+                  })}
+                </span>
+              </div>
             </div>
           </div>
         </div>

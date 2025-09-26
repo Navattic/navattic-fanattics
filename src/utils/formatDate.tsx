@@ -12,6 +12,7 @@ export function formatDate(
     includeTime?: boolean
     includeMonth?: boolean
     abbreviateMonth?: boolean
+    timezone?: string
   } = {
     includeDay: true,
     includeYear: true,
@@ -30,7 +31,6 @@ export function formatDate(
       return ''
     }
 
-    // Create a new options object by merging the default options with the provided options
     const mergedOptions = {
       includeDay: true,
       includeYear: true,
@@ -40,43 +40,61 @@ export function formatDate(
       ...options,
     }
 
-    const month = date.toLocaleString('en-US', {
-      month: mergedOptions.abbreviateMonth ? 'short' : 'long',
-    })
-    const day = date.getDate()
-    const year = date.getFullYear()
+    // Build comprehensive Intl.DateTimeFormatOptions
+    const formatOptions: Intl.DateTimeFormatOptions = {
+      year: mergedOptions.includeYear ? 'numeric' : undefined,
+      month: mergedOptions.includeMonth
+        ? mergedOptions.abbreviateMonth
+          ? 'short'
+          : 'long'
+        : undefined,
+      day: mergedOptions.includeDay ? 'numeric' : undefined,
+      hour: mergedOptions.includeTime ? 'numeric' : undefined,
+      minute: mergedOptions.includeTime ? '2-digit' : undefined,
+      hour12: mergedOptions.includeTime ? true : undefined,
+      timeZone: mergedOptions.timezone || undefined,
+    }
 
-    // Add ordinal suffix to day (1st, 2nd, 3rd, etc.)
-    const getOrdinalSuffix = (day: number): string => {
-      if (day > 3 && day < 21) return 'th'
-      switch (day % 10) {
-        case 1:
-          return 'st'
-        case 2:
-          return 'nd'
-        case 3:
-          return 'rd'
-        default:
-          return 'th'
+    // Remove undefined properties
+    Object.keys(formatOptions).forEach((key) => {
+      if (formatOptions[key as keyof Intl.DateTimeFormatOptions] === undefined) {
+        delete formatOptions[key as keyof Intl.DateTimeFormatOptions]
+      }
+    })
+
+    // Use Intl.DateTimeFormat for consistent, timezone-aware formatting
+    const formatter = new Intl.DateTimeFormat('en-US', formatOptions)
+    let formattedDate = formatter.format(date)
+
+    // Add ordinal suffixes for day if needed
+    if (mergedOptions.includeDay && !mergedOptions.includeTime) {
+      const dayMatch = formattedDate.match(/\b(\d{1,2})\b/)
+      if (dayMatch) {
+        const day = parseInt(dayMatch[1], 10)
+        const ordinalSuffix = getOrdinalSuffix(day)
+        formattedDate = formattedDate.replace(/\b(\d{1,2})\b/, `$1${ordinalSuffix}`)
       }
     }
 
-    const dayWithSuffix = mergedOptions.includeDay ? `${day}${getOrdinalSuffix(day)}` : ''
-    const yearString = mergedOptions.includeYear ? `, ${year}` : ''
-    const monthString = mergedOptions.includeMonth ? `${month} ` : ''
-    const timeString = mergedOptions.includeTime
-      ? `${mergedOptions.includeMonth || mergedOptions.includeDay || mergedOptions.includeYear ? ' ' : ''}${date.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true })}`
-      : ''
-
-    // Handle different formatting options
-    if (mergedOptions.includeDay) {
-      return `${monthString}${dayWithSuffix}${yearString}${timeString}`
-    } else {
-      return `${monthString}${yearString}${timeString}`.trim()
-    }
+    return formattedDate
   } catch (error) {
     console.error('Error formatting date:', error)
     return ''
+  }
+}
+
+// Helper function for ordinal suffixes
+function getOrdinalSuffix(day: number): string {
+  if (day > 3 && day < 21) return 'th'
+  switch (day % 10) {
+    case 1:
+      return 'st'
+    case 2:
+      return 'nd'
+    case 3:
+      return 'rd'
+    default:
+      return 'th'
   }
 }
 

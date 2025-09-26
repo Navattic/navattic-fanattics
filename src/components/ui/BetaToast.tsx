@@ -32,29 +32,38 @@ export function BetaToast() {
             stiffness: 300,
             damping: 30,
             duration: 0.3,
+            delay: 2,
           }}
           className="fixed right-4 bottom-4 z-50 max-w-sm"
         >
-          <div className="inset-shadow bg-white/90 shadow-xs flex flex-col gap-2 rounded-xl border border-blue-100 backdrop-blur-md">
-            <div className="flex flex-shrink-0 items-center justify-between pr-1.5 pb-4 pl-4">
-              <div className="pl-2 pt-6 flex items-center gap-2">
-                <NavatticLogo />
-                <Badge variant="default" size="xs" colorScheme="brand">Beta</Badge>
+          <div className="rounded-2xl border border-gray-200 p-0.5 bg-gray-50/20 backdrop-blur-lg">
+            <div className="inset-shadow flex flex-col gap-2 rounded-xl border border-blue-100 bg-gradient-to-b from-white/90 to-white/70 shadow-xs backdrop-blur-md">
+              <div className="flex flex-shrink-0 items-center justify-between pr-1.5 pb-3 pl-4">
+                <div className="flex items-center gap-2 pt-5 pl-2">
+                  <NavatticLogo />
+                  <Badge variant="default" size="xs" colorScheme="brand">
+                    Beta
+                  </Badge>
+                </div>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={handleDismiss}
+                  className="mt-1"
+                  aria-label="Dismiss notification"
+                >
+                  <Icon name="x" />
+                </Button>
               </div>
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={handleDismiss}
-                aria-label="Dismiss notification"
-              >
-                <Icon name="x" />
-              </Button>
-            </div>
-            <div className="flex-1 p-5 pt-0">
-              <p className="my-1 text-sm text-gray-700">
-                The Fanattic Portal is currently in Beta. You may encounter bugs or unexpected
-                behavior.
-              </p>
+              <div className="flex-1 p-5 pt-0">
+                <p className="text-sm text-balance text-gray-700">
+                  Thank you for being part of our fanattic beta program. Please reach out to{' '}
+                  <a href="mailto:fanattic@navattic.com" className="text-blue-600 hover:underline">
+                    fanattic@navattic.com
+                  </a>{' '}
+                  if you encounter any bugs or unexpected behavior.
+                </p>
+              </div>
             </div>
           </div>
         </motion.div>

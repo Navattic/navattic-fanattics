@@ -72,6 +72,7 @@ export async function POST(req: Request) {
       interactiveDemoUrl,
       avatar,
       loginMethod,
+      timezone,
     } = await req.json()
 
     const payload = await getPayload({ config })
@@ -108,6 +109,7 @@ export async function POST(req: Request) {
         avatar: avatar || undefined,
         loginMethod: loginMethod || 'email',
         onboardingCompleted: true,
+        timezone: timezone || 'UTC',
       },
     })
 

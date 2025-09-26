@@ -61,7 +61,6 @@ const getChallengeData = unstable_cache(
   { revalidate: 300 }, // 5 minutes for challenge data
 )
 
-// Add this export to force dynamic rendering
 export const dynamic = 'force-dynamic'
 
 const ChallengePage = async ({ params }: { params: Promise<{ slug: string }> }) => {
@@ -136,7 +135,7 @@ const ChallengePage = async ({ params }: { params: Promise<{ slug: string }> }) 
             challenge={challenge}
             sessionUser={sessionUser}
             challengeNumber={challengeData.challengeNumber}
-            // commentsResult={commentsResult}
+            userTimezone={sessionUser?.timezone}
           />
         </div>
         <div className="bg-gray-50">

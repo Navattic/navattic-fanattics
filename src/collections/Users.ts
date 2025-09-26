@@ -51,6 +51,20 @@ export const Users: CollectionConfig = {
         }
         return data
       },
+      // Add timezone validation hook
+      async ({ data, operation }) => {
+        if (operation === 'update' && data.timezone) {
+          try {
+            // Test the timezone
+            Intl.DateTimeFormat(undefined, { timeZone: data.timezone })
+          } catch (_error) {
+            throw new Error(
+              `Invalid timezone: ${data.timezone}. Please select a valid timezone from the dropdown.`,
+            )
+          }
+        }
+        return data
+      },
     ],
     afterChange: [
       async ({ doc, operation }) => {
@@ -202,6 +216,30 @@ export const Users: CollectionConfig = {
       defaultValue: false,
       admin: {
         description: 'Whether the user has completed the onboarding process',
+      },
+    },
+    {
+      name: 'timezone',
+      type: 'text',
+      required: true,
+      defaultValue: 'UTC',
+      admin: {
+        description:
+          "User's timezone (IANA format, e.g., 'America/New_York', 'Europe/London', 'UTC')",
+        placeholder: 'e.g., America/New_York',
+        components: {
+          Field: '@/components/payload/autocomplete-timezone',
+        },
+      },
+      validate: (value: string | null | undefined) => {
+        if (!value) return 'Timezone is required'
+
+        try {
+          Intl.DateTimeFormat(undefined, { timeZone: value })
+          return true
+        } catch {
+          return 'Invalid timezone format. Use IANA format like "America/New_York" or "Europe/London"'
+        }
       },
     },
   ],

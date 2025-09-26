@@ -55,6 +55,7 @@ export default function OnboardingForm({ session }: OnboardingFormProps) {
   const [isAvatarUploading, setIsAvatarUploading] = useState(false)
   const [avatarId, setAvatarId] = useState<number | null>(null)
   const [hasAttemptedValidation, setHasAttemptedValidation] = useState(false)
+  const [detectedTimezone, setDetectedTimezone] = useState('UTC')
 
   // Add a ref to store the upload promise
   const avatarUploadPromise = useRef<Promise<number | null> | null>(null)
@@ -121,6 +122,17 @@ export default function OnboardingForm({ session }: OnboardingFormProps) {
     }
     localStorage.setItem('onboarding-form-data', JSON.stringify(dataToSave))
   }, [form, avatarPreview, avatarId])
+
+  // Auto-detect timezone on component mount
+  useEffect(() => {
+    try {
+      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
+      setDetectedTimezone(timezone)
+    } catch (error) {
+      console.warn('Failed to detect timezone:', error)
+      setDetectedTimezone('UTC') 
+    }
+  }, [])
 
   // Clear saved data on successful submission
   const clearSavedFormData = () => {
@@ -248,6 +260,7 @@ export default function OnboardingForm({ session }: OnboardingFormProps) {
           bio: values.bio,
           company: values.company,
           location: values.location || undefined,
+          timezone: detectedTimezone, // Auto-detected timezone
           linkedinUrl: values.linkedinUrl || undefined,
           interactiveDemoUrl: values.interactiveDemoUrl || undefined,
           avatar: finalAvatarId,

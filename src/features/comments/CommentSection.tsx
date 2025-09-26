@@ -60,7 +60,7 @@ const CommentSection = ({
   currentUser,
 }: {
   challenge: Challenge & { comments: Comment[] }
-  currentUser: User // Add this prop
+  currentUser: User 
 }) => {
   const { optimisticComments, realComments } = useOptimisticComments()
 
