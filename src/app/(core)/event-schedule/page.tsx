@@ -36,7 +36,7 @@ const EventEntry = ({ event, isPastEvent }: { event: Event; isPastEvent?: boolea
                 <Link href={event.location.link ?? ''} target="_blank" className="group flex">
                   {event.location.name}
                   <Icon
-                    name="arrow-right"
+                    name="arrow-up-right"
                     className="ml-0.5 size-3 opacity-50 transition-all duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:scale-[104%] group-hover:opacity-100"
                   />
                 </Link>
