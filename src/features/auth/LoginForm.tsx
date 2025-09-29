@@ -108,8 +108,6 @@ export default function LoginForm({ mode = 'signin' }: LoginFormProps) {
               return
             }
           }
-        } else {
-          console.log('[LoginForm] User does not exist - proceeding to signIn')
         }
       } else {
         console.error('[LoginForm] check-login-method failed with status:', checkResponse.status)
@@ -117,21 +115,10 @@ export default function LoginForm({ mode = 'signin' }: LoginFormProps) {
         console.error('[LoginForm] check-login-method error:', errorText)
       }
 
-      const signInStartTime = Date.now()
-
       const result = await signIn('email', {
         email: data.email,
         callbackUrl: isSignUp ? '/register' : '/',
         redirect: false,
-      })
-
-      const signInDuration = Date.now() - signInStartTime
-      console.log(`[LoginForm] SignIn completed in ${signInDuration}ms`)
-      console.log('[LoginForm] SignIn result:', {
-        ok: result?.ok,
-        error: result?.error,
-        status: result?.status,
-        url: result?.url,
       })
 
       if (result?.error) {
@@ -145,7 +132,6 @@ export default function LoginForm({ mode = 'signin' }: LoginFormProps) {
           `An error occurred during ${isSignUp ? 'sign up' : 'sign in'}. Please try again.`,
         )
       } else {
-        console.log('[LoginForm] SignIn successful, setting emailSent=true')
         setEmailSent(true)
       }
     } catch (error) {

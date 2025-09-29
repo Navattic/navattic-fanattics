@@ -40,9 +40,6 @@ function CommentForm({ user, challenge }: CommentFormProps) {
     let optimisticId: string | null = null
 
     try {
-      console.log('Adding optimistic comment...')
-
-      // Add optimistic comment
       optimisticId = addOptimisticComment({
         content: commentContent,
         user: user,
@@ -55,9 +52,6 @@ function CommentForm({ user, challenge }: CommentFormProps) {
         flaggedReports: 0,
       })
 
-      console.log('Optimistic comment added with ID:', optimisticId)
-
-      // Clear form immediately
       setComment('')
 
       // Wait for server response
@@ -66,8 +60,6 @@ function CommentForm({ user, challenge }: CommentFormProps) {
         user,
         challenge,
       })
-
-      console.log('Server response received:', result)
 
       // Only update state if component is still mounted
       if (isMountedRef.current) {

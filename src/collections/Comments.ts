@@ -150,8 +150,6 @@ export const Comments: CollectionConfig = {
 
             if (error) {
               console.error('Error sending comment notification email:', error)
-            } else {
-              console.log('Comment notification email sent successfully:', data)
             }
           } catch (error) {
             console.error('Failed to send comment notification email:', error)

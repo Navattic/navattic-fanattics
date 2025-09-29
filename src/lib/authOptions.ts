@@ -158,25 +158,11 @@ export const authOptions: NextAuthOptions = {
       server: null,
       from: 'noreply@mail.navattic.dev',
       async sendVerificationRequest({ identifier: email, url }) {
-        // Production-only logging to diagnose issues
-        if (process.env.NODE_ENV === 'production') {
-          console.log('[Auth] Production magic link request started for:', email)
-        }
-
         try {
-          // Increase delay for production environment
-          const delay = process.env.NODE_ENV === 'production' ? 100 : 10
+          const delay = process.env.NODE_ENV === 'production' ? 100 : 10 // race condition fix
           await new Promise((resolve) => setTimeout(resolve, delay))
 
-          if (process.env.NODE_ENV === 'production') {
-            console.log('[Auth] Getting payload client...')
-          }
-
           const payload = await getPayload({ config })
-
-          if (process.env.NODE_ENV === 'production') {
-            console.log('[Auth] Payload client obtained, sending email...')
-          }
 
           const { host } = new URL(url)
           const urlWithEmail = `${url}${url.includes('?') ? '&' : '?'}email=${encodeURIComponent(email)}`
@@ -230,11 +216,6 @@ export const authOptions: NextAuthOptions = {
               </html>
             `,
           })
-
-          if (process.env.NODE_ENV === 'production') {
-            const duration = Date.now() - startTime
-            console.log(`[Auth] Email sent successfully in ${duration}ms`)
-          }
         } catch (error) {
           console.error('[Auth] Failed to send magic link:', error)
           if (process.env.NODE_ENV === 'production') {

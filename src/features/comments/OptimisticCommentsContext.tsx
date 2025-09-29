@@ -57,11 +57,8 @@ export function OptimisticCommentsProvider({ children }: { children: ReactNode }
       isOptimistic: true,
     }
 
-    console.log('Adding optimistic comment to state:', optimisticComment)
-
     setOptimisticComments((prev) => {
       const newState = [...prev, optimisticComment]
-      console.log('New optimistic comments state:', newState)
       return newState
     })
 

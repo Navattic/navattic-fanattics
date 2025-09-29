@@ -68,7 +68,7 @@ export function CommentActions({
               Award Points
             </DropdownMenuItem>
           )} */}
-          {!isCurrentUserComment && (
+          {/* {!isCurrentUserComment && (
             <DropdownMenuItem
               onClick={() => console.log('Report comment')}
               className="!h-8 rounded-lg px-3 py-0 pr-2.5 hover:bg-gray-100"
@@ -76,7 +76,7 @@ export function CommentActions({
               <Icon name="flag" size="sm" className="mr-1" />
               Report Comment
             </DropdownMenuItem>
-          )}
+          )} */}
           {isCurrentUserComment && (
             <>
               <DropdownMenuItem
