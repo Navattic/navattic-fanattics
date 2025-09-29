@@ -72,6 +72,24 @@ const Home = async () => {
 
   const userPoints = await calculateUserPoints({ user: sessionUser })
 
+  const commentCounts = await Promise.all(
+    challengesData.map(async (challenge) => {
+      const comments = await payload.find({
+        collection: 'comments',
+        where: {
+          challenge: { equals: challenge.id },
+          deleted: { equals: false },
+          status: { equals: 'approved' },
+        },
+      })
+      return { challengeId: String(challenge.id), count: comments.totalDocs }
+    }),
+  )
+
+  const commentCountMap = Object.fromEntries(
+    commentCounts.map(({ challengeId, count }) => [challengeId, count]),
+  )
+
   const completedChallengesCount = challengesData.filter((challenge) =>
     userLedgerEntries.some(
       (ledger) =>
@@ -122,9 +140,10 @@ const Home = async () => {
             />
             {challengesData && (
               <ChallengesList
-                // sessionUser={sessionUser}
                 challengesData={challengesData}
                 userLedgerEntries={userLedgerEntries}
+                commentCountMap={commentCountMap}
+                userTimezone={sessionUser?.timezone}
               />
             )}
           </div>

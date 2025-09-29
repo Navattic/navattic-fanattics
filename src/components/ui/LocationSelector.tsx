@@ -44,7 +44,6 @@ function useDebounce<T>(value: T, delay: number): T {
 export function LocationSelector({
   value,
   onChange,
-  error,
   state = 'default',
   placeholder = 'Search city...',
 }: LocationSelectorProps) {
@@ -250,7 +249,7 @@ export function LocationSelector({
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
 
           {/* Dropdown */}
-          <div className="bg-popover text-popover-foreground absolute z-50 mt-1 w-[400px] max-w-[calc(100vw-2rem)] rounded-lg border shadow-md">
+          <div className="bg-popover text-popover-foreground absolute z-50 mt-1 w-[400px] max-w-[calc(100vw-2rem)] rounded-lg border shadow-md min-h-[36px]">
             <div className="max-h-[200px] overflow-auto p-1">
               {isLoading ? (
                 <div className="text-muted-foreground flex items-center justify-center gap-2 py-1.5 text-sm">

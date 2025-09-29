@@ -130,7 +130,7 @@ export default function OnboardingForm({ session }: OnboardingFormProps) {
       setDetectedTimezone(timezone)
     } catch (error) {
       console.warn('Failed to detect timezone:', error)
-      setDetectedTimezone('UTC') 
+      setDetectedTimezone('UTC')
     }
   }, [])
 

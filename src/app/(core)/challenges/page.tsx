@@ -10,41 +10,23 @@ export const revalidate = 3600 // 1h
 
 const Challenges = async () => {
   const session = await getServerSession(authOptions)
-  const now = new Date()
 
   try {
     const [challengesData, sessionUser] = await Promise.all([
       payload.find({
         collection: 'challenges',
         where: {
-          or: [
-            {
-              deadline: {
-                greater_than: now,
-              },
-            },
-            {
-              deadline: {
-                less_than_equal: now,
-              },
-            },
-          ],
+          deadline: {
+            greater_than: new Date().toISOString(),
+          },
         },
-        sort: '-deadline', // String format: '-' prefix for descending
+        sort: '-deadline',
+        depth: 2,
         populate: {
           ledger: {
             user_id: true,
             amount: true,
           },
-          // Add user population if session exists
-          ...(session?.user?.email && {
-            user: {
-              where: {
-                email: { equals: session.user.email },
-              },
-              depth: 1,
-            },
-          }),
         },
       }),
       session?.user?.email
@@ -97,29 +79,24 @@ const Challenges = async () => {
       )
     }
 
-    // Update the comment count mapping to ensure proper key types
-    const commentCounts = await Promise.all(
-      challengesData.docs.map(async (challenge) => {
-        const comments = await payload.find({
-          collection: 'comments',
-          where: {
-            challenge: { equals: challenge.id },
-            deleted: { equals: false },
-            status: { equals: 'approved' },
-          },
-        })
-        return { challengeId: String(challenge.id), count: comments.totalDocs }
+    // Simplified comment count mapping using the join relationship
+    const commentCountMap = Object.fromEntries(
+      challengesData.docs.map((challenge) => {
+        // Count approved, non-deleted comments from the populated join
+        const approvedComments =
+          challenge.challengeComments?.docs?.filter(
+            (comment) =>
+              typeof comment === 'object' &&
+              comment !== null &&
+              'status' in comment &&
+              'deleted' in comment &&
+              comment.status === 'approved' &&
+              !comment.deleted,
+          ) || []
+
+        return [String(challenge.id), approvedComments.length]
       }),
     )
-
-    const commentCountMap = Object.fromEntries(
-      commentCounts.map(({ challengeId, count }) => [challengeId, count]),
-    )
-
-    // Add debugging to see what's happening
-    console.log('Comment counts:', commentCounts)
-    console.log('Comment count map:', commentCountMap)
-    console.log('Challenge IDs:', challengesData.docs.map(c => ({ id: c.id, type: typeof c.id })))
 
     return (
       <>
