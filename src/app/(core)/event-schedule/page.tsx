@@ -4,7 +4,7 @@ import { Container } from '@/components/ui'
 import { Event, Media } from '@/payload-types'
 import Image from 'next/image'
 import { Badge, Button, Icon, Link } from '@/components/ui'
-import { formatDate } from '@/utils/formatDate'
+import { formatDate, getTimezoneFromAbbreviation } from '@/utils/formatDate'
 import { calculateUserPoints } from '@/lib/users/points'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/authOptions'
@@ -64,6 +64,7 @@ const EventEntry = ({ event, isPastEvent }: { event: Event; isPastEvent?: boolea
                   includeDay: false,
                   includeYear: false,
                   includeTime: true,
+                  timezone: getTimezoneFromAbbreviation(event.date.timeZone),
                 })}
                 {event.date.endTime && (
                   <>
@@ -74,6 +75,7 @@ const EventEntry = ({ event, isPastEvent }: { event: Event; isPastEvent?: boolea
                       includeDay: false,
                       includeYear: false,
                       includeTime: true,
+                      timezone: getTimezoneFromAbbreviation(event.date.timeZone),
                     })}
                   </>
                 )}
