@@ -16,7 +16,6 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'API key not configured' }, { status: 500 })
     }
 
-    console.log(`[Cities] Searching for cities with name: ${name}`)
 
     const response = await fetch(
       `https://api.api-ninjas.com/v1/city?name=${encodeURIComponent(name)}`,
@@ -41,8 +40,6 @@ export async function GET(req: NextRequest) {
 
     // Limit results to 10 on our end since we can't use the API limit parameter
     const limitedCities = cities.slice(0, 10)
-
-    console.log(`[Cities] Found ${cities.length} cities, returning ${limitedCities.length}`)
 
     return NextResponse.json({ cities: limitedCities })
   } catch (error) {

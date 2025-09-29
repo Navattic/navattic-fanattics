@@ -74,13 +74,7 @@ export default function LoginForm({ mode = 'signin' }: LoginFormProps) {
     setLoadingState('email')
     setAuthError(null)
 
-    console.log('[LoginForm] Starting email auth for:', data.email)
-    console.log('[LoginForm] isSignUp mode:', isSignUp)
-
     try {
-      // First check if the user exists and what login method they use
-      console.log('[LoginForm] Calling check-login-method API...')
-
       const checkResponse = await fetch('/api/auth/check-login-method', {
         method: 'POST',
         headers: {
@@ -89,18 +83,12 @@ export default function LoginForm({ mode = 'signin' }: LoginFormProps) {
         body: JSON.stringify({ email: data.email }),
       })
 
-      console.log('[LoginForm] check-login-method response status:', checkResponse.status)
-
       if (checkResponse.ok) {
         const checkData = await checkResponse.json()
-        console.log('[LoginForm] check-login-method data:', checkData)
 
         if (checkData.exists) {
-          console.log('[LoginForm] User exists with loginMethod:', checkData.loginMethod)
-
           if (isSignUp) {
             // For sign up, if user exists, show appropriate error
-            console.log('[LoginForm] Sign up attempted but user exists - showing error')
             if (checkData.loginMethod === 'google') {
               setAuthError(
                 'This account uses Google sign-in. Please use the Google sign-in option instead.',
@@ -113,14 +101,12 @@ export default function LoginForm({ mode = 'signin' }: LoginFormProps) {
           } else {
             // For sign in, if user exists but uses different method
             if (checkData.loginMethod === 'google') {
-              console.log('[LoginForm] Sign in attempted but user uses Google - showing error')
               setAuthError(
                 'This account uses Google sign-in. Please use the Google sign-in option instead.',
               )
               setLoadingState('idle')
               return
             }
-            console.log('[LoginForm] User exists with email method - proceeding to signIn')
           }
         } else {
           console.log('[LoginForm] User does not exist - proceeding to signIn')
@@ -131,7 +117,6 @@ export default function LoginForm({ mode = 'signin' }: LoginFormProps) {
         console.error('[LoginForm] check-login-method error:', errorText)
       }
 
-      console.log('[LoginForm] About to call signIn with email provider')
       const signInStartTime = Date.now()
 
       const result = await signIn('email', {

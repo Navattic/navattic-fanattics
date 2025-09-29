@@ -128,8 +128,6 @@ async function handleUrlUpload(req: Request, session: any) {
   }
 
   try {
-    console.log('[Upload Avatar] Processing URL upload:', url)
-
     // Download image as buffer
     const imageRes = await fetch(url)
     if (!imageRes.ok) {
@@ -161,8 +159,6 @@ async function handleUrlUpload(req: Request, session: any) {
         size: imageBuffer.byteLength,
       },
     })
-
-    console.log('[Upload Avatar] Successfully created avatar from URL:', uploadedAvatar.id)
 
     // Find and update user
     const users = await payload.find({

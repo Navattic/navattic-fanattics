@@ -158,16 +158,30 @@ export const authOptions: NextAuthOptions = {
       server: null,
       from: 'noreply@mail.navattic.dev',
       async sendVerificationRequest({ identifier: email, url }) {
+        // Production-only logging to diagnose issues
+        if (process.env.NODE_ENV === 'production') {
+          console.log('[Auth] Production magic link request started for:', email)
+        }
+
         try {
-          // Add a small delay to fix potential race condition
-          await new Promise((resolve) => setTimeout(resolve, 10))
+          // Increase delay for production environment
+          const delay = process.env.NODE_ENV === 'production' ? 100 : 10
+          await new Promise((resolve) => setTimeout(resolve, delay))
+
+          if (process.env.NODE_ENV === 'production') {
+            console.log('[Auth] Getting payload client...')
+          }
 
           const payload = await getPayload({ config })
-          const { host } = new URL(url)
 
-          // Add email parameter to the URL
+          if (process.env.NODE_ENV === 'production') {
+            console.log('[Auth] Payload client obtained, sending email...')
+          }
+
+          const { host } = new URL(url)
           const urlWithEmail = `${url}${url.includes('?') ? '&' : '?'}email=${encodeURIComponent(email)}`
 
+          const startTime = Date.now()
           await payload.sendEmail({
             to: email,
             from: 'noreply@mail.navattic.dev',
@@ -216,8 +230,19 @@ export const authOptions: NextAuthOptions = {
               </html>
             `,
           })
+
+          if (process.env.NODE_ENV === 'production') {
+            const duration = Date.now() - startTime
+            console.log(`[Auth] Email sent successfully in ${duration}ms`)
+          }
         } catch (error) {
           console.error('[Auth] Failed to send magic link:', error)
+          if (process.env.NODE_ENV === 'production') {
+            console.error('[Auth] Production error details:', {
+              name: error instanceof Error ? error.name : 'Unknown',
+              message: error instanceof Error ? error.message : String(error),
+            })
+          }
           throw new Error('Failed to send verification email')
         }
       },

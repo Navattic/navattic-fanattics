@@ -15,8 +15,6 @@ export async function GET(req: NextRequest) {
     const url = new URL(req.url)
     const query = url.searchParams.get('query') || ''
 
-    console.log(`[Companies] Fetching companies with query: ${query || '(none)'}`)
-
     const companies = await payload.find({
       collection: 'companies',
       where: query
@@ -36,15 +34,6 @@ export async function GET(req: NextRequest) {
           }
         : {},
       limit: 20,
-    })
-
-    console.log(`[Companies] Found ${companies.docs.length} companies`)
-
-    // Log each company's data to help diagnose logo issues
-    companies.docs.forEach((company, index) => {
-      console.log(
-        `[Companies] Company ${index + 1}: Name=${company.name}, Logo=${company.logoSrc || '(none)'}`,
-      )
     })
 
     return NextResponse.json(companies)

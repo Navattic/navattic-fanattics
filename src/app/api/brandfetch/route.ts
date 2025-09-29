@@ -33,11 +33,8 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'Company name is required' }, { status: 400 })
     }
 
-    console.log(`[Brandfetch] Searching for company: ${companyName}`)
-
     // Replace this with your Brandfetch API key
     const apiKey = process.env.BRANDFETCH_API_KEY
-    console.log(`[Brandfetch] API Key configured: ${!!apiKey}`)
 
     if (!apiKey) {
       console.warn('[Brandfetch] API key not configured.')
@@ -53,16 +50,12 @@ export async function GET(req: NextRequest) {
     // First, search for the company by name
     const searchUrl = `https://api.brandfetch.io/v2/search/${encodeURIComponent(companyName)}`
 
-    console.log(`[Brandfetch] Search request URL: ${searchUrl}`)
-
     const searchResponse = await fetch(searchUrl, {
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${apiKey}`,
       },
     })
-
-    console.log(`[Brandfetch] Search response status: ${searchResponse.status}`)
 
     if (!searchResponse.ok) {
       console.error(`[Brandfetch] Search error: ${searchResponse.status}`)
@@ -76,10 +69,8 @@ export async function GET(req: NextRequest) {
     }
 
     const searchData = await searchResponse.json()
-    console.log(`[Brandfetch] Raw search results:`, searchData)
 
     if (!searchData.length) {
-      console.log(`[Brandfetch] No results found for ${companyName}`)
       return NextResponse.json({
         data: {
           name: companyName,
@@ -91,10 +82,8 @@ export async function GET(req: NextRequest) {
 
     // Get the domain of the first result
     const domain = searchData[0].domain
-    console.log(`[Brandfetch] First result domain: ${domain}`)
 
     if (!domain) {
-      console.log(`[Brandfetch] No domain found in search results`)
       return NextResponse.json({
         data: {
           name: companyName,
@@ -107,9 +96,6 @@ export async function GET(req: NextRequest) {
     // Generate the Brandfetch CDN URL
     const logoUrl = `https://cdn.brandfetch.io/${domain}/w/48/h/42/symbol?c=1idjh-kE7Sr91f3HSWS`
     const website = `https://${domain}`
-
-    console.log(`[Brandfetch] Generated logo URL: ${logoUrl}`)
-    console.log(`[Brandfetch] Generated website: ${website}`)
 
     return NextResponse.json({
       data: {
