@@ -21,6 +21,7 @@ function PayloadAdapter(): Adapter {
           roles: ['user'],
           loginMethod: data.account?.provider === 'google' ? 'google' : 'email',
           password: v4(),
+          timezone: 'UTC',
         },
       })
       return {
