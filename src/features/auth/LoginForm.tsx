@@ -160,7 +160,7 @@ export default function LoginForm({ mode = 'signin' }: LoginFormProps) {
         <h1 className="text-lg font-bold text-gray-800">Check your email</h1>
         <p className="text-balance text-gray-600">
           We sent you a magic link. Click the link in your email to{' '}
-          {isSignUp ? 'complete your registration' : 'sign in'}. This may take a few minutes.
+          {isSignUp ? 'complete your registration' : 'sign in'}. This may take up to 5 minutes.
           <br />
           <br />
           If you don&apos;t see it after some time, please contact us at{' '}
@@ -189,7 +189,7 @@ export default function LoginForm({ mode = 'signin' }: LoginFormProps) {
         <h1 className="text-lg font-bold text-gray-800">Check your email</h1>
         <p className="text-balance text-gray-600">
           We sent you a magic link. Click the link in your email to{' '}
-          {isSignUp ? 'complete your registration' : 'sign in'}. This may take a few minutes.
+          {isSignUp ? 'complete your registration' : 'sign in'}. This may take up to 5 minutes.
           <br />
           <br />
           If you don&apos;t see it after some time, please contact us at{' '}
