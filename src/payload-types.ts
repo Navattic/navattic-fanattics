@@ -362,14 +362,26 @@ export interface Event {
      * Display format of the date (e.g., "Wednesday, March 5")
      */
     displayDate: string;
-    /**
-     * Start date and time of the event
-     */
-    startTime: string;
-    /**
-     * End date and time of the event
-     */
-    endTime: string;
+    startTime: {
+      /**
+       * Event date
+       */
+      date: string;
+      /**
+       * Event start time (e.g., "4:00 PM")
+       */
+      time: string;
+    };
+    endTime: {
+      /**
+       * Event end date
+       */
+      date: string;
+      /**
+       * Event end time (e.g., "8:00 PM")
+       */
+      time: string;
+    };
     timeZone: 'CDT' | 'CST' | 'EDT' | 'EST' | 'PDT' | 'PST';
   };
   updatedAt: string;
@@ -631,8 +643,18 @@ export interface EventsSelect<T extends boolean = true> {
     | T
     | {
         displayDate?: T;
-        startTime?: T;
-        endTime?: T;
+        startTime?:
+          | T
+          | {
+              date?: T;
+              time?: T;
+            };
+        endTime?:
+          | T
+          | {
+              date?: T;
+              time?: T;
+            };
         timeZone?: T;
       };
   updatedAt?: T;

@@ -109,27 +109,74 @@ export const Events: CollectionConfig = {
         },
         {
           name: 'startTime',
-          type: 'date',
-          required: true,
-          admin: {
-            date: {
-              pickerAppearance: 'dayAndTime',
-              displayFormat: 'MMM d, yyyy h:mm a',
+          type: 'group',
+          fields: [
+            {
+              name: 'date',
+              type: 'date',
+              required: true,
+              admin: {
+                date: {
+                  pickerAppearance: 'dayOnly',
+                  displayFormat: 'MMM d, yyyy',
+                },
+                description: 'Event date',
+              },
             },
-            description: 'Start date and time of the event',
-          },
+            {
+              name: 'time',
+              type: 'text',
+              required: true,
+              admin: {
+                description: 'Event start time (e.g., "4:00 PM")',
+                placeholder: '4:00 PM',
+              },
+              validate: (value: string | null | undefined) => {
+                if (!value) return 'Time is required'
+                // Validate time format
+                const timeRegex = /^(1[0-2]|0?[1-9]):([0-5][0-9])\s?(AM|PM)$/i
+                if (!timeRegex.test(value)) {
+                  return 'Please enter time in format "4:00 PM"'
+                }
+                return true
+              },
+            },
+          ],
         },
         {
           name: 'endTime',
-          type: 'date',
-          required: true,
-          admin: {
-            date: {
-              pickerAppearance: 'dayAndTime',
-              displayFormat: 'MMM d, yyyy h:mm a',
+          type: 'group',
+          fields: [
+            {
+              name: 'date',
+              type: 'date',
+              required: true,
+              admin: {
+                date: {
+                  pickerAppearance: 'dayOnly',
+                  displayFormat: 'MMM d, yyyy',
+                },
+                description: 'Event end date',
+              },
             },
-            description: 'End date and time of the event',
-          },
+            {
+              name: 'time',
+              type: 'text',
+              required: true,
+              admin: {
+                description: 'Event end time (e.g., "8:00 PM")',
+                placeholder: '8:00 PM',
+              },
+              validate: (value: string | null | undefined) => {
+                if (!value) return 'Time is required'
+                const timeRegex = /^(1[0-2]|0?[1-9]):([0-5][0-9])\s?(AM|PM)$/i
+                if (!timeRegex.test(value)) {
+                  return 'Please enter time in format "8:00 PM"'
+                }
+                return true
+              },
+            },
+          ],
         },
         {
           name: 'timeZone',

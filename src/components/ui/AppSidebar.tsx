@@ -168,7 +168,7 @@ export function AppSidebar() {
                     <div className="flex w-full cursor-pointer items-center justify-between">
                       <div className="flex items-center gap-2 text-sm font-medium text-gray-600">
                         <Avatar user={user} size="sm" showCompany={false} />
-                        <span className="capitalize">
+                        <span className="block max-w-[15ch] truncate capitalize">
                           {user?.firstName} {user?.lastName}
                         </span>
                       </div>

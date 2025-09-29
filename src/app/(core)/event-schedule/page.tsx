@@ -4,7 +4,6 @@ import { Container } from '@/components/ui'
 import { Event, Media } from '@/payload-types'
 import Image from 'next/image'
 import { Badge, Button, Icon, Link } from '@/components/ui'
-import { formatDate, getTimezoneFromAbbreviation } from '@/utils/formatDate'
 import { calculateUserPoints } from '@/lib/users/points'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/authOptions'
@@ -59,26 +58,8 @@ const EventEntry = ({ event, isPastEvent }: { event: Event; isPastEvent?: boolea
             <div className="text-sm text-gray-500">
               <div className="font-semibold text-gray-800">{event.date.displayDate}</div>
               <div className="whitespace-nowrap">
-                {formatDate(event.date.startTime, {
-                  includeMonth: false,
-                  includeDay: false,
-                  includeYear: false,
-                  includeTime: true,
-                  timezone: getTimezoneFromAbbreviation(event.date.timeZone),
-                })}
-                {event.date.endTime && (
-                  <>
-                    {' '}
-                    -{' '}
-                    {formatDate(event.date.endTime, {
-                      includeMonth: false,
-                      includeDay: false,
-                      includeYear: false,
-                      includeTime: true,
-                      timezone: getTimezoneFromAbbreviation(event.date.timeZone),
-                    })}
-                  </>
-                )}
+                {event.date.startTime.time}
+                {event.date.endTime && <> - {event.date.endTime.time}</>}
                 {event.date.timeZone && ` (${event.date.timeZone})`}
               </div>
             </div>
@@ -104,12 +85,19 @@ const EventSchedule = async () => {
     collection: 'Events',
   })
 
-  const upcomingEvents = events.docs.filter(
-    (event) => new Date(event.date.endTime ?? event.date.startTime) > new Date(),
-  )
-  const pastEvents = events.docs.filter(
-    (event) => new Date(event.date.endTime ?? event.date.startTime) < new Date(),
-  )
+  const upcomingEvents = events.docs.filter((event) => {
+    const eventDate = new Date(event.date.endTime?.date ?? event.date.startTime.date)
+    const oneDayAgo = new Date()
+    oneDayAgo.setDate(oneDayAgo.getDate() - 1)
+    return eventDate > oneDayAgo
+  })
+
+  const pastEvents = events.docs.filter((event) => {
+    const eventDate = new Date(event.date.endTime?.date ?? event.date.startTime.date)
+    const oneDayAgo = new Date()
+    oneDayAgo.setDate(oneDayAgo.getDate() - 1)
+    return eventDate <= oneDayAgo
+  })
 
   const session = await getServerSession(authOptions)
   const sessionUser = (

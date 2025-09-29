@@ -100,16 +100,8 @@ function getOrdinalSuffix(day: number): string {
 
 // Helper function to convert timezone abbreviations to IANA timezone identifiers
 export function getTimezoneFromAbbreviation(abbreviation: string): string {
-  const timezoneMap: Record<string, string> = {
-    CDT: 'America/Chicago', // Central Daylight Time
-    CST: 'America/Chicago', // Central Standard Time
-    EDT: 'America/New_York', // Eastern Daylight Time
-    EST: 'America/New_York', // Eastern Standard Time
-    PDT: 'America/Los_Angeles', // Pacific Daylight Time
-    PST: 'America/Los_Angeles', // Pacific Standard Time
-  }
-
-  return timezoneMap[abbreviation] || 'UTC'
+  // Don't convert - display times as they were stored
+  return 'UTC'
 }
 
 export function formatPostDate(isoString: string) {
