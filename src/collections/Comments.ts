@@ -1,7 +1,5 @@
 import type { CollectionConfig } from 'payload'
-import { Resend } from 'resend'
-
-const resend = new Resend(process.env.RESEND_API_KEY)
+import { resend } from '@/lib/resendClient'
 
 export const Comments: CollectionConfig = {
   slug: 'comments',

@@ -6,8 +6,6 @@ import config from '@/payload.config'
 import { v4 } from 'uuid'
 import { Adapter, AdapterUser } from 'next-auth/adapters'
 
-// TODO: change email address to .com for prod from .dev
-
 function PayloadAdapter(): Adapter {
   return {
     async createUser(data: AdapterUser & { account?: { provider: string } }) {
@@ -160,60 +158,68 @@ export const authOptions: NextAuthOptions = {
       server: null,
       from: 'noreply@mail.navattic.dev',
       async sendVerificationRequest({ identifier: email, url }) {
-        const payload = await getPayload({ config })
-        const { host } = new URL(url)
+        try {
+          // Add a small delay to fix potential race condition
+          await new Promise((resolve) => setTimeout(resolve, 10))
 
-        // Add email parameter to the URL
-        const urlWithEmail = `${url}${url.includes('?') ? '&' : '?'}email=${encodeURIComponent(email)}`
+          const payload = await getPayload({ config })
+          const { host } = new URL(url)
 
-        await payload.sendEmail({
-          to: email,
-          from: 'noreply@mail.navattic.dev',
-          subject: `Sign in to ${host}`,
-          html: `
-            <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-              <html dir="ltr" lang="en">
-                <head>
-                  <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
-                  <meta name="x-apple-disable-message-reformatting" />
-                </head>
+          // Add email parameter to the URL
+          const urlWithEmail = `${url}${url.includes('?') ? '&' : '?'}email=${encodeURIComponent(email)}`
 
-              <body style="background-color:#FCFCFD;padding:30px 0 50px 0;font-family:&quot;Helvetica Neue&quot;,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased">
-                <table align="center" width="100%" border="0" cellPadding="0" cellSpacing="0" role="presentation" style="max-width:560px;margin:0 auto;padding:40px 50px;background:#fff;border:1px solid #d8e2e7;border-radius:13px">
-                  <tbody>
-                    <tr style="width:100%">
-                      <td>
-                        <table align="center" width="100%" border="0" cellPadding="0" cellSpacing="0" role="presentation" style="display:flex">
-                          <tbody>
-                            <tr>
-                              <td>
-                              <td data-id="__react-email-column"><img src="https://app.navattic.com/email/navattic-logo.png" style="display:block;outline:none;border:none;text-decoration:none;width:100px;height:18px" /></td>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-                <table align="center" width="100%" border="0" cellPadding="0" cellSpacing="0" role="presentation" style="margin-top:30px">
-                  <tbody>
-                    <tr>
-                      <td>
-                        <h2 style="color:rgb(31,41,55);margin:0 auto;font-size:24px;line-height:1.4;font-weight:600;margin-bottom:20px">Sign in to the Fanattic Portal!</h2>
-                        <p style="font-size:16px;line-height:160%;margin-top:16px;margin-bottom:16px">Click the button below to sign in to your account. If you didn&#x27;t request this, you can safely ignore this email.</p>
-                        <a href='${urlWithEmail}' style="display:inline-block;text-align:center;text-decoration-line:none;font-weight:500;line-height:1.25rem;cursor:pointer;padding-top:0.5rem;padding-bottom:0.5rem;font-size:0.875rem;border-radius:0.5rem;padding-left:0.75rem;padding-right:0.75rem;background-color:rgb(31,41,55);color:rgb(255,255,255);border-width:1px;border-style:solid;border-color:rgb(6,7,8);text-decoration:none;max-width:100%;mso-padding-alt:0px;padding:8px 12px 8px 12px" target="_blank">Sign in here
-                        </a>
+          await payload.sendEmail({
+            to: email,
+            from: 'noreply@mail.navattic.dev',
+            subject: `Sign in to ${host}`,
+            html: `
+              <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+                <html dir="ltr" lang="en">
+                  <head>
+                    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
+                    <meta name="x-apple-disable-message-reformatting" />
+                  </head>
 
-                        <p style="font-size:16px;line-height:160%;margin-top:48px;margin-bottom:16px">If you have any questions, please reach out to <a href="mailto:natalie.marcotullio@navattic.com" rel="noreferrer" style="color:rgb(29 64 175);text-decoration-line:none;line-height:160%" target="_blank">natalie.marcotullio@navattic.com</a></p>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-                </td>
-                </tr>
-                </tbody>
-                </table>
-              </body>
-            </html>
-          `,
-        })
+                <body style="background-color:#FCFCFD;padding:30px 0 50px 0;font-family:&quot;Helvetica Neue&quot;,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased">
+                  <table align="center" width="100%" border="0" cellPadding="0" cellSpacing="0" role="presentation" style="max-width:560px;margin:0 auto;padding:40px 50px;background:#fff;border:1px solid #d8e2e7;border-radius:13px">
+                    <tbody>
+                      <tr style="width:100%">
+                        <td>
+                          <table align="center" width="100%" border="0" cellPadding="0" cellSpacing="0" role="presentation" style="display:flex">
+                            <tbody>
+                              <tr>
+                                <td>
+                                <td data-id="__react-email-column"><img src="https://app.navattic.com/email/navattic-logo.png" style="display:block;outline:none;border:none;text-decoration:none;width:100px;height:18px" /></td>
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                          <table align="center" width="100%" border="0" cellPadding="0" cellSpacing="0" role="presentation" style="margin-top:30px">
+                            <tbody>
+                              <tr>
+                                <td>
+                                  <h2 style="color:rgb(31,41,55);margin:0 auto;font-size:24px;line-height:1.4;font-weight:600;margin-bottom:20px">Sign in to the Fanattic Portal!</h2>
+                                  <p style="font-size:16px;line-height:160%;margin-top:16px;margin-bottom:16px">Click the button below to sign in to your account. If you didn&#x27;t request this, you can safely ignore this email.</p>
+                                  <a href='${urlWithEmail}' style="display:inline-block;text-align:center;text-decoration-line:none;font-weight:500;line-height:1.25rem;cursor:pointer;padding-top:0.5rem;padding-bottom:0.5rem;font-size:0.875rem;border-radius:0.5rem;padding-left:0.75rem;padding-right:0.75rem;background-color:rgb(31,41,55);color:rgb(255,255,255);border-width:1px;border-style:solid;border-color:rgb(6,7,8);text-decoration:none;max-width:100%;mso-padding-alt:0px;padding:8px 12px 8px 12px" target="_blank">Sign in here
+                                  </a>
+
+                                  <p style="font-size:16px;line-height:160%;margin-top:48px;margin-bottom:16px">If you have any questions, please reach out to <a href="mailto:fanattic@navattic.com" rel="noreferrer" style="color:rgb(29 64 175);text-decoration-line:none;line-height:160%" target="_blank">fanattic@navattic.com</a></p>
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </body>
+              </html>
+            `,
+          })
+        } catch (error) {
+          console.error('[Auth] Failed to send magic link:', error)
+          throw new Error('Failed to send verification email')
+        }
       },
     }),
     GoogleProvider({

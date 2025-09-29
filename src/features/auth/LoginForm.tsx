@@ -73,8 +73,14 @@ export default function LoginForm({ mode = 'signin' }: LoginFormProps) {
   const handleEmailAuth = async (data: EmailFormData) => {
     setLoadingState('email')
     setAuthError(null)
+
+    console.log('[LoginForm] Starting email auth for:', data.email)
+    console.log('[LoginForm] isSignUp mode:', isSignUp)
+
     try {
       // First check if the user exists and what login method they use
+      console.log('[LoginForm] Calling check-login-method API...')
+
       const checkResponse = await fetch('/api/auth/check-login-method', {
         method: 'POST',
         headers: {
@@ -83,11 +89,18 @@ export default function LoginForm({ mode = 'signin' }: LoginFormProps) {
         body: JSON.stringify({ email: data.email }),
       })
 
+      console.log('[LoginForm] check-login-method response status:', checkResponse.status)
+
       if (checkResponse.ok) {
         const checkData = await checkResponse.json()
+        console.log('[LoginForm] check-login-method data:', checkData)
+
         if (checkData.exists) {
+          console.log('[LoginForm] User exists with loginMethod:', checkData.loginMethod)
+
           if (isSignUp) {
             // For sign up, if user exists, show appropriate error
+            console.log('[LoginForm] Sign up attempted but user exists - showing error')
             if (checkData.loginMethod === 'google') {
               setAuthError(
                 'This account uses Google sign-in. Please use the Google sign-in option instead.',
@@ -95,18 +108,31 @@ export default function LoginForm({ mode = 'signin' }: LoginFormProps) {
             } else {
               setAuthError('An account with this email already exists. Please sign in instead.')
             }
+            setLoadingState('idle')
+            return
           } else {
             // For sign in, if user exists but uses different method
             if (checkData.loginMethod === 'google') {
+              console.log('[LoginForm] Sign in attempted but user uses Google - showing error')
               setAuthError(
                 'This account uses Google sign-in. Please use the Google sign-in option instead.',
               )
+              setLoadingState('idle')
+              return
             }
+            console.log('[LoginForm] User exists with email method - proceeding to signIn')
           }
-          setLoadingState('idle')
-          return
+        } else {
+          console.log('[LoginForm] User does not exist - proceeding to signIn')
         }
+      } else {
+        console.error('[LoginForm] check-login-method failed with status:', checkResponse.status)
+        const errorText = await checkResponse.text()
+        console.error('[LoginForm] check-login-method error:', errorText)
       }
+
+      console.log('[LoginForm] About to call signIn with email provider')
+      const signInStartTime = Date.now()
 
       const result = await signIn('email', {
         email: data.email,
@@ -114,20 +140,34 @@ export default function LoginForm({ mode = 'signin' }: LoginFormProps) {
         redirect: false,
       })
 
+      const signInDuration = Date.now() - signInStartTime
+      console.log(`[LoginForm] SignIn completed in ${signInDuration}ms`)
+      console.log('[LoginForm] SignIn result:', {
+        ok: result?.ok,
+        error: result?.error,
+        status: result?.status,
+        url: result?.url,
+      })
+
       if (result?.error) {
+        console.error('[LoginForm] SignIn error details:', result.error)
         setAuthError(
           `An error occurred during ${isSignUp ? 'sign up' : 'sign in'}. Please try again.`,
         )
       } else if (result?.ok === false) {
+        console.error('[LoginForm] SignIn failed with ok=false')
         setAuthError(
           `An error occurred during ${isSignUp ? 'sign up' : 'sign in'}. Please try again.`,
         )
       } else {
+        console.log('[LoginForm] SignIn successful, setting emailSent=true')
         setEmailSent(true)
       }
     } catch (error) {
-      console.error(`Error sending magic link:`, error)
-      setAuthError('An unexpected error occurred. Please try again.')
+      console.error(`[LoginForm] Exception during email auth:`, error)
+      setAuthError(
+        `An error occurred during ${isSignUp ? 'sign up' : 'sign in'}. Please try again.`,
+      )
     } finally {
       setLoadingState('idle')
     }
@@ -147,9 +187,16 @@ export default function LoginForm({ mode = 'signin' }: LoginFormProps) {
           />
         </div>
         <h1 className="text-lg font-bold text-gray-800">Check your email</h1>
-        <p className="text-gray-600">
+        <p className="text-balance text-gray-600">
           We sent you a magic link. Click the link in your email to{' '}
           {isSignUp ? 'complete your registration' : 'sign in'}. This may take a few minutes.
+          <br />
+          <br />
+          If you don&apos;t see it after some time, please contact us at{' '}
+          <a href="mailto:fanattic@navattic.com" className="text-blue-600 hover:underline">
+            fanattic@navattic.com
+          </a>
+          .
         </p>
       </div>
     )
@@ -169,9 +216,16 @@ export default function LoginForm({ mode = 'signin' }: LoginFormProps) {
           />
         </div>
         <h1 className="text-lg font-bold text-gray-800">Check your email</h1>
-        <p className="text-gray-600">
+        <p className="text-balance text-gray-600">
           We sent you a magic link. Click the link in your email to{' '}
           {isSignUp ? 'complete your registration' : 'sign in'}. This may take a few minutes.
+          <br />
+          <br />
+          If you don&apos;t see it after some time, please contact us at{' '}
+          <a href="mailto:fanattic@navattic.com" className="text-blue-600 hover:underline">
+            fanattic@navattic.com
+          </a>
+          .
         </p>
       </div>
     )

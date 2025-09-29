@@ -1,9 +1,7 @@
 import { formatSlug } from '@/utils/formatSlug'
 import type { CollectionConfig } from 'payload'
 import { v4 as uuidv4 } from 'uuid'
-import { Resend } from 'resend'
-
-const resend = new Resend(process.env.RESEND_API_KEY)
+import { resend } from '@/lib/resendClient'
 
 export const Users: CollectionConfig = {
   slug: 'users',

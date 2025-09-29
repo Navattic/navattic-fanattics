@@ -3,7 +3,7 @@ import type { CollectionConfig } from 'payload'
 export const VerificationTokens: CollectionConfig = {
   slug: 'verification-tokens',
   admin: {
-    hidden: true, // Hide from admin UI
+    hidden: true,
   },
   access: {
     create: () => true,
@@ -13,7 +13,7 @@ export const VerificationTokens: CollectionConfig = {
   },
   fields: [
     {
-      name: 'identifier', // email address
+      name: 'identifier',
       type: 'text',
       required: true,
       index: true,
@@ -31,20 +31,6 @@ export const VerificationTokens: CollectionConfig = {
       index: true,
     },
   ],
-  hooks: {
-    beforeValidate: [
-      // Clean up expired tokens
-      async ({ req }) => {
-        const payload = req.payload
-        await payload.delete({
-          collection: 'verification-tokens', // Match the slug with hyphen
-          where: {
-            expires: {
-              less_than: new Date(),
-            },
-          },
-        })
-      },
-    ],
-  },
+  // Remove the beforeValidate hook that runs cleanup on every request
+  // Instead, run cleanup periodically via cron job or separate process
 }
