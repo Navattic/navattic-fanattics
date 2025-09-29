@@ -114,7 +114,7 @@ export const Events: CollectionConfig = {
           admin: {
             date: {
               pickerAppearance: 'dayAndTime',
-              displayFormat: 'MMM D, YYYY h:mm a',
+              displayFormat: 'MMM d, yyyy h:mm a',
             },
             description: 'Start date and time of the event',
           },
@@ -126,7 +126,7 @@ export const Events: CollectionConfig = {
           admin: {
             date: {
               pickerAppearance: 'dayAndTime',
-              displayFormat: 'MMM D, YYYY h:mm a',
+              displayFormat: 'MMM d, yyyy h:mm a',
             },
             description: 'End date and time of the event',
           },
