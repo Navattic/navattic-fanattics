@@ -62,9 +62,11 @@ export const adjustLikes = async ({
     }
   }
 
-  const currentLikedBy = (comment.likedBy as User[]) || []
+  const currentLikedBy = Array.isArray(comment.likedBy)
+    ? (comment.likedBy as User[]).filter((u) => u && typeof u === 'object' && u.id)
+    : []
   const isCurrentlyLiked = currentLikedBy.some((u) => u.id === user.id)
-  const newLikes = (comment.likes || 0) + amount
+  const newLikes = Math.max(0, (comment.likes || 0) + amount) // Prevent negative likes
 
   let newLikedBy: User[]
   if (amount > 0 && !isCurrentlyLiked) {

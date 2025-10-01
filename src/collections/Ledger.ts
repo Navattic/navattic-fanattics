@@ -14,7 +14,7 @@ export const Ledger: CollectionConfig = {
     read: () => true,
     create: () => true,
     update: () => true,
-    delete: () => false,
+    delete: () => true,
   },
   fields: [
     {
