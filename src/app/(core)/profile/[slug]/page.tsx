@@ -8,17 +8,6 @@ import { calculateUserPoints } from '@/lib/users/points'
 import { payload } from '@/lib/payloadClient'
 import { User, Ledger, Comment } from '@/payload-types'
 
-interface PopulatedUser extends User {
-  ledgerEntries?: {
-    docs?: Ledger[]
-    hasNextPage?: boolean
-  }
-  comments?: {
-    docs?: Comment[]
-    hasNextPage?: boolean
-  }
-}
-
 const ProfilePage = async ({ params }: { params: Promise<{ slug: string }> }) => {
   const { slug } = await params
 
@@ -62,7 +51,7 @@ const ProfilePage = async ({ params }: { params: Promise<{ slug: string }> }) =>
 
   const currentUser = currentUserResponse.docs[0]
 
-  // Fetch the user profile with populated data
+  // Fetch the user profile (without populated data - we'll fetch separately)
   const userResponse = await payload.find({
     collection: 'users',
     where: {
@@ -71,17 +60,7 @@ const ProfilePage = async ({ params }: { params: Promise<{ slug: string }> }) =>
       },
     },
     limit: 1,
-    depth: 2,
-    populate: {
-      ledger: {
-        challenge_id: true,
-        amount: true,
-      },
-      comments: {
-        status: true,
-        deleted: true,
-      },
-    },
+    depth: 1,
   })
 
   // If no user found with this slug, return 404
@@ -89,42 +68,63 @@ const ProfilePage = async ({ params }: { params: Promise<{ slug: string }> }) =>
     notFound()
   }
 
-  const user = userResponse.docs[0] as PopulatedUser
+  const user = userResponse.docs[0]
+
+  // Fetch ledger entries and comments separately for more reliable stats
+  const [userLedgerEntries, userComments] = await Promise.all([
+    payload.find({
+      collection: 'ledger',
+      where: {
+        user_id: { equals: user.id },
+      },
+      limit: 1000,
+      depth: 1,
+    }),
+    payload.find({
+      collection: 'comments',
+      where: {
+        user: { equals: user.id },
+        status: { equals: 'approved' },
+        deleted: { equals: false },
+      },
+      limit: 1000,
+    }),
+  ])
 
   // Check if this is the user's own profile
   const isOwnProfile = currentUser && currentUser.id === user.id
 
-  // Calculate total points earned (only positive entries)
-  const totalPointsEarned =
-    user.ledgerEntries?.docs
-      ?.filter((entry) => entry.amount > 0)
-      .reduce((total, entry) => total + (entry.amount || 0), 0) || 0
-
-  // Calculate current balance (for PageHeader)
-  const currentBalance = await calculateUserPoints({ user })
-
-  // Calculate real statistics
+  // Calculate challenges completed (unique challenge IDs from positive ledger entries)
   const completedChallenges = new Set(
-    user.ledgerEntries?.docs
-      ?.filter(
-        (entry) =>
-          entry.amount > 0 &&
-          entry.challenge_id &&
+    userLedgerEntries.docs
+      .filter(
+        (entry: Ledger) =>
+          entry.amount > 0 && // Only count positive point entries
+          entry.challenge_id && // Must have a challenge reference
           typeof entry.challenge_id === 'object' &&
           entry.challenge_id?.id,
       )
-      .map((entry) => (typeof entry.challenge_id === 'object' ? entry.challenge_id?.id : null))
-      .filter(Boolean) || [],
+      .map((entry: Ledger) =>
+        typeof entry.challenge_id === 'object' ? entry.challenge_id?.id : null,
+      )
+      .filter(Boolean),
   )
 
-  const itemsRedeemed =
-    user.ledgerEntries?.docs?.filter(
-      (entry) => entry.amount < 0 && entry.reason?.toLowerCase().includes('redeem'),
-    ).length || 0
+  // Calculate total points earned (only positive entries)
+  const totalPointsEarned = userLedgerEntries.docs
+    .filter((entry: Ledger) => entry.amount > 0)
+    .reduce((total: number, entry: Ledger) => total + (entry.amount || 0), 0)
 
-  const commentsWritten =
-    user.comments?.docs?.filter((comment) => comment.status === 'approved' && !comment.deleted)
-      .length || 0
+  // Calculate items redeemed
+  const itemsRedeemed = userLedgerEntries.docs.filter(
+    (entry: Ledger) => entry.amount < 0 && entry.reason?.toLowerCase().includes('redeem'),
+  ).length
+
+  // Calculate comments written
+  const commentsWritten = userComments.docs.length
+
+  // Calculate current balance (for PageHeader)
+  const currentBalance = await calculateUserPoints({ user })
 
   const userStats = {
     points: totalPointsEarned, // Total points earned over time
