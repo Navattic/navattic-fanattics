@@ -5,16 +5,25 @@ import { Suspense } from 'react'
 import { CommentSkeleton } from '@/components/ui/Skeletons/CommentSkeleton'
 import { useOptimisticComments, OptimisticComment } from './OptimisticCommentsContext'
 
+interface UserStats {
+  points: number
+  challengesCompleted: number
+  itemsRedeemed: number
+  commentsWritten: number
+}
+
 function CommentTree({
   comment,
   currentUser,
   challenge,
   repliesMap,
+  userStatsMap,
 }: {
   comment: Comment | OptimisticComment
   currentUser: User
   challenge: Challenge
   repliesMap: Record<string, (Comment | OptimisticComment)[]>
+  userStatsMap?: Map<number, UserStats>
 }) {
   const replies = repliesMap[comment.id] || []
   const hasChild = replies.length > 0
@@ -36,6 +45,7 @@ function CommentTree({
         hasParent={hasParent}
         isLastChildOfParent={isLastChildOfParent}
         parentHasSiblings={parentHasSiblings}
+        userStatsMap={userStatsMap}
       />
       {replies.map((reply) => {
         return (
@@ -47,6 +57,7 @@ function CommentTree({
               currentUser={currentUser}
               challenge={challenge}
               repliesMap={repliesMap}
+              userStatsMap={userStatsMap}
             />
           </div>
         )
@@ -58,9 +69,11 @@ function CommentTree({
 const CommentSection = ({
   challenge,
   currentUser,
+  userStatsMap,
 }: {
   challenge: Challenge & { comments: Comment[] }
-  currentUser: User 
+  currentUser: User
+  userStatsMap?: Map<number, UserStats>
 }) => {
   const { optimisticComments, realComments } = useOptimisticComments()
 
@@ -104,6 +117,7 @@ const CommentSection = ({
               currentUser={currentUser}
               challenge={challenge}
               repliesMap={repliesMap}
+              userStatsMap={userStatsMap}
             />
           </Suspense>
         )

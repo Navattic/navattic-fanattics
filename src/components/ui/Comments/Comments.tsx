@@ -11,6 +11,13 @@ import { Icon, Avatar } from '@/components/ui'
 import { OpenProfileDrawer } from '../UserProfilePreviewModal/OpenProfileDrawer'
 import { OptimisticComment } from '@/features/comments/OptimisticCommentsContext'
 
+interface UserStats {
+  points: number
+  challengesCompleted: number
+  itemsRedeemed: number
+  commentsWritten: number
+}
+
 // Type guard to check if comment is optimistic
 function isOptimisticComment(comment: Comment | OptimisticComment): comment is OptimisticComment {
   return 'isOptimistic' in comment && comment.isOptimistic === true
@@ -24,6 +31,7 @@ export function CommentBlock({
   isLastChildOfParent,
   hasParent,
   parentHasSiblings,
+  userStatsMap,
 }: {
   comment: Comment | OptimisticComment
   currentUser: User
@@ -32,6 +40,7 @@ export function CommentBlock({
   isLastChildOfParent: boolean
   hasParent: boolean
   parentHasSiblings: boolean
+  userStatsMap?: Map<number, UserStats>
 }) {
   const [openReply, setOpenReply] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
@@ -55,6 +64,9 @@ export function CommentBlock({
 
   const commentAuthor = comment.user as User
 
+  // Get user stats for this comment author
+  const userStats = commentAuthor && userStatsMap ? userStatsMap.get(commentAuthor.id) : undefined
+
   return (
     <>
       <div key={comment.id} className="flex flex-col">
@@ -77,6 +89,7 @@ export function CommentBlock({
             ) : commentAuthor ? (
               <OpenProfileDrawer
                 user={commentAuthor}
+                stats={userStats}
                 className="cursor-pointer text-base font-semibold text-gray-800 capitalize hover:underline"
               >
                 {commentAuthor.firstName} {commentAuthor.lastName}

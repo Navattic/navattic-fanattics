@@ -7,12 +7,21 @@ import { OptimisticCommentsProvider } from '@/features/comments/OptimisticCommen
 import { CommentErrorBoundary } from '@/features/comments/ErrorBoundary'
 import { Empty } from '@/components/ui'
 
+interface UserStats {
+  points: number
+  challengesCompleted: number
+  itemsRedeemed: number
+  commentsWritten: number
+}
+
 export const Comments = ({
   user,
   challenge,
+  userStatsMap,
 }: {
   user: User
   challenge: Challenge & { comments: Comment[] }
+  userStatsMap?: Map<number, UserStats>
 }) => {
   return (
     <CommentErrorBoundary>
@@ -24,7 +33,11 @@ export const Comments = ({
             </h2>
             <CommentForm user={user} challenge={challenge} />
             {challenge.comments.length > 0 ? (
-              <CommentSection challenge={challenge} currentUser={user} />
+              <CommentSection
+                challenge={challenge}
+                currentUser={user}
+                userStatsMap={userStatsMap}
+              />
             ) : (
               <div className="mt-4">
                 <Empty
