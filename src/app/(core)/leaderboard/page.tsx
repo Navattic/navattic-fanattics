@@ -11,6 +11,8 @@ interface UserWithStats {
   user: User
   points: number
   challengesCompleted: number
+  itemsRedeemed: number
+  commentsWritten: number
   lastCommentDate: string | null
 }
 
@@ -23,23 +25,32 @@ interface PopulatedUser extends User {
 }
 
 const Leaderboard = async () => {
-  // Fetch users with their comments in a single query using population
   const users = (
     await payload.find({
       collection: 'users',
+      where: {
+        onboardingCompleted: { equals: true },
+      },
       limit: 100,
       depth: 2,
     })
   ).docs as PopulatedUser[]
 
-  // Fetch all ledger entries for all users in a single query
   const allLedgerEntries = await payload.find({
     collection: 'ledger',
     limit: 1000, // Adjust as needed
     depth: 1,
   })
 
-  // Create a map of user ID to their ledger entries
+  const allComments = await payload.find({
+    collection: 'comments',
+    limit: 1000, 
+    where: {
+      status: { equals: 'approved' },
+      deleted: { equals: false },
+    },
+  })
+
   const userLedgerMap = new Map<number, Ledger[]>()
   allLedgerEntries.docs.forEach((entry) => {
     const userId = typeof entry.user_id === 'object' ? entry.user_id.id : entry.user_id
@@ -49,11 +60,19 @@ const Leaderboard = async () => {
     userLedgerMap.get(userId)!.push(entry)
   })
 
-  // Process user stats in memory
+  const userCommentsMap = new Map<number, Comment[]>()
+  allComments.docs.forEach((comment) => {
+    const userId = typeof comment.user === 'object' ? comment.user.id : comment.user
+    if (!userCommentsMap.has(userId)) {
+      userCommentsMap.set(userId, [])
+    }
+    userCommentsMap.get(userId)!.push(comment)
+  })
+
   const usersWithStats: UserWithStats[] = users.map((user) => {
     const userLedgerEntries = userLedgerMap.get(user.id) || []
+    const userComments = userCommentsMap.get(user.id) || []
 
-    // Calculate completed challenges by counting unique challenge_id entries in ledger
     const completedChallenges = new Set(
       userLedgerEntries
         .filter(
@@ -74,15 +93,26 @@ const Leaderboard = async () => {
       .filter((entry: Ledger) => entry.amount > 0)
       .reduce((total: number, entry: Ledger) => total + (entry.amount || 0), 0)
 
+    // Calculate items redeemed
+    const itemsRedeemed = userLedgerEntries.filter(
+      (entry: Ledger) => entry.amount < 0 && entry.reason?.toLowerCase().includes('redeem'),
+    ).length
+
+    // Calculate comments written (now using the separate comments query)
+    const commentsWritten = userComments.length
+
     return {
       user,
       points: totalPointsEarned,
       challengesCompleted: completedChallenges.size,
+      itemsRedeemed,
+      commentsWritten,
       lastCommentDate:
-        user.comments
-          ?.filter((comment) => comment.status === 'approved' && !comment.deleted)
-          .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0]
-          ?.createdAt || null,
+        userComments.length > 0
+          ? userComments.sort(
+              (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+            )[0]?.createdAt || null
+          : null,
     }
   })
 

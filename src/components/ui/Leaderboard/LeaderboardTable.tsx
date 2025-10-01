@@ -18,6 +18,8 @@ interface UserWithStats {
   user: User
   points: number
   challengesCompleted: number
+  itemsRedeemed: number
+  commentsWritten: number
   lastCommentDate: string | null
 }
 
@@ -57,6 +59,12 @@ export const LeaderboardTable = ({ users }: { users: UserWithStats[] }) => {
                 <TableCell className="px-4 font-medium capitalize">
                   <OpenProfileDrawer
                     user={userWithStats.user}
+                    stats={{
+                      points: userWithStats.points,
+                      challengesCompleted: userWithStats.challengesCompleted,
+                      itemsRedeemed: userWithStats.itemsRedeemed,
+                      commentsWritten: userWithStats.commentsWritten,
+                    }}
                     className="group flex items-center gap-2 text-sm"
                   >
                     <Avatar user={userWithStats.user} size="md" showCompany={true} />
