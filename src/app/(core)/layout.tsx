@@ -92,6 +92,11 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     })
   ).docs[0]
 
+  // CRITICAL: Check onboarding completion
+  if (!currentUser?.onboardingCompleted) {
+    redirect('/register')
+  }
+
   return (
     <html lang="en" className={`${suisse.variable} font-sans`}>
       <body>
