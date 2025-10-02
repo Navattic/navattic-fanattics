@@ -62,9 +62,10 @@ export default buildConfig({
   }),
   sharp,
   email: resendAdapter({
-    defaultFromAddress: process.env.NODE_ENV === 'production' 
-      ? 'noreply@mail.navattic.com' 
-      : 'noreply@mail.navattic.dev',
+    defaultFromAddress:
+      process.env.NODE_ENV === 'production'
+        ? 'team@mail.navattic.com'
+        : 'noreply@mail.navattic.dev',
     defaultFromName: 'Fanattic Portal',
     apiKey: process.env.RESEND_API_KEY || '',
   }),

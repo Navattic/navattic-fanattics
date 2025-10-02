@@ -82,7 +82,7 @@ export const Comments: CollectionConfig = {
             const { data, error } = await resend.emails.send({
               from:
                 process.env.NODE_ENV === 'production'
-                  ? 'Fanattic Portal <noreply@mail.navattic.com>'
+                  ? 'Fanattic Portal <team@mail.navattic.com>'
                   : 'Fanattic Portal <noreply@mail.navattic.dev>',
               to: ['fanattic@navattic.com'],
               subject: 'New Comment Posted - Fanattic Portal',
