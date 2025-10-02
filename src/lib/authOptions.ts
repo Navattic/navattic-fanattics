@@ -174,40 +174,59 @@ export const authOptions: NextAuthOptions = {
             subject: `Sign in to ${host}`,
             html: `
               <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-                <html dir="ltr" lang="en">
-                  <head>
-                    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
-                    <meta name="x-apple-disable-message-reformatting" />
-                  </head>
-
-                <body style="background-color:#FCFCFD;padding:30px 0 50px 0;font-family:&quot;Helvetica Neue&quot;,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased">
+              <html dir="ltr" lang="en">
+                <head>
+                  <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
+                  <meta name="x-apple-disable-message-reformatting" />
+                  <title>Sign in to Fanattic Portal</title>
+                </head>
+                <body style="background-color:#FCFCFD;padding:30px 0 50px 0;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased">
                   <table align="center" width="100%" border="0" cellPadding="0" cellSpacing="0" role="presentation" style="max-width:560px;margin:0 auto;padding:40px 50px;background:#fff;border:1px solid #d8e2e7;border-radius:13px">
                     <tbody>
                       <tr style="width:100%">
                         <td>
-                          <table align="center" width="100%" border="0" cellPadding="0" cellSpacing="0" role="presentation" style="display:flex">
+                          <table align="center" width="100%" border="0" cellPadding="0" cellSpacing="0" role="presentation">
                             <tbody>
                               <tr>
-                                <td>
-                                <td data-id="__react-email-column"><img src="https://app.navattic.com/email/navattic-logo.png" style="display:block;outline:none;border:none;text-decoration:none;width:100px;height:18px" /></td>
+                                <td style="padding-bottom:30px">
+                                  <img src="https://app.navattic.com/email/navattic-logo.png" alt="Navattic" style="display:block;outline:none;border:none;text-decoration:none;width:100px;height:18px" />
                                 </td>
                               </tr>
                             </tbody>
                           </table>
-                          <table align="center" width="100%" border="0" cellPadding="0" cellSpacing="0" role="presentation" style="margin-top:30px">
-                            <tbody>
-                              <tr>
-                                <td>
-                                  <h2 style="color:rgb(31,41,55);margin:0 auto;font-size:24px;line-height:1.4;font-weight:600;margin-bottom:20px">Sign in to the Fanattic Portal!</h2>
-                                  <p style="font-size:16px;line-height:160%;margin-top:16px;margin-bottom:16px">Click the button below to sign in to your account. If you didn&#x27;t request this, you can safely ignore this email.</p>
-                                  <a href='${urlWithEmail}' style="display:inline-block;text-align:center;text-decoration-line:none;font-weight:500;line-height:1.25rem;cursor:pointer;padding-top:0.5rem;padding-bottom:0.5rem;font-size:0.875rem;border-radius:0.5rem;padding-left:0.75rem;padding-right:0.75rem;background-color:rgb(31,41,55);color:rgb(255,255,255);border-width:1px;border-style:solid;border-color:rgb(6,7,8);text-decoration:none;max-width:100%;mso-padding-alt:0px;padding:8px 12px 8px 12px" target="_blank">Sign in here
-                                  </a>
-
-                                  <p style="font-size:16px;line-height:160%;margin-top:48px;margin-bottom:16px">If you have any questions, please reach out to <a href="mailto:fanattic@navattic.com" rel="noreferrer" style="color:rgb(29 64 175);text-decoration-line:none;line-height:160%" target="_blank">fanattic@navattic.com</a></p>
-                                </td>
-                              </tr>
-                            </tbody>
-                          </table>
+                          
+                          <h2 style="color:rgb(31,41,55);margin:0 0 20px 0;font-size:24px;line-height:1.4;font-weight:600">
+                            Welcome to Fanattic Portal
+                          </h2>
+                          
+                          <p style="font-size:16px;line-height:160%;margin:16px 0;color:#374151">
+                            Click the secure link below to sign in to your Fanattic Portal account. This link will expire in 24 hours for your security.
+                          </p>
+                          
+                          <div style="margin:32px 0">
+                            <a href='${urlWithEmail}' 
+                              style="display:inline-block;background-color:#1f2937;color:#ffffff;text-decoration:none;padding:12px 24px;border-radius:8px;font-weight:500;font-size:16px;border:none">
+                              Sign in to Fanattic Portal
+                            </a>
+                          </div>
+                          
+                          <p style="font-size:14px;line-height:160%;margin:32px 0 16px 0;color:#6b7280">
+                            If you didn't request this sign-in link, you can safely ignore this email. 
+                            No account changes will be made.
+                          </p>
+                          
+                          <hr style="border:none;border-top:1px solid #e5e7eb;margin:32px 0" />
+                          
+                          <p style="font-size:14px;line-height:160%;margin:16px 0;color:#6b7280">
+                            Need help? Contact us at 
+                            <a href="mailto:fanattic@navattic.com" style="color:#2563eb;text-decoration:none">
+                              fanattic@navattic.com
+                            </a>
+                          </p>
+                          
+                          <p style="font-size:12px;color:#9ca3af;margin:16px 0 0 0">
+                            This email was sent by Navattic, Inc. | Fanattic Portal
+                          </p>
                         </td>
                       </tr>
                     </tbody>
@@ -293,22 +312,15 @@ export const authOptions: NextAuthOptions = {
 
       try {
         const urlObj = new URL(fullUrl)
-        let emailParam = urlObj.searchParams.get('email')
 
-        // If no email in URL params, try to get it from the token
-        if (!emailParam && url.includes('callback') && url.includes('token')) {
-          const identifier = urlObj.searchParams.get('identifier')
-          if (identifier) {
-            emailParam = identifier
-          }
-        }
-
-        // For callback URLs (when user clicks email link), redirect to register
+        // For callback URLs (when user clicks email link)
         if (url.includes('callback') && url.includes('token')) {
-          return `${baseUrl}/register`
+          // Instead of always going to /register, go to /auth-redirect
+          // Let auth-redirect decide based on onboarding status
+          return `${baseUrl}/auth-redirect`
         }
 
-        // Handle error redirects - redirect back to login with error parameter
+        // Handle error redirects
         if (url.includes('/api/auth/error')) {
           const errorParam = urlObj.searchParams.get('error')
           if (errorParam === 'use_email') {

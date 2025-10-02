@@ -45,6 +45,10 @@ export default function LoginForm({ mode = 'signin' }: LoginFormProps) {
         )
       } else if (errorParam === 'generic') {
         setAuthError('An authentication error occurred. Please try again.')
+      } else if (errorParam === 'user_not_found') {
+        setAuthError('There was an issue with your account. Please try signing in again.')
+      } else if (errorParam === 'database_error') {
+        setAuthError('A temporary error occurred. Please try again in a moment.')
       }
     }
   }, [errorParam])

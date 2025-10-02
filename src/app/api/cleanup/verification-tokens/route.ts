@@ -11,12 +11,16 @@ export async function POST(request: NextRequest) {
     console.log('[Cleanup] Starting verification token cleanup...')
     const startTime = Date.now()
 
-    // Delete expired verification tokens
+    // Add a buffer time to avoid deleting tokens that might still be valid
+    // Delete tokens that expired more than 5 minutes ago
+    const bufferTime = 5 * 60 * 1000 // 5 minutes in milliseconds
+    const cutoffTime = new Date(Date.now() - bufferTime)
+
     const result = await payload.delete({
       collection: 'verification-tokens',
       where: {
         expires: {
-          less_than: new Date(),
+          less_than: cutoffTime,
         },
       },
     })
@@ -24,12 +28,15 @@ export async function POST(request: NextRequest) {
     const duration = Date.now() - startTime
     const deletedCount = result.docs?.length || 0
 
-    console.log(`[Cleanup] Deleted ${deletedCount} expired verification tokens in ${duration}ms`)
+    console.log(
+      `[Cleanup] Deleted ${deletedCount} expired verification tokens (older than ${cutoffTime.toISOString()}) in ${duration}ms`,
+    )
 
     return NextResponse.json({
       success: true,
       deletedCount,
       duration,
+      cutoffTime: cutoffTime.toISOString(),
       timestamp: new Date().toISOString(),
     })
   } catch (error) {
