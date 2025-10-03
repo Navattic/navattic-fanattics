@@ -76,6 +76,11 @@ function PayloadAdapter(): Adapter {
     async useVerificationToken({ identifier, token }: { identifier: string; token: string }) {
       const payload = await getPayload({ config })
       try {
+        console.log('[TOKEN] Looking for token:', {
+          identifier,
+          token: token.substring(0, 10) + '...',
+        })
+
         const [verificationToken] = (
           await payload.find({
             collection: 'verification-tokens',
@@ -86,7 +91,12 @@ function PayloadAdapter(): Adapter {
           })
         ).docs
 
-        if (!verificationToken) return null
+        if (!verificationToken) {
+          console.log('[TOKEN] Token not found in database')
+          return null
+        }
+
+        console.log('[TOKEN] Token found, deleting:', verificationToken.id)
 
         await payload.delete({
           collection: 'verification-tokens',
@@ -98,7 +108,8 @@ function PayloadAdapter(): Adapter {
           token: verificationToken.token,
           expires: new Date(verificationToken.expires),
         }
-      } catch (_error) {
+      } catch (error) {
+        console.error('[TOKEN] Token verification error:', error)
         return null
       }
     },
@@ -202,23 +213,23 @@ export const authOptions: NextAuthOptions = {
                           <p style="font-size:16px;line-height:160%;margin:16px 0;color:#374151">
                             Click the secure link below to sign in to your Fanattic Portal account. This link will expire in 24 hours for your security.
                           </p>
-                          
+
                           <div style="margin:32px 0">
-                            <a href='${urlWithEmail}' 
+                            <a href='${urlWithEmail}'
                               style="display:inline-block;background-color:#1f2937;color:#ffffff;text-decoration:none;padding:12px 24px;border-radius:8px;font-weight:500;font-size:16px;border:none">
                               Sign in to Fanattic Portal
                             </a>
                           </div>
-                          
+
                           <p style="font-size:14px;line-height:160%;margin:32px 0 16px 0;color:#6b7280">
-                            If you didn't request this sign-in link, you can safely ignore this email. 
+                            If you didn't request this sign-in link, you can safely ignore this email.
                             No account changes will be made.
                           </p>
                           
                           <hr style="border:none;border-top:1px solid #e5e7eb;margin:32px 0" />
                           
                           <p style="font-size:14px;line-height:160%;margin:16px 0;color:#6b7280">
-                            Need help? Contact us at 
+                            Need help? Contact us at
                             <a href="mailto:fanattic@navattic.com" style="color:#2563eb;text-decoration:none">
                               fanattic@navattic.com
                             </a>

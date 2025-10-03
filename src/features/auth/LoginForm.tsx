@@ -49,6 +49,10 @@ export default function LoginForm({ mode = 'signin' }: LoginFormProps) {
         setAuthError('There was an issue with your account. Please try signing in again.')
       } else if (errorParam === 'database_error') {
         setAuthError('A temporary error occurred. Please try again in a moment.')
+      } else if (errorParam === 'Verification') {
+        setAuthError(
+          'Your magic link has expired or was already used. Please request a new one below.',
+        )
       }
     }
   }, [errorParam])
