@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { payload } from '@/lib/payloadClient'
 
-export async function POST(request: NextRequest) {
+async function cleanupTokens(request: NextRequest) {
   try {
     const authHeader = request.headers.get('authorization')
     if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
@@ -43,4 +43,12 @@ export async function POST(request: NextRequest) {
     console.error('[Cleanup] Error cleaning up verification tokens:', error)
     return NextResponse.json({ error: 'Failed to cleanup verification tokens' }, { status: 500 })
   }
+}
+
+export async function GET(request: NextRequest) {
+  return cleanupTokens(request)
+}
+
+export async function POST(request: NextRequest) {
+  return cleanupTokens(request)
 }
