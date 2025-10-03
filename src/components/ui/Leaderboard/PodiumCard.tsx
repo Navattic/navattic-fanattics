@@ -7,11 +7,15 @@ export const PodiumCard = async ({
   position,
   points,
   challengesCompleted,
+  itemsRedeemed,
+  commentsWritten,
 }: {
   user: User
   position: number
   points: number
   challengesCompleted: number
+  itemsRedeemed: number
+  commentsWritten: number
 }) => {
   const styles = [
     {
@@ -45,6 +49,12 @@ export const PodiumCard = async ({
         </div>
         <OpenProfileDrawer
           user={user}
+          stats={{
+            points,
+            challengesCompleted,
+            itemsRedeemed,
+            commentsWritten,
+          }}
           className="flex flex-col items-center pr-1 pl-4 @[300px]:flex-row"
         >
           <Avatar user={user} size="lg" showCompany={true} />

@@ -44,7 +44,7 @@ const Leaderboard = async () => {
 
   const allComments = await payload.find({
     collection: 'comments',
-    limit: 1000, 
+    limit: 1000,
     where: {
       status: { equals: 'approved' },
       deleted: { equals: false },
