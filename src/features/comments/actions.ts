@@ -1,18 +1,20 @@
 'use server'
 
 import { payload } from '@/lib/payloadClient'
-import { User, Challenge, Comment } from '@/payload-types'
+import { User, Challenge, Comment, DiscussionPost } from '@/payload-types'
 import { revalidateTag, revalidatePath } from 'next/cache'
 
 export async function createComment({
   commentContent,
   user,
   challenge,
+  discussionPost,
   parentComment,
 }: {
   commentContent: string | undefined
   user: User
-  challenge: Challenge
+  challenge?: Challenge
+  discussionPost?: DiscussionPost
   parentComment?: Comment
 }) {
   if (!commentContent) {
@@ -30,7 +32,8 @@ export async function createComment({
       data: {
         content: trimmedContent,
         user: user.id,
-        challenge: challenge.id,
+        challenge: challenge?.id || null,
+        discussionPost: discussionPost?.id || null,
         parent: parentComment?.id || null,
         status: 'approved',
       },
@@ -38,6 +41,7 @@ export async function createComment({
 
     // Simple revalidation without delays
     revalidateTag('challenge-data')
+    revalidateTag('discussion-data')
 
     return result
   } catch (error) {

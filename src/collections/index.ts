@@ -1,5 +1,6 @@
 export { Events } from './Events'
 export { Challenges } from './Challenges'
+export { DiscussionPosts } from './DiscussionPosts'
 export { Ledger } from './Ledger'
 export { Users } from './Users'
 export { Comments } from './Comments'

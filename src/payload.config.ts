@@ -16,6 +16,7 @@ import {
   Comments,
   Avatars,
   Companies,
+  DiscussionPosts,
   Events,
   Guide,
   CompanyLogos,
@@ -37,6 +38,7 @@ export default buildConfig({
   globals: [Guide],
   collections: [
     Challenges,
+    DiscussionPosts,
     Ledger,
     Events,
     Users,

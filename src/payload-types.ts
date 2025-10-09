@@ -12,6 +12,7 @@ export interface Config {
   };
   collections: {
     challenges: Challenge;
+    discussionPosts: DiscussionPost;
     ledger: Ledger;
     Events: Event;
     users: User;
@@ -31,6 +32,9 @@ export interface Config {
     challenges: {
       challengeComments: 'comments';
     };
+    discussionPosts: {
+      discussionComments: 'comments';
+    };
     users: {
       ledgerEntries: 'ledger';
       userComments: 'comments';
@@ -38,6 +42,7 @@ export interface Config {
   };
   collectionsSelect: {
     challenges: ChallengesSelect<false> | ChallengesSelect<true>;
+    discussionPosts: DiscussionPostsSelect<false> | DiscussionPostsSelect<true>;
     ledger: LedgerSelect<false> | LedgerSelect<true>;
     Events: EventsSelect<false> | EventsSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
@@ -304,13 +309,47 @@ export interface Comment {
   id: number;
   content: string;
   user: number | User;
-  challenge: number | Challenge;
+  challenge?: (number | null) | Challenge;
+  discussionPost?: (number | null) | DiscussionPost;
   parent?: (number | null) | Comment;
   status?: ('pending' | 'approved' | 'rejected') | null;
   deleted?: boolean | null;
   likes?: number | null;
   likedBy?: (number | User)[] | null;
   flaggedReports?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "discussionPosts".
+ */
+export interface DiscussionPost {
+  id: number;
+  title: string;
+  content: {
+    root: {
+      type: string;
+      children: {
+        type: string;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  author: number | User;
+  slug?: string | null;
+  status?: ('draft' | 'published' | 'archived') | null;
+  lastActivity?: string | null;
+  discussionComments?: {
+    docs?: (number | Comment)[] | null;
+    hasNextPage?: boolean | null;
+  } | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -504,6 +543,10 @@ export interface PayloadLockedDocument {
         value: number | Challenge;
       } | null)
     | ({
+        relationTo: 'discussionPosts';
+        value: number | DiscussionPost;
+      } | null)
+    | ({
         relationTo: 'ledger';
         value: number | Ledger;
       } | null)
@@ -607,6 +650,21 @@ export interface ChallengesSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "discussionPosts_select".
+ */
+export interface DiscussionPostsSelect<T extends boolean = true> {
+  title?: T;
+  content?: T;
+  author?: T;
+  slug?: T;
+  status?: T;
+  lastActivity?: T;
+  discussionComments?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "ledger_select".
  */
 export interface LedgerSelect<T extends boolean = true> {
@@ -700,6 +758,7 @@ export interface CommentsSelect<T extends boolean = true> {
   content?: T;
   user?: T;
   challenge?: T;
+  discussionPost?: T;
   parent?: T;
   status?: T;
   deleted?: T;

@@ -2,14 +2,15 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { Avatar, Button } from '@/components/ui'
-import { Challenge, User, Comment as PayloadComment } from '@/payload-types'
+import { Challenge, User, Comment as PayloadComment, DiscussionPost } from '@/payload-types'
 import { createComment } from './actions'
 import { useOptimisticComments } from './OptimisticCommentsContext'
 
 interface CommentReplyFormProps {
   parentComment: PayloadComment
   user: User
-  challenge: Challenge
+  challenge?: Challenge
+  discussionPost?: DiscussionPost
   setOpenReply: (open: boolean) => void
   hasReplies: boolean
 }
@@ -18,6 +19,7 @@ function CommentReplyForm({
   parentComment,
   user,
   challenge,
+  discussionPost,
   setOpenReply,
   hasReplies,
 }: CommentReplyFormProps) {
@@ -53,7 +55,8 @@ function CommentReplyForm({
       optimisticId = addOptimisticComment({
         content: content,
         user: user,
-        challenge: challenge,
+        challenge: challenge || undefined,
+        discussionPost: discussionPost || undefined,
         parent: parentComment,
         status: 'approved',
         deleted: false,
@@ -70,6 +73,7 @@ function CommentReplyForm({
         commentContent: content,
         user,
         challenge,
+        discussionPost,
         parentComment,
       })
 

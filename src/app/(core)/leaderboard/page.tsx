@@ -182,6 +182,8 @@ const Leaderboard = async () => {
                   position={1}
                   points={sortedUsers[0].points}
                   challengesCompleted={sortedUsers[0].challengesCompleted}
+                  itemsRedeemed={0}
+                  commentsWritten={0}
                 />
                 {sortedUsers.length > 1 && (
                   <PodiumCard
@@ -189,6 +191,8 @@ const Leaderboard = async () => {
                     position={2}
                     points={sortedUsers[1].points}
                     challengesCompleted={sortedUsers[1].challengesCompleted}
+                    itemsRedeemed={0}
+                    commentsWritten={0}
                   />
                 )}
                 {sortedUsers.length > 2 && (
@@ -197,6 +201,8 @@ const Leaderboard = async () => {
                     position={3}
                     points={sortedUsers[2].points}
                     challengesCompleted={sortedUsers[2].challengesCompleted}
+                    itemsRedeemed={0}
+                    commentsWritten={0}
                   />
                 )}
               </>

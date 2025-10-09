@@ -33,6 +33,24 @@ export const Comments: CollectionConfig = {
       async ({ doc, operation }) => {
         // Only send notification for new comment creation
         if (operation === 'create') {
+          // Update lastActivity for discussion posts when a comment is added
+          if (doc.discussionPost) {
+            try {
+              const payload = await import('@/lib/payloadClient').then((m) => m.payload)
+              await payload.update({
+                collection: 'discussionPosts',
+                id:
+                  typeof doc.discussionPost === 'object'
+                    ? doc.discussionPost.id
+                    : doc.discussionPost,
+                data: {
+                  lastActivity: new Date().toISOString(),
+                },
+              })
+            } catch (error) {
+              console.error('Failed to update discussion post lastActivity:', error)
+            }
+          }
           try {
             // Check if relationships are already populated or just IDs
             let user, challenge, parentComment
@@ -50,17 +68,37 @@ export const Comments: CollectionConfig = {
               })
             }
 
-            if (typeof doc.challenge === 'object' && doc.challenge !== null) {
-              // Challenge is already populated
-              challenge = doc.challenge
-            } else {
-              // Challenge is just an ID, fetch the full challenge
-              const payload = await import('@/lib/payloadClient').then((m) => m.payload)
-              challenge = await payload.findByID({
-                collection: 'challenges',
-                id: doc.challenge,
-                depth: 1,
-              })
+            // Handle both challenges and discussion posts
+            let challengeData, discussionPostData
+
+            if (doc.challenge) {
+              if (typeof doc.challenge === 'object' && doc.challenge !== null) {
+                // Challenge is already populated
+                challengeData = doc.challenge
+              } else {
+                // Challenge is just an ID, fetch the full challenge
+                const payload = await import('@/lib/payloadClient').then((m) => m.payload)
+                challengeData = await payload.findByID({
+                  collection: 'challenges',
+                  id: doc.challenge,
+                  depth: 1,
+                })
+              }
+            }
+
+            if (doc.discussionPost) {
+              if (typeof doc.discussionPost === 'object' && doc.discussionPost !== null) {
+                // Discussion post is already populated
+                discussionPostData = doc.discussionPost
+              } else {
+                // Discussion post is just an ID, fetch the full post
+                const payload = await import('@/lib/payloadClient').then((m) => m.payload)
+                discussionPostData = await payload.findByID({
+                  collection: 'discussionPosts',
+                  id: doc.discussionPost,
+                  depth: 1,
+                })
+              }
             }
 
             // If there's a parent comment, fetch it
@@ -103,13 +141,32 @@ export const Comments: CollectionConfig = {
                     <p><strong>Location:</strong> ${user.location || 'Not specified'}</p>
                   </div>
 
+                  ${
+                    challengeData
+                      ? `
                   <div style="background-color: #f0f8e8; padding: 20px; border-radius: 8px; margin: 20px 0;">
                     <h3 style="color: #333; margin-top: 0;">Challenge Information</h3>
-                    <p><strong>Challenge:</strong> ${challenge.title}</p>
-                    <p><strong>Description:</strong> ${challenge.description}</p>
-                    <p><strong>Points:</strong> ${challenge.points}</p>
-                    <p><strong>Deadline:</strong> ${new Date(challenge.deadline).toLocaleDateString()}</p>
+                    <p><strong>Challenge:</strong> ${challengeData.title}</p>
+                    <p><strong>Description:</strong> ${challengeData.description}</p>
+                    <p><strong>Points:</strong> ${challengeData.points}</p>
+                    <p><strong>Deadline:</strong> ${new Date(challengeData.deadline).toLocaleDateString()}</p>
                   </div>
+                  `
+                      : ''
+                  }
+
+                  ${
+                    discussionPostData
+                      ? `
+                  <div style="background-color: #f0f8e8; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                    <h3 style="color: #333; margin-top: 0;">Discussion Post Information</h3>
+                    <p><strong>Post Title:</strong> ${discussionPostData.title}</p>
+                    <p><strong>Author:</strong> ${discussionPostData.author?.firstName || ''} ${discussionPostData.author?.lastName || ''}</p>
+                    <p><strong>Created:</strong> ${new Date(discussionPostData.createdAt).toLocaleDateString()}</p>
+                  </div>
+                  `
+                      : ''
+                  }
 
                   <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
                     <h3 style="color: #333; margin-top: 0;">Comment Details</h3>
@@ -196,7 +253,13 @@ export const Comments: CollectionConfig = {
       name: 'challenge',
       type: 'relationship',
       relationTo: 'challenges',
-      required: true,
+      required: false,
+    },
+    {
+      name: 'discussionPost',
+      type: 'relationship',
+      relationTo: 'discussionPosts',
+      required: false,
     },
     {
       name: 'parent',

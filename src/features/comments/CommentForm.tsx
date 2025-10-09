@@ -2,16 +2,17 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { Avatar, Icon, Button } from '@/components/ui'
-import { Challenge, User } from '@/payload-types'
+import { Challenge, User, DiscussionPost } from '@/payload-types'
 import { createComment } from './actions'
 import { useOptimisticComments } from './OptimisticCommentsContext'
 
 interface CommentFormProps {
   user: User
-  challenge: Challenge
+  challenge?: Challenge
+  discussionPost?: DiscussionPost
 }
 
-function CommentForm({ user, challenge }: CommentFormProps) {
+function CommentForm({ user, challenge, discussionPost }: CommentFormProps) {
   const [comment, setComment] = useState('')
   const [status, setStatus] = useState<'idle' | 'executing' | 'error'>('idle')
   const [error, setError] = useState<string | null>(null)
@@ -43,7 +44,8 @@ function CommentForm({ user, challenge }: CommentFormProps) {
       optimisticId = addOptimisticComment({
         content: commentContent,
         user: user,
-        challenge: challenge,
+        challenge: challenge || undefined,
+        discussionPost: discussionPost || undefined,
         parent: null,
         status: 'approved',
         deleted: false,
@@ -59,6 +61,7 @@ function CommentForm({ user, challenge }: CommentFormProps) {
         commentContent,
         user,
         challenge,
+        discussionPost,
       })
 
       // Only update state if component is still mounted

@@ -1,4 +1,4 @@
-import { User, Challenge, Comment } from '@/payload-types'
+import { User, Challenge, Comment, DiscussionPost } from '@/payload-types'
 import { CommentBlock } from '@/components/ui/Comments/Comments'
 import { cn } from '@/lib/utils'
 import { Suspense } from 'react'
@@ -16,12 +16,14 @@ function CommentTree({
   comment,
   currentUser,
   challenge,
+  discussionPost,
   repliesMap,
   userStatsMap,
 }: {
   comment: Comment | OptimisticComment
   currentUser: User
-  challenge: Challenge
+  challenge?: Challenge
+  discussionPost?: DiscussionPost
   repliesMap: Record<string, (Comment | OptimisticComment)[]>
   userStatsMap?: Map<number, UserStats>
 }) {
@@ -41,6 +43,7 @@ function CommentTree({
         comment={comment}
         currentUser={currentUser}
         challenge={challenge}
+        discussionPost={discussionPost}
         hasChild={hasChild}
         hasParent={hasParent}
         isLastChildOfParent={isLastChildOfParent}
@@ -56,6 +59,7 @@ function CommentTree({
               comment={reply}
               currentUser={currentUser}
               challenge={challenge}
+              discussionPost={discussionPost}
               repliesMap={repliesMap}
               userStatsMap={userStatsMap}
             />
@@ -68,21 +72,24 @@ function CommentTree({
 
 const CommentSection = ({
   challenge,
+  discussionPost,
   currentUser,
   userStatsMap,
 }: {
-  challenge: Challenge & { comments: Comment[] }
+  challenge?: Challenge & { comments: Comment[] }
+  discussionPost?: DiscussionPost & { comments: Comment[] }
   currentUser: User
   userStatsMap?: Map<number, UserStats>
 }) => {
+  const entity = challenge || discussionPost
   const { optimisticComments, realComments } = useOptimisticComments()
 
   // Merge real comments with optimistic comments
-  // Include both challenge.comments and realComments from context
+  // Include both entity.comments and realComments from context
   const allComments: (Comment | OptimisticComment)[] = [
     ...optimisticComments, // Optimistic comments first
     ...realComments, // Real comments from context
-    ...challenge.comments.filter((comment) => comment.status === 'approved' && !comment.deleted),
+    ...(entity?.comments.filter((comment) => comment.status === 'approved' && !comment.deleted) || []),
   ]
 
   // Remove duplicates (in case a comment exists in both realComments and challenge.comments)
@@ -116,6 +123,7 @@ const CommentSection = ({
               comment={comment}
               currentUser={currentUser}
               challenge={challenge}
+              discussionPost={discussionPost}
               repliesMap={repliesMap}
               userStatsMap={userStatsMap}
             />

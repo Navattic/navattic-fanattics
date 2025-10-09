@@ -29,6 +29,7 @@ import {
   BookOpenTextIcon,
   HandCoinsIcon,
   UserIcon,
+  MessageCircleIcon,
   LucideIcon,
 } from 'lucide-react'
 import { NavatticLogo } from '@/components/ui/NavatticLogo'
@@ -73,6 +74,16 @@ const items = [
         label: 'Challenges',
         href: '/challenges',
         icon: TrophyIcon,
+      },
+    ],
+  },
+  {
+    group: 'Community',
+    items: [
+      {
+        label: 'Discussions',
+        href: '/discussions',
+        icon: MessageCircleIcon,
       },
     ],
   },

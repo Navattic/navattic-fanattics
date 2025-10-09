@@ -1,6 +1,6 @@
 'use client'
 
-import { User, Comment, Challenge } from '@/payload-types'
+import { User, Comment, Challenge, DiscussionPost } from '@/payload-types'
 import { useState } from 'react'
 import CommentReplyForm from '@/features/comments/CommentReplyForm'
 import { CommentActions } from '@/features/comments/CommentActions'
@@ -27,6 +27,7 @@ export function CommentBlock({
   comment: initialComment,
   currentUser,
   challenge,
+  discussionPost,
   hasChild,
   isLastChildOfParent,
   hasParent,
@@ -35,7 +36,8 @@ export function CommentBlock({
 }: {
   comment: Comment | OptimisticComment
   currentUser: User
-  challenge: Challenge
+  challenge?: Challenge
+  discussionPost?: DiscussionPost
   hasChild: boolean
   isLastChildOfParent: boolean
   hasParent: boolean
@@ -149,6 +151,7 @@ export function CommentBlock({
           parentComment={comment}
           user={currentUser}
           challenge={challenge}
+          discussionPost={discussionPost}
           setOpenReply={setOpenReply}
           hasReplies={hasChild}
         />
