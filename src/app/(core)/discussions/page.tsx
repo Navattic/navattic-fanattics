@@ -89,7 +89,7 @@ const Discussions = async () => {
               description="Share ideas, ask questions, and engage with the community"
               button={<CreatePostModal user={sessionUser} />}
             />
-            <div className="text-md mt-8 mb-3 font-semibold text-gray-600">Recent Discussions</div>
+            <div className="text-md mt-8 mb-3 font-semibold text-gray-600">Recent posts</div>
             {discussionsData.docs.length > 0 ? (
               <DiscussionsList
                 discussionsData={discussionsData.docs}

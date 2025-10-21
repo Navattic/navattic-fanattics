@@ -1,19 +1,33 @@
 'use client'
 
 import { useState, useRef } from 'react'
-import { Button, Icon } from '@/components/ui'
+import { Icon } from '@/components/ui'
 import { Modal } from '@/components/ui/Compass/Modal'
-import { CreatePostForm } from '@/features/discussions/CreatePostForm'
-import { User } from '@/payload-types'
+import { EditPostForm } from '@/features/discussions/EditPostForm'
+import { User, DiscussionPost } from '@/payload-types'
 
-interface CreatePostModalProps {
+interface EditPostModalProps {
   user: User
+  discussionPost: DiscussionPost
+  trigger?: React.ReactNode
+  isOpen?: boolean
+  onOpenChange?: (open: boolean) => void
 }
 
-export function CreatePostModal({ user }: CreatePostModalProps) {
-  const [isOpen, setIsOpen] = useState(false)
+export function EditPostModal({
+  user,
+  discussionPost,
+  trigger,
+  isOpen: controlledOpen,
+  onOpenChange: controlledOnOpenChange,
+}: EditPostModalProps) {
+  const [internalOpen, setInternalOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const formRef = useRef<{ requestSubmit: () => void }>(null)
+
+  // Use controlled state if provided, otherwise use internal state
+  const isOpen = controlledOpen !== undefined ? controlledOpen : internalOpen
+  const setIsOpen = controlledOnOpenChange || setInternalOpen
 
   const handleSuccess = () => {
     setIsOpen(false)
@@ -34,22 +48,18 @@ export function CreatePostModal({ user }: CreatePostModalProps) {
     <Modal
       open={isOpen}
       onOpenChange={setIsOpen}
-      trigger={
-        <Button size="md" variant="solid" colorScheme="brand">
-          Create discussion <Icon name="plus" className="size-4" />
-        </Button>
-      }
-      title="Start a new discussion"
+      trigger={trigger}
+      title="Edit discussion"
       showCloseButton={false}
       bodyClassName="p-0"
       className="max-w-4xl"
       primaryButton={{
         children: isSubmitting ? (
           <>
-            Creating... <Icon name="spinner" className="size-4" />
+            Saving... <Icon name="spinner" className="size-4" />
           </>
         ) : (
-          'Create Discussion'
+          'Save Changes'
         ),
         onClick: handleSubmit,
         disabled: isSubmitting,
@@ -63,9 +73,10 @@ export function CreatePostModal({ user }: CreatePostModalProps) {
       }}
     >
       <div className="px-6">
-        <CreatePostForm
+        <EditPostForm
           ref={formRef}
           user={user}
+          discussionPost={discussionPost}
           onSuccess={handleSuccess}
           onSubmittingChange={setIsSubmitting}
         />

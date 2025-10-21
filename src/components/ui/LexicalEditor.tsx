@@ -377,7 +377,7 @@ export function LexicalEditor({ value, onChange, placeholder, disabled }: Lexica
               />
             }
             placeholder={
-              <div className="pointer-events-none absolute top-4 left-4 text-gray-400">
+              <div className="pointer-events-none absolute top-4 left-4 text-sm font-normal text-gray-500">
                 {placeholder}
               </div>
             }

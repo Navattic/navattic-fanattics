@@ -1,8 +1,11 @@
+'use client'
+
 import { RichText } from '@payloadcms/richtext-lexical/react'
-import { Avatar } from '@/components/ui'
+import { Avatar, Icon } from '@/components/ui'
 import { DiscussionPost, User } from '@/payload-types'
 import { formatDate } from '@/utils/formatDate'
 import { DeletePostButton } from '@/features/discussions/DeletePostButton'
+import { EditPostModal } from '@/features/discussions/EditPostModal'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,6 +14,7 @@ import {
 } from '@/components/shadcn/ui/dropdown-menu'
 import { Button } from '@/components/ui/Compass/Button'
 import { EllipsisIcon } from 'lucide-react'
+import { useState } from 'react'
 
 interface DiscussionDetailsProps {
   discussionPost: DiscussionPost
@@ -23,6 +27,7 @@ export function DiscussionDetails({
   sessionUser,
   userTimezone,
 }: DiscussionDetailsProps) {
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const author = typeof discussionPost.author === 'object' ? discussionPost.author : null
 
   // Check if current user is the author (same logic as DeletePostButton)
@@ -31,7 +36,7 @@ export function DiscussionDetails({
   return (
     <div className="w-full">
       <div className="grid place-items-center space-y-4 bg-gradient-to-t from-white to-blue-50 p-14 pb-0">
-        <div className="relative mx-auto flex w-full max-w-3xl items-start justify-start">
+        <div className="relative mx-auto flex w-full max-w-4xl items-start justify-start">
           <div className="flex w-full flex-col gap-4">
             {/* Author info */}
             <div className="flex w-full justify-between">
@@ -65,6 +70,16 @@ export function DiscussionDetails({
                     align="end"
                     className="w-[160px] rounded-xl"
                   >
+                    {/* Edit Post */}
+                    <DropdownMenuItem
+                      className="flex w-full cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-sm"
+                      onSelect={() => setIsEditModalOpen(true)}
+                    >
+                      <Icon name="pencil-line" />
+                      Edit Post
+                    </DropdownMenuItem>
+
+                    {/* Delete Post */}
                     <DropdownMenuItem asChild className="cursor-pointer p-0">
                       <DeletePostButton discussionPost={discussionPost} currentUser={sessionUser} />
                     </DropdownMenuItem>
@@ -79,9 +94,16 @@ export function DiscussionDetails({
       </div>
 
       {/* Content */}
-      <div className="mx-auto my-10 max-w-3xl border-t border-b border-gray-100 py-10 pb-4">
-        <RichText data={discussionPost.content} className="payload-rich-text" />
+      <div className="mx-auto my-10 max-w-4xl border-t border-b border-gray-100 py-4 pt-8">
+        <RichText data={discussionPost.content} className="payload-rich-text max-w-3xl" />
       </div>
+
+      <EditPostModal
+        user={sessionUser}
+        discussionPost={discussionPost}
+        isOpen={isEditModalOpen}
+        onOpenChange={setIsEditModalOpen}
+      />
     </div>
   )
 }

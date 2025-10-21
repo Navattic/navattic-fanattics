@@ -50,6 +50,61 @@ export async function createDiscussionPost({
   }
 }
 
+export async function updateDiscussionPost({
+  postId,
+  title,
+  content,
+  currentUser,
+}: {
+  postId: number
+  title: string
+  content: any
+  currentUser: User
+}) {
+  try {
+    // First, fetch the discussion post to verify ownership
+    const discussionPost = await payload.findByID({
+      collection: 'discussionPosts',
+      id: postId,
+      depth: 1,
+    })
+
+    if (!discussionPost) {
+      throw new Error('Discussion post not found')
+    }
+
+    // Verify that the current user is the author
+    const authorId =
+      typeof discussionPost.author === 'object' ? discussionPost.author.id : discussionPost.author
+
+    if (authorId !== currentUser.id) {
+      throw new Error('You can only edit your own posts')
+    }
+
+    // Update the discussion post
+    const result = await payload.update({
+      collection: 'discussionPosts',
+      id: postId,
+      data: {
+        title,
+        content,
+        lastActivity: new Date().toISOString(),
+      },
+    })
+
+    console.log(`Discussion post ${postId} updated successfully by user ${currentUser.id}`)
+
+    // Revalidate the current page and discussions list
+    revalidatePath(`/discussions/${result.slug}`)
+    revalidatePath('/discussions')
+
+    return result
+  } catch (error) {
+    console.error('Error updating discussion post:', error)
+    throw new Error(error instanceof Error ? error.message : 'Failed to update discussion post')
+  }
+}
+
 export async function deleteDiscussionPost({
   postId,
   currentUser,

@@ -42,13 +42,13 @@ export function DeletePostButton({ discussionPost, currentUser }: DeletePostButt
       open={isOpen}
       onOpenChange={setIsOpen}
       trigger={
-        <button className="flex w-full items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 hover:text-red-700 rounded-lg transition-colors">
+        <button className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-red-600 transition-colors hover:bg-red-50 hover:text-red-700">
           <Icon name="trash-2" className="size-4" />
           Delete Post
         </button>
       }
       title="Delete Discussion Post"
-      showCloseButton={true}
+      showCloseButton={false}
       primaryButton={{
         children: isDeleting ? (
           <>
@@ -70,26 +70,9 @@ export function DeletePostButton({ discussionPost, currentUser }: DeletePostButt
     >
       <div className="space-y-4">
         <p className="text-gray-700">
-          Are you sure you want to delete this discussion post? This action cannot be undone.
+          Are you sure you want to delete this discussion post and all associated comments ? This
+          action cannot be undone.
         </p>
-
-        <div className="rounded-lg bg-gray-50 p-4">
-          <h4 className="mb-2 font-medium text-gray-900">Post to be deleted:</h4>
-          <p className="text-sm font-medium text-gray-600">"{discussionPost.title}"</p>
-        </div>
-
-        <div className="rounded-lg border border-red-200 bg-red-50 p-4">
-          <div className="flex items-start gap-3">
-            <Icon name="alert-triangle" className="mt-0.5 size-5 flex-shrink-0 text-red-600" />
-            <div>
-              <h4 className="mb-1 font-medium text-red-800">Warning</h4>
-              <p className="text-sm text-red-700">
-                This will permanently delete the discussion post and all associated comments. This
-                action cannot be undone.
-              </p>
-            </div>
-          </div>
-        </div>
       </div>
     </Modal>
   )
