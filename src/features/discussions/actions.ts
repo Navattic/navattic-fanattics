@@ -2,6 +2,8 @@
 
 import { payload } from '@/lib/payloadClient'
 import { User } from '@/payload-types'
+import { revalidatePath } from 'next/cache'
+import { redirect } from 'next/navigation'
 
 export async function createDiscussionPost({
   title,
@@ -46,4 +48,50 @@ export async function createDiscussionPost({
     })
     throw new Error('Failed to create discussion post')
   }
+}
+
+export async function deleteDiscussionPost({
+  postId,
+  currentUser,
+}: {
+  postId: number
+  currentUser: User
+}) {
+  try {
+    // First, fetch the discussion post to verify ownership
+    const discussionPost = await payload.findByID({
+      collection: 'discussionPosts',
+      id: postId,
+      depth: 1,
+    })
+
+    if (!discussionPost) {
+      throw new Error('Discussion post not found')
+    }
+
+    // Verify that the current user is the author
+    const authorId =
+      typeof discussionPost.author === 'object' ? discussionPost.author.id : discussionPost.author
+
+    if (authorId !== currentUser.id) {
+      throw new Error('You can only delete your own posts')
+    }
+
+    // Delete the discussion post
+    await payload.delete({
+      collection: 'discussionPosts',
+      id: postId,
+    })
+
+    console.log(`Discussion post ${postId} deleted successfully by user ${currentUser.id}`)
+
+    // Revalidate the discussions page
+    revalidatePath('/discussions')
+  } catch (error) {
+    console.error('Error deleting discussion post:', error)
+    throw new Error(error instanceof Error ? error.message : 'Failed to delete discussion post')
+  }
+
+  // Redirect to discussions page (outside try-catch to allow redirect to work)
+  redirect('/discussions')
 }

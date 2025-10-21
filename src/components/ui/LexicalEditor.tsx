@@ -26,6 +26,9 @@ import {
   $isRangeSelection,
   FORMAT_TEXT_COMMAND,
   SELECTION_CHANGE_COMMAND,
+  $isParagraphNode,
+  KEY_ENTER_COMMAND,
+  COMMAND_PRIORITY_HIGH,
 } from 'lexical'
 import { useCallback, useEffect } from 'react'
 import { Button, Icon } from '@/components/ui'
@@ -262,6 +265,45 @@ function ToolbarPlugin() {
   )
 }
 
+// Plugin to limit consecutive empty paragraphs
+function LimitLineBreaksPlugin() {
+  const [editor] = useLexicalComposerContext()
+
+  useEffect(() => {
+    return editor.registerCommand(
+      KEY_ENTER_COMMAND,
+      (event) => {
+        const selection = $getSelection()
+        if (!$isRangeSelection(selection)) {
+          return false
+        }
+
+        const anchorNode = selection.anchor.getNode()
+
+        // Check if we're in an empty paragraph
+        if ($isParagraphNode(anchorNode) && anchorNode.getTextContent().trim() === '') {
+          // Check if the previous sibling is also an empty paragraph
+          const previousSibling = anchorNode.getPreviousSibling()
+          if (
+            previousSibling &&
+            $isParagraphNode(previousSibling) &&
+            previousSibling.getTextContent().trim() === ''
+          ) {
+            // Prevent the enter key from creating another empty paragraph
+            event?.preventDefault()
+            return true
+          }
+        }
+
+        return false
+      },
+      COMMAND_PRIORITY_HIGH,
+    )
+  }, [editor])
+
+  return null
+}
+
 export function LexicalEditor({ value, onChange, placeholder, disabled }: LexicalEditorProps) {
   // Create a default empty state if no value is provided
   const defaultState = {
@@ -347,6 +389,7 @@ export function LexicalEditor({ value, onChange, placeholder, disabled }: Lexica
           <LinkPlugin />
           <ListPlugin />
           <MarkdownShortcutPlugin transformers={TRANSFORMERS} />
+          <LimitLineBreaksPlugin />
         </div>
       </LexicalComposer>
     </div>
