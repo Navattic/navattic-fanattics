@@ -1,11 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, forwardRef, useImperativeHandle } from 'react'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { useRouter } from 'next/navigation'
-import { Button, Icon, LexicalEditor } from '@/components/ui'
+import { LexicalEditor } from '@/components/ui'
 import {
   Form,
   FormField,
@@ -55,142 +55,137 @@ const formSchema = z.object({
 interface CreatePostFormProps {
   user: User
   onSuccess: () => void
-  onCancel: () => void
+  onSubmittingChange?: (isSubmitting: boolean) => void
 }
 
-export function CreatePostForm({ user, onSuccess, onCancel }: CreatePostFormProps) {
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const router = useRouter()
+interface CreatePostFormRef {
+  requestSubmit: () => void
+}
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      title: '',
-      content: {
-        root: {
-          children: [
-            {
-              children: [
-                {
-                  detail: 0,
-                  format: 0,
-                  mode: 'normal',
-                  style: '',
-                  text: '',
-                  type: 'text',
-                  version: 1,
-                },
-              ],
-              direction: 'ltr',
-              format: '',
-              indent: 0,
-              type: 'paragraph',
-              version: 1,
-            },
-          ],
-          direction: 'ltr',
-          format: '',
-          indent: 0,
-          type: 'root',
-          version: 1,
+export const CreatePostForm = forwardRef<CreatePostFormRef, CreatePostFormProps>(
+  ({ user, onSuccess, onSubmittingChange }, ref) => {
+    const [isSubmitting, setIsSubmitting] = useState(false)
+    const [error, setError] = useState<string | null>(null)
+    const router = useRouter()
+
+    const form = useForm<z.infer<typeof formSchema>>({
+      resolver: zodResolver(formSchema),
+      defaultValues: {
+        title: '',
+        content: {
+          root: {
+            children: [
+              {
+                children: [
+                  {
+                    detail: 0,
+                    format: 0,
+                    mode: 'normal',
+                    style: '',
+                    text: '',
+                    type: 'text',
+                    version: 1,
+                  },
+                ],
+                direction: 'ltr',
+                format: '',
+                indent: 0,
+                type: 'paragraph',
+                version: 1,
+              },
+            ],
+            direction: 'ltr',
+            format: '',
+            indent: 0,
+            type: 'root',
+            version: 1,
+          },
         },
       },
-    },
-  })
-
-  async function onSubmit(values: z.infer<typeof formSchema>) {
-    setIsSubmitting(true)
-    setError(null)
-
-    console.log('Form submission values:', {
-      title: values.title,
-      content: values.content,
     })
 
-    try {
-      const result = await createDiscussionPost({
+    useImperativeHandle(ref, () => ({
+      requestSubmit: () => {
+        form.handleSubmit(onSubmit)()
+      },
+    }))
+
+    async function onSubmit(values: z.infer<typeof formSchema>) {
+      setIsSubmitting(true)
+      onSubmittingChange?.(true)
+      setError(null)
+
+      console.log('Form submission values:', {
         title: values.title,
         content: values.content,
-        author: user,
       })
 
-      // Call onSuccess to close the modal
-      onSuccess()
+      try {
+        const result = await createDiscussionPost({
+          title: values.title,
+          content: values.content,
+          author: user,
+        })
 
-      // Redirect to the newly created discussion post
-      router.push(`/discussions/${result.slug}`)
-    } catch (err) {
-      console.error('Error creating discussion post:', err)
-      setError(err instanceof Error ? err.message : 'Failed to create discussion post')
-    } finally {
-      setIsSubmitting(false)
+        // Call onSuccess to close the modal
+        onSuccess()
+
+        // Redirect to the newly created discussion post
+        router.push(`/discussions/${result.slug}`)
+      } catch (err) {
+        console.error('Error creating discussion post:', err)
+        setError(err instanceof Error ? err.message : 'Failed to create discussion post')
+      } finally {
+        setIsSubmitting(false)
+        onSubmittingChange?.(false)
+      }
     }
-  }
 
-  return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <FormField
-          control={form.control}
-          name="title"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Title</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="What would you like to discuss?"
-                  {...field}
-                  disabled={isSubmitting}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="content"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Content</FormLabel>
-              <FormControl>
-                <LexicalEditor
-                  value={field.value}
-                  onChange={field.onChange}
-                  placeholder="Share your thoughts, ask questions, or start a conversation..."
-                  disabled={isSubmitting}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        {error && <div className="rounded-lg bg-red-50 p-3 text-sm text-red-500">{error}</div>}
-
-        <div className="flex justify-end gap-3">
-          <Button
-            type="button"
-            variant="outline"
-            colorScheme="gray"
-            onClick={onCancel}
-            disabled={isSubmitting}
-          >
-            Cancel
-          </Button>
-          <Button type="submit" variant="solid" colorScheme="brand" disabled={isSubmitting}>
-            {isSubmitting ? (
-              <>
-                Creating... <Icon name="spinner" className="size-4" />
-              </>
-            ) : (
-              'Create Discussion'
+    return (
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <FormField
+            control={form.control}
+            name="title"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Title</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="What would you like to discuss?"
+                    {...field}
+                    disabled={isSubmitting}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
             )}
-          </Button>
-        </div>
-      </form>
-    </Form>
-  )
-}
+          />
+
+          <FormField
+            control={form.control}
+            name="content"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Content</FormLabel>
+                <FormControl>
+                  <LexicalEditor
+                    value={field.value}
+                    onChange={field.onChange}
+                    placeholder="Share your thoughts, ask questions, or start a conversation..."
+                    disabled={isSubmitting}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {error && <div className="rounded-lg bg-red-50 p-3 text-sm text-red-500">{error}</div>}
+        </form>
+      </Form>
+    )
+  },
+)
+
+CreatePostForm.displayName = 'CreatePostForm'

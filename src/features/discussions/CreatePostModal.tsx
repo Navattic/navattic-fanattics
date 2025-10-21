@@ -1,14 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { Button, Icon } from '@/components/ui'
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/shadcn/ui/dialog'
+import { Modal } from '@/components/ui/Compass/Modal'
 import { CreatePostForm } from '@/features/discussions/CreatePostForm'
 import { User } from '@/payload-types'
 
@@ -18,24 +12,64 @@ interface CreatePostModalProps {
 
 export function CreatePostModal({ user }: CreatePostModalProps) {
   const [isOpen, setIsOpen] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const formRef = useRef<{ requestSubmit: () => void }>(null)
 
   const handleSuccess = () => {
     setIsOpen(false)
   }
 
+  const handleCancel = () => {
+    setIsOpen(false)
+  }
+
+  const handleSubmit = () => {
+    // Trigger form submission
+    if (formRef.current) {
+      formRef.current.requestSubmit()
+    }
+  }
+
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
+    <Modal
+      open={isOpen}
+      onOpenChange={setIsOpen}
+      trigger={
         <Button size="md" variant="solid" colorScheme="brand">
           Create discussion <Icon name="plus" className="size-4" />
         </Button>
-      </DialogTrigger>
-      <DialogContent className="max-h-[90vh] max-w-6xl overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Start a new discussion</DialogTitle>
-        </DialogHeader>
-        <CreatePostForm user={user} onSuccess={handleSuccess} onCancel={() => setIsOpen(false)} />
-      </DialogContent>
-    </Dialog>
+      }
+      title="Start a new discussion"
+      showCloseButton={false}
+      bodyClassName="p-0"
+      className="max-w-4xl"
+      primaryButton={{
+        children: isSubmitting ? (
+          <>
+            Creating... <Icon name="spinner" className="size-4" />
+          </>
+        ) : (
+          'Create Discussion'
+        ),
+        onClick: handleSubmit,
+        disabled: isSubmitting,
+        variant: 'solid',
+        colorScheme: 'brand',
+      }}
+      secondaryButton={{
+        children: 'Cancel',
+        onClick: handleCancel,
+        disabled: isSubmitting,
+      }}
+    >
+      <div className="p-6">
+        <CreatePostForm
+          ref={formRef}
+          user={user}
+          onSuccess={handleSuccess}
+          onSubmittingChange={setIsSubmitting}
+        />
+      </div>
+    </Modal>
   )
 }

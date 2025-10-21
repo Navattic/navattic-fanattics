@@ -323,15 +323,15 @@ export function LexicalEditor({ value, onChange, placeholder, disabled }: Lexica
   }
 
   return (
-    <div className="min-h-[200px] rounded-lg border">
+    <div className="flex flex-col overflow-hidden rounded-lg border">
       <LexicalComposer initialConfig={initialConfig}>
         <ToolbarPlugin />
-        <div className="relative">
+        <div className="relative min-h-0 flex-1">
           <RichTextPlugin
             contentEditable={
               <ContentEditable
-                className="h-48 w-full resize-none p-4 outline-none"
-                style={{ minHeight: '192px' }}
+                className="max-h-96 min-h-48 w-full resize-none overflow-y-auto p-4 outline-none"
+                style={{ minHeight: '192px', maxHeight: '384px' }}
               />
             }
             placeholder={

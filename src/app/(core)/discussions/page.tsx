@@ -46,7 +46,7 @@ const Discussions = async () => {
           <div className="min-h-screen bg-gray-50">
             <Container>
               <Empty
-                title="Welcome to the Fanattics Portal"
+                title="Welcome to the Fanattic Portal"
                 description="Please sign in or create an account to view the portal."
                 iconName="user"
                 button={
