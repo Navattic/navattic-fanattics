@@ -39,7 +39,14 @@ export const DiscussionPosts: CollectionConfig = {
         position: 'sidebar',
       },
       hooks: {
-        beforeValidate: [formatSlug('title')],
+        beforeValidate: [
+          ({ operation, value, data, ...args }) => {
+            if (operation === 'create') {
+              return formatSlug('title')({ operation, value, data, ...args })
+            }
+            return value
+          },
+        ],
       },
     },
     {

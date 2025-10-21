@@ -4,6 +4,7 @@ import { useState, forwardRef, useImperativeHandle } from 'react'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
+import { useRouter } from 'next/navigation'
 import { LexicalEditor } from '@/components/ui'
 import {
   Form,
@@ -66,6 +67,7 @@ export const EditPostForm = forwardRef<EditPostFormRef, EditPostFormProps>(
   ({ user, discussionPost, onSuccess, onSubmittingChange }, ref) => {
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [error, setError] = useState<string | null>(null)
+    const router = useRouter()
 
     const form = useForm<z.infer<typeof formSchema>>({
       resolver: zodResolver(formSchema),
@@ -101,6 +103,9 @@ export const EditPostForm = forwardRef<EditPostFormRef, EditPostFormProps>(
 
         // Call onSuccess to close the modal
         onSuccess()
+
+        // Refresh the page to show updated content
+        router.refresh()
       } catch (err) {
         console.error('Error updating discussion post:', err)
         setError(err instanceof Error ? err.message : 'Failed to update discussion post')
