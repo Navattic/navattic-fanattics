@@ -223,7 +223,7 @@ export default function LoginForm({ mode = 'signin' }: LoginFormProps) {
         />
       </div>
       <h1 className="pb-6 text-lg font-bold text-gray-800">
-        {isSignUp ? 'Sign up for Fanattic Portal' : 'Sign in to Fanattic Portal'}
+        {isSignUp ? 'Sign up for Fanattics Portal' : 'Sign in to Fanattics Portal'}
       </h1>
 
       {authError && (

@@ -8,7 +8,7 @@ export default async function Page() {
   const session = await getServerSession(authOptions)
 
   const BULLETS: string[] = [
-    'Meet other Fanattic users and build your network.',
+    'Meet other Navattic Fanattics and build your network.',
     'Earn rewards and redeem for gifts.',
     'Stay up to date with the latest Navattic events.',
   ]
@@ -35,7 +35,7 @@ export default async function Page() {
       <div className="grid flex-1 place-items-center border-l border-gray-200 bg-gray-50">
         <div className="mx-auto my-20 w-fit max-w-xl px-6 lg:px-0">
           <div className="text-emphasis mb-4 text-lg font-semibold text-balance lg:text-xl">
-            Join the Navattic Fanattic community and{' '}
+            Join the Navattic Fanattics community and{' '}
             <span className="text-gray-600">earn rewards.</span>
           </div>
           <div className="flex flex-col gap-3">

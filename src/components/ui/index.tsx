@@ -26,3 +26,5 @@ export { Input } from './Compass/Input'
 export { Label } from './Compass/Label'
 export { Modal } from './Compass/Modal'
 
+// Editors
+export { LexicalEditor } from './LexicalEditor'

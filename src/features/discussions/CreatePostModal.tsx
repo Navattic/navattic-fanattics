@@ -21,8 +21,6 @@ export function CreatePostModal({ user }: CreatePostModalProps) {
 
   const handleSuccess = () => {
     setIsOpen(false)
-    // Refresh the page to show the new post
-    window.location.reload()
   }
 
   return (
@@ -32,7 +30,7 @@ export function CreatePostModal({ user }: CreatePostModalProps) {
           Create discussion <Icon name="plus" className="size-4" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-h-[90vh] max-w-4xl overflow-y-auto">
+      <DialogContent className="max-h-[90vh] max-w-6xl overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Start a new discussion</DialogTitle>
         </DialogHeader>

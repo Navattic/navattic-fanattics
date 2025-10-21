@@ -11,11 +11,18 @@ export const Avatar = ({
   showCompany = false,
 }: {
   user?: User | null
-  size?: 'sm' | 'md' | 'lg' | 'xl'
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl'
   className?: string
   showCompany?: boolean
 }) => {
   const sizes = {
+    xs: {
+      width: 16,
+      src:
+        (user?.avatar as AvatarType)?.sizes?.profile?.url ||
+        (user?.avatar as AvatarType)?.url ||
+        '',
+    },
     sm: {
       width: 20,
       src:
@@ -56,6 +63,7 @@ export const Avatar = ({
     <div
       className={cn(
         'inset-shadow relative grid aspect-square place-items-center rounded-full',
+        size === 'xs' && 'size-4',
         size === 'sm' && 'size-6',
         size === 'md' && 'size-8',
         size === 'lg' && 'size-14',
@@ -78,6 +86,7 @@ export const Avatar = ({
           <div
             className={cn(
               'flex h-full w-full items-center justify-center rounded-full bg-gradient-to-b from-gray-100 to-gray-200 text-gray-500 uppercase [box-shadow:0_-2px_2px_0_rgba(0,0,0,0.03)_inset,0_-3px_8px_0_rgba(0,0,0,0.015)_inset] [text-shadow:-1px_1px_0px_rgba(255,255,255,0.3)]',
+              size === 'xs' && 'text-xs',
               size === 'sm' && 'text-xs',
               size === 'md' && 'text-xs',
               size === 'lg' && 'text-md',
@@ -112,6 +121,7 @@ export const Avatar = ({
             <Image
               className={clsx(
                 'z-10 aspect-square rounded-full border border-gray-200 bg-white object-contain p-px',
+                size === 'xs' && 'size-2',
                 size === 'sm' && 'size-3',
                 size === 'md' && 'size-4',
                 size === 'lg' && 'size-5',
@@ -119,8 +129,8 @@ export const Avatar = ({
               )}
               src={companyLogoSrc}
               alt={`${company?.name || 'Company'} logo`}
-              width={size === 'sm' ? 12 : 16}
-              height={size === 'sm' ? 12 : 16}
+              width={size === 'xs' ? 10 : size === 'sm' ? 12 : 16}
+              height={size === 'xs' ? 10 : size === 'sm' ? 12 : 16}
             />
           </Tooltip>
         </div>

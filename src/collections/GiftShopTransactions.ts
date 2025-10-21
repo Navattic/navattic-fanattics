@@ -49,17 +49,17 @@ export const GiftShopTransactions: CollectionConfig = {
             const { data, error } = await resend.emails.send({
               from:
                 process.env.NODE_ENV === 'production'
-                  ? 'Fanattic Portal <team@mail.navattic.com>'
-                  : 'Fanattic Portal <noreply@mail.navattic.dev>',
+                  ? 'Fanattics Portal <team@mail.navattic.com>'
+                  : 'Fanattics Portal <noreply@mail.navattic.dev>',
               to: ['fanattic@navattic.com'],
-              subject: 'New Gift Shop Redemption - Fanattic Portal',
+              subject: 'New Gift Shop Redemption - Fanattics Portal',
               html: `
                 <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
                   <h2 style="color: #333; border-bottom: 2px solid #007bff; padding-bottom: 10px;">
                     New Gift Shop Redemption
                   </h2>
                   
-                  <p>A user has redeemed a product from the Fanattic Portal gift shop:</p>
+                  <p>A user has redeemed a product from the Fanattics Portal gift shop:</p>
                   
                   
                   <div style="background-color: #e8f4fd; padding: 20px; border-radius: 8px; margin: 20px 0;">
@@ -114,7 +114,7 @@ export const GiftShopTransactions: CollectionConfig = {
                   }
 
                   <p style="color: #666; font-size: 14px;">
-                    This notification was automatically sent when a user redeemed a product from the Fanattic Portal gift shop.
+                    This notification was automatically sent when a user redeemed a product from the Fanattics Portal gift shop.
                   </p>
                 </div>
               `,

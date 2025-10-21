@@ -48,7 +48,7 @@ interface FooterItem {
 
 const items = [
   {
-    group: 'Fannatic Info',
+    group: 'Fannatics Info',
     items: [
       {
         label: 'Rules & Guide',
@@ -102,7 +102,7 @@ const items = [
 export function AppSidebar() {
   const { data: session, status: authStatus } = useSession()
   const pathname = usePathname()
-  const { user, isLoading: userLoading, error } = useUser()
+  const { user, isLoading: userLoading } = useUser()
   const isLoading = authStatus === 'loading' || userLoading
 
   const footerItems = [

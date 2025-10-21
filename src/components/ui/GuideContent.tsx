@@ -13,7 +13,7 @@ export const GuideContent = ({ guide }: { guide: Guide }) => {
   return (
     <div className="content-container overflow-hidden">
       <div className="space-y-4 border-b border-gray-200 p-8 py-4 pt-7">
-        <h1 className="text-lg font-medium">Fanattic Portal Information</h1>
+        <h1 className="text-lg font-medium">Fanattics Portal Information</h1>
       </div>
       <div>
         <div className="max-w-prose p-8 pt-6 pb-2 text-base text-gray-600">

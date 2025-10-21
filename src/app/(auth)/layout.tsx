@@ -3,9 +3,9 @@ import '../styles/globals.css'
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Fanattic Portal',
+  title: 'Fanattics Portal',
   description:
-    'Participate in challenges, see upcoming Navattic events, and meet fellow Navattic fans and power users',
+    'Welcome to the Navattic Fanattics Portal, where you can participate in challenges, see upcoming Navattic events, and meet fellow Navattic fans and power users. ',
   robots: {
     index: false,
     follow: false,
@@ -35,15 +35,16 @@ export const metadata: Metadata = {
     'theme-color': '#ffffff',
   },
   openGraph: {
-    title: 'Fanattic Portal',
-    description: 'Fanattic Portal',
-    url: 'https://portal.navattic.com',
-    siteName: 'Fanattic Portal',
+    title: 'Fanattics Portal',
+    description:
+      'Welcome to the Navattic Fanattics Portal, where you can participate in challenges, see upcoming Navattic events, and meet fellow Navattic fans and power users.',
+    url: 'https://fanattics.navattic.com',
+    siteName: 'Fanattics Portal',
     type: 'website',
     locale: 'en_US',
     images: [
       {
-        url: 'https://t7nc1nixn2.ufs.sh/f/yVcG3wa4IlnLZ7aD0dol54jKIOt798TGDorYQXCU1pWmkNwf',
+        url: 'https://t7nc1nixn2.ufs.sh/f/yVcG3wa4IlnLoBIg1ouiYyvKXHMeWUG5lSu2sw7ab68jn4fg',
         width: 1200,
         height: 630,
       },

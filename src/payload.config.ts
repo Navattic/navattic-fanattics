@@ -53,7 +53,7 @@ export default buildConfig({
   ],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
-  cors: ['*', 'http://localhost:3000'],
+  cors: ['*', 'http://localhost:3000', 'https://fanattics.navattic.com'],
   typescript: {
     outputFile: path.resolve(dirname, 'payload-types.ts'),
   },
@@ -68,7 +68,7 @@ export default buildConfig({
       process.env.NODE_ENV === 'production'
         ? 'team@mail.navattic.com'
         : 'noreply@mail.navattic.dev',
-    defaultFromName: 'Fanattic Portal',
+    defaultFromName: 'Navattic Fanattics',
     apiKey: process.env.RESEND_API_KEY || '',
   }),
   plugins: [

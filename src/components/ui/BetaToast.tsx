@@ -57,7 +57,7 @@ export function BetaToast() {
               </div>
               <div className="flex-1 p-5 pt-0">
                 <p className="text-sm text-balance text-gray-700">
-                  Thank you for being part of our fanattic beta program. Please reach out to{' '}
+                  Thank you for being part of our Fanattics beta program. Please reach out to{' '}
                   <a href="mailto:fanattic@navattic.com" className="text-blue-600 hover:underline">
                     fanattic@navattic.com
                   </a>{' '}

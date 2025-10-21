@@ -27,9 +27,9 @@ const GuideAndRules = async () => {
         <PageHeader userPoints={0} noUser={true} />
         <div className="min-h-screen bg-gray-50">
           <Container className="grid place-items-center">
-            <div className='py-20'>
+            <div className="py-20">
               <Empty
-                title="Welcome to the Fanattic Portal"
+                title="Welcome to the Fanattics Portal"
                 description="Please sign in or create an account to view the portal."
                 iconName="user"
                 button={

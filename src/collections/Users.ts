@@ -72,17 +72,17 @@ export const Users: CollectionConfig = {
             const { data, error } = await resend.emails.send({
               from:
                 process.env.NODE_ENV === 'production'
-                  ? 'Fanattic Portal <team@mail.navattic.com>'
-                  : 'Fanattic Portal <noreply@mail.navattic.dev>',
+                  ? 'Fanattics Portal <team@mail.navattic.com>'
+                  : 'Fanattics Portal <noreply@mail.navattic.dev>',
               to: ['fanattic@navattic.com'],
-              subject: 'New User Registration - Fanattic Portal',
+              subject: 'New User Registration - Fanattics Portal',
               html: `
                 <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
                   <h2 style="color: #333; border-bottom: 2px solid #007bff; padding-bottom: 10px;">
                     New User Registration
                   </h2>
                   
-                  <p>A new user has registered for the Fanattic Portal:</p>
+                  <p>A new user has registered for the Fanattics Portal:</p>
                   
                   <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
                     <h3 style="color: #333; margin-top: 0;">User Details</h3>
@@ -99,7 +99,7 @@ export const Users: CollectionConfig = {
                   </div>
                   
                   <p style="color: #666; font-size: 14px;">
-                    This notification was automatically sent when a new user registered for the Fanattic Portal.
+                    This notification was automatically sent when a new user registered for the Fanattics Portal.
                   </p>
                 </div>
               `,

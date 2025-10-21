@@ -16,7 +16,7 @@ import { BetaToast } from '../../components/ui/BetaToast'
 // TODO: Add notification system
 
 export const metadata: Metadata = {
-  title: 'Fanattic Portal',
+  title: 'Fanattics Portal',
   description:
     'Participate in challenges, see upcoming Navattic events, and meet fellow Navattic fans and power users',
   robots: {

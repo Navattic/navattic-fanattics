@@ -189,7 +189,7 @@ export const authOptions: NextAuthOptions = {
                 <head>
                   <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
                   <meta name="x-apple-disable-message-reformatting" />
-                  <title>Sign in to Fanattic Portal</title>
+                  <title>Sign in to Fanattics Portal</title>
                 </head>
                 <body style="background-color:#FCFCFD;padding:30px 0 50px 0;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased">
                   <table align="center" width="100%" border="0" cellPadding="0" cellSpacing="0" role="presentation" style="max-width:560px;margin:0 auto;padding:40px 50px;background:#fff;border:1px solid #d8e2e7;border-radius:13px">
@@ -207,17 +207,17 @@ export const authOptions: NextAuthOptions = {
                           </table>
                           
                           <h2 style="color:rgb(31,41,55);margin:0 0 20px 0;font-size:24px;line-height:1.4;font-weight:600">
-                            Welcome to Fanattic Portal
+                            Welcome to Fanattics Portal
                           </h2>
                           
                           <p style="font-size:16px;line-height:160%;margin:16px 0;color:#374151">
-                            Click the secure link below to sign in to your Fanattic Portal account. This link will expire in 24 hours for your security.
+                            Click the secure link below to sign in to your Fanattics Portal account. This link will expire in 24 hours for your security.
                           </p>
 
                           <div style="margin:32px 0">
                             <a href='${urlWithEmail}'
                               style="display:inline-block;background-color:#1f2937;color:#ffffff;text-decoration:none;padding:12px 24px;border-radius:8px;font-weight:500;font-size:16px;border:none">
-                              Sign in to Fanattic Portal
+                              Sign in to Fanattics Portal
                             </a>
                           </div>
 
@@ -236,7 +236,7 @@ export const authOptions: NextAuthOptions = {
                           </p>
                           
                           <p style="font-size:12px;color:#9ca3af;margin:16px 0 0 0">
-                            This email was sent by Navattic, Inc. | Fanattic Portal
+                            This email was sent by Navattic, Inc. | Fanattics Portal
                           </p>
                         </td>
                       </tr>

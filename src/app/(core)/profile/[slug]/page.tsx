@@ -22,7 +22,7 @@ const ProfilePage = async ({ params }: { params: Promise<{ slug: string }> }) =>
           <Container className="grid place-items-center">
             <div className="w-full py-20">
               <Empty
-                title="Welcome to the Fanattic Portal"
+                title="Welcome to the Fanattics Portal"
                 description="Please sign in or create an account to view the portal."
                 iconName="user"
                 button={
