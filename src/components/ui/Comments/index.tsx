@@ -45,7 +45,7 @@ export const Comments = ({
                 userStatsMap={userStatsMap}
               />
             ) : (
-              <div className="mt-4">
+              <div className="mt-8">
                 <Empty
                   title="No comments yet"
                   description={`Be the first to comment on this ${entityType}!`}

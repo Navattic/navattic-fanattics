@@ -37,10 +37,10 @@ export function DiscussionDetails({
     <div className="w-full">
       <div className="grid place-items-center space-y-4 bg-gradient-to-t from-white to-blue-50 p-14 pb-0">
         <div className="relative mx-auto flex w-full max-w-4xl items-start justify-start">
-          <div className="flex w-full flex-col gap-4">
+          <div className="flex w-full flex-col gap-10">
             {/* Author info */}
             <div className="flex w-full justify-between">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2.5">
                 {author && <Avatar user={author} size="md" showCompany={true} />}
                 <div className="flex flex-col gap-0">
                   <div className="text-sm font-medium text-gray-900">
@@ -56,7 +56,6 @@ export function DiscussionDetails({
                 </div>
               </div>
 
-              {/* Ellipsis dropdown - only show if user is the author */}
               {isAuthor && (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -70,7 +69,6 @@ export function DiscussionDetails({
                     align="end"
                     className="w-[160px] rounded-xl"
                   >
-                    {/* Edit Post */}
                     <DropdownMenuItem
                       className="flex w-full cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-sm"
                       onSelect={() => setIsEditModalOpen(true)}
@@ -87,15 +85,14 @@ export function DiscussionDetails({
                 </DropdownMenu>
               )}
             </div>
-            {/* title */}
-            <h1 className="text-2xl font-medium text-balance">{discussionPost.title}</h1>
           </div>
         </div>
       </div>
 
       {/* Content */}
-      <div className="mx-auto my-10 max-w-4xl border-t border-b border-gray-100 py-4 pt-8">
-        <RichText data={discussionPost.content} className="payload-rich-text max-w-3xl" />
+      <div className="mx-auto mb-10 max-w-4xl space-y-6 border-b border-gray-100 py-4 pt-6">
+        <h1 className="text-xl font-medium text-balance">{discussionPost.title}</h1>
+        <RichText data={discussionPost.content} className="payload-rich-text max-w-3xl text-gray-800" />
       </div>
 
       <EditPostModal

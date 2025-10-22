@@ -214,7 +214,7 @@ const DiscussionPage = async ({ params }: { params: Promise<{ slug: string }> })
             userTimezone={sessionUser?.timezone}
           />
         </div>
-        <div className="bg-gray-50">
+        <div className="min-h-[80vh] bg-gray-50">
           <Container className="py-10">
             <Suspense fallback={<div>Loading comments...</div>}>
               <Comments

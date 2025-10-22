@@ -61,21 +61,26 @@ export const DiscussionsList = ({
             className="inset-shadow space-y-3 rounded-3xl border border-gray-100 bg-gradient-to-b from-white/90 to-white/70 px-7 py-6 transition-all duration-200 hover:border-gray-300 hover:bg-white [:last-child]:mb-20"
           >
             <div className="mb-2 space-y-2">
-              {/* <div className="flex items-center gap-3 text-sm text-gray-500">
+              <div className="flex items-center gap-3 text-sm text-gray-400">
                 <div className="flex items-center gap-2">
-                  <Avatar user={author} size="xs" showCompany={true} />
+                  <div className="rounded-full border border-gray-300">
+                    <Avatar user={author} size="xs" />
+                  </div>
                   <span>
-                    {author ? `${author.firstName} ${author.lastName}` : 'Unknown Author'}
+                    {author ? `${author.firstName} ${author.lastName}` : 'Unknown Author'} -{' '}
+                    {formatDate(discussion.createdAt, {
+                      abbreviateMonth: true,
+                      includeYear: false,
+                      timezone: userTimezone,
+                    })}{' '}
                   </span>
                 </div>
-              </div> */}
+              </div>
               <h3 className="text-lg font-medium">{discussion.title}</h3>
 
               {/* Content preview */}
               {contentPreview && (
-                <p className="max-w-prose text-base leading-relaxed text-balance text-gray-500">
-                  {contentPreview}
-                </p>
+                <p className="text-sm text-balance text-gray-500">{contentPreview}</p>
               )}
             </div>
 
@@ -84,7 +89,7 @@ export const DiscussionsList = ({
                 <Icon name="message-circle" size="sm" className="text-gray-400" />
                 <span className="text-sm text-gray-500">{commentCount}</span>
               </div>
-              <div className="inset-shadow flex items-center gap-[6px] rounded-full bg-gray-50 px-3 py-0.5 pl-2.5">
+              {/* <div className="inset-shadow flex items-center gap-[6px] rounded-full bg-gray-50 px-3 py-0.5 pl-2.5">
                 <Icon name="calendar" size="sm" className="text-gray-400" />
                 <span className="text-sm text-gray-500">
                   {formatDate(discussion.createdAt, {
@@ -93,13 +98,13 @@ export const DiscussionsList = ({
                     timezone: userTimezone,
                   })}
                 </span>
-              </div>
-              <div className="inset-shadow flex items-center gap-[6px] rounded-full bg-gray-50 px-3 py-0.5 pl-1">
+              </div> */}
+              {/* <div className="inset-shadow flex items-center gap-[6px] rounded-full bg-gray-50 px-3 py-0.5 pl-1">
                 <span className="text-sm text-gray-500">
                   <div className="flex items-center gap-3 text-sm text-gray-500">
                     <div className="flex items-center gap-2">
                       <div className="rounded-full border border-gray-300">
-                        <Avatar user={author} size="xs" showCompany={true} />
+                        <Avatar user={author} size="xs" />
                       </div>
                       <span>
                         {author ? `${author.firstName} ${author.lastName}` : 'Unknown Author'}
@@ -107,7 +112,7 @@ export const DiscussionsList = ({
                     </div>
                   </div>
                 </span>
-              </div>
+              </div> */}
             </div>
           </Link>
         )
