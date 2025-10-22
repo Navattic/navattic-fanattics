@@ -41,10 +41,10 @@ const Challenges = async () => {
     // Filter challenges into active and expired
     const now = new Date()
     const activeChallenges = challengesData.docs.filter(
-      (challenge) => new Date(challenge.deadline) > now
+      (challenge) => new Date(challenge.deadline) > now,
     )
     const expiredChallenges = challengesData.docs.filter(
-      (challenge) => new Date(challenge.deadline) <= now
+      (challenge) => new Date(challenge.deadline) <= now,
     )
 
     const userPoints = sessionUser ? await calculateUserPoints({ user: sessionUser }) : 0
@@ -117,7 +117,7 @@ const Challenges = async () => {
                 </Button>
               }
             />
-            
+
             {/* Active Challenges Section */}
             <div className="text-md mt-8 mb-3 font-semibold text-gray-600">Active Challenges</div>
             {activeChallenges.length > 0 ? (
