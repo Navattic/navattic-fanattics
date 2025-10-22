@@ -77,7 +77,7 @@ export function DiscussionDetails({
                       Edit Post
                     </DropdownMenuItem>
 
-                    {/* Delete Post */}
+                    {/* Delete post */}
                     <DropdownMenuItem asChild className="cursor-pointer p-0">
                       <DeletePostButton discussionPost={discussionPost} currentUser={sessionUser} />
                     </DropdownMenuItem>

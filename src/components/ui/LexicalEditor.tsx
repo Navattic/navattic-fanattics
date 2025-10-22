@@ -365,25 +365,27 @@ export function LexicalEditor({ value, onChange, placeholder, disabled }: Lexica
   }
 
   return (
-    <div className="flex flex-col overflow-hidden rounded-lg border">
+    <div
+      className={`flex flex-col overflow-hidden rounded-lg border ${disabled ? 'pointer-events-none opacity-50' : ''}`}
+    >
       <LexicalComposer initialConfig={initialConfig}>
         <ToolbarPlugin />
         <div className="relative min-h-0 flex-1">
           <RichTextPlugin
             contentEditable={
               <ContentEditable
-                className="max-h-96 min-h-48 w-full resize-none overflow-y-auto p-4 outline-none"
+                className="max-h-96 min-h-48 w-full resize-none overflow-y-auto p-3 !text-base outline-none"
                 style={{ minHeight: '192px', maxHeight: '384px' }}
               />
             }
             placeholder={
-              <div className="pointer-events-none absolute top-4 left-4 text-sm font-normal text-gray-500">
+              <div className="pointer-events-none absolute top-3 left-3 text-base font-normal text-gray-400">
                 {placeholder}
               </div>
             }
             ErrorBoundary={LexicalErrorBoundary}
           />
-          <OnChangePlugin onChange={handleChange} />
+          <OnChangePlugin onChange={disabled ? () => {} : handleChange} />
           <HistoryPlugin />
           <AutoFocusPlugin />
           <LinkPlugin />

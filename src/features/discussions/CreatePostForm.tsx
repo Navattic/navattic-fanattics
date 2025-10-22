@@ -151,11 +151,7 @@ export const CreatePostForm = forwardRef<CreatePostFormRef, CreatePostFormProps>
               <FormItem>
                 <FormLabel>Title</FormLabel>
                 <FormControl>
-                  <Input
-                    placeholder="What would you like to discuss?"
-                    {...field}
-                    disabled={isSubmitting}
-                  />
+                  <Input placeholder="Let's talk about..." {...field} disabled={isSubmitting} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

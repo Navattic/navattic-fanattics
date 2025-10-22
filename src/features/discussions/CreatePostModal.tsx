@@ -49,7 +49,7 @@ export function CreatePostModal({ user }: CreatePostModalProps) {
             Creating... <Icon name="spinner" className="size-4" />
           </>
         ) : (
-          'Create Discussion'
+          'Create discussion'
         ),
         onClick: handleSubmit,
         disabled: isSubmitting,
