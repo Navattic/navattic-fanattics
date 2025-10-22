@@ -99,11 +99,18 @@ export const DiscussionPosts: CollectionConfig = {
         // Only send notification for new discussion post creation
         if (operation === 'create') {
           try {
-            // Fetch the author details to include in the email
-            const author = await req.payload.findByID({
-              collection: 'users',
-              id: doc.author,
-            })
+            // Check if author is already populated or just an ID
+            let author
+            if (typeof doc.author === 'object' && doc.author.id) {
+              // Author is already populated
+              author = doc.author
+            } else {
+              // Author is just an ID, fetch the full object
+              author = await req.payload.findByID({
+                collection: 'users',
+                id: doc.author,
+              })
+            }
 
             const { data, error } = await resend.emails.send({
               from:
@@ -124,7 +131,7 @@ export const DiscussionPosts: CollectionConfig = {
                     <h3 style="color: #333; margin-top: 0;">Post Details</h3>
                     <p><strong>Title:</strong> ${doc.title}</p>
                     <p><strong>Author:</strong> ${author.firstName || ''} ${author.lastName || ''} (${author.email})</p>
-                    <p><strong>Company:</strong> ${author.company || 'Not specified'}</p>
+                    <p><strong>Company:</strong> ${author.company?.name || 'Not specified'}</p>
                     <p><strong>Status:</strong> ${doc.status}</p>
                     <p><strong>Created:</strong> ${new Date().toLocaleString()}</p>
                     <p><strong>Slug:</strong> ${doc.slug}</p>
