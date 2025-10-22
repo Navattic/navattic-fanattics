@@ -102,8 +102,8 @@ const Discussions = async () => {
                 description="Be the first to start a discussion!"
                 iconName="message-circle"
                 button={
-                  <div className="mt-2">
-                    <CreatePostModal user={sessionUser} />
+                  <div className="mt-4">
+                    <CreatePostModal user={sessionUser} buttonColorScheme="outline"/>
                   </div>
                 }
               />

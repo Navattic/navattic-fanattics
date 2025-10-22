@@ -51,9 +51,15 @@ const Home = async () => {
     )
   }
 
+  // Filter to only show active challenges (deadline > current date)
   const challengesData = (
     await payload.find({
       collection: 'challenges',
+      where: {
+        deadline: {
+          greater_than: new Date().toISOString(),
+        },
+      },
     })
   ).docs
 

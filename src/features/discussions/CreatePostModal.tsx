@@ -8,9 +8,10 @@ import { User } from '@/payload-types'
 
 interface CreatePostModalProps {
   user: User
+  buttonColorScheme?: 'solid' | 'outline' | 'ghost'
 }
 
-export function CreatePostModal({ user }: CreatePostModalProps) {
+export function CreatePostModal({ user, buttonColorScheme = 'solid' }: CreatePostModalProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const formRef = useRef<{ requestSubmit: () => void }>(null)
@@ -35,8 +36,9 @@ export function CreatePostModal({ user }: CreatePostModalProps) {
       open={isOpen}
       onOpenChange={setIsOpen}
       trigger={
-        <Button size="md" variant="solid" colorScheme="brand">
-          Create discussion <Icon name="plus" className="size-4" />
+        <Button size="md" variant={buttonColorScheme} colorScheme="brand">
+          <Icon name="plus" />
+          Create discussion
         </Button>
       }
       title="Start a new discussion"
@@ -46,7 +48,7 @@ export function CreatePostModal({ user }: CreatePostModalProps) {
       primaryButton={{
         children: isSubmitting ? (
           <>
-            Creating... <Icon name="spinner" className="size-4" />
+            Creating... <Icon name="spinner" />
           </>
         ) : (
           'Create discussion'

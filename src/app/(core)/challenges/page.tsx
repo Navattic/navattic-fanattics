@@ -15,11 +15,7 @@ const Challenges = async () => {
     const [challengesData, sessionUser] = await Promise.all([
       payload.find({
         collection: 'challenges',
-        where: {
-          deadline: {
-            greater_than: new Date().toISOString(),
-          },
-        },
+        // Remove the deadline filter to get all challenges
         sort: '-deadline',
         depth: 2,
         populate: {
@@ -41,6 +37,15 @@ const Challenges = async () => {
             .then((res) => res.docs[0])
         : Promise.resolve(null),
     ])
+
+    // Filter challenges into active and expired
+    const now = new Date()
+    const activeChallenges = challengesData.docs.filter(
+      (challenge) => new Date(challenge.deadline) > now
+    )
+    const expiredChallenges = challengesData.docs.filter(
+      (challenge) => new Date(challenge.deadline) <= now
+    )
 
     const userPoints = sessionUser ? await calculateUserPoints({ user: sessionUser }) : 0
 
@@ -112,10 +117,12 @@ const Challenges = async () => {
                 </Button>
               }
             />
+            
+            {/* Active Challenges Section */}
             <div className="text-md mt-8 mb-3 font-semibold text-gray-600">Active Challenges</div>
-            {challengesData.docs.length > 0 ? (
+            {activeChallenges.length > 0 ? (
               <ChallengesList
-                challengesData={challengesData.docs}
+                challengesData={activeChallenges}
                 userLedgerEntries={userLedgerEntries}
                 commentCountMap={commentCountMap}
                 userTimezone={sessionUser?.timezone}
@@ -124,6 +131,24 @@ const Challenges = async () => {
               <Empty
                 title="No upcoming challenges yet"
                 description="Check back soon for updates."
+                iconName="award"
+              />
+            )}
+
+            {/* Expired Challenges Section */}
+            <div className="text-md mt-16 mb-3 font-semibold text-gray-600">Expired Challenges</div>
+            {expiredChallenges.length > 0 ? (
+              <ChallengesList
+                challengesData={expiredChallenges}
+                userLedgerEntries={userLedgerEntries}
+                commentCountMap={commentCountMap}
+                userTimezone={sessionUser?.timezone}
+                isExpired={true}
+              />
+            ) : (
+              <Empty
+                title="No expired challenges yet"
+                description="Challenges that have passed their deadline will appear here."
                 iconName="award"
               />
             )}
