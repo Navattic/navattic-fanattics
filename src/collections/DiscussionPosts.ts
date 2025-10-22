@@ -137,13 +137,6 @@ export const DiscussionPosts: CollectionConfig = {
                     <p><strong>Slug:</strong> ${doc.slug}</p>
                   </div>
                   
-                  <div style="background-color: #ffffff; padding: 15px; border-left: 4px solid #007bff; margin: 20px 0;">
-                    <h4 style="color: #333; margin-top: 0;">Post Content Preview:</h4>
-                    <div style="max-height: 200px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; background-color: #f9f9f9;">
-                      ${doc.content ? doc.content.replace(/<[^>]*>/g, '').substring(0, 500) + '...' : 'No content preview available'}
-                    </div>
-                  </div>
-                  
                   <p style="color: #666; font-size: 14px;">
                     This notification was automatically sent when a new discussion post was created in the Fanattics Portal.
                   </p>
