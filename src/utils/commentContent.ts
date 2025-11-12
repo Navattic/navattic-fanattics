@@ -104,3 +104,56 @@ export function extractCommentText(comment: Comment): string {
   // Fall back to content field
   return (comment.content as string) || ''
 }
+
+/**
+ * Removes trailing empty paragraphs from Lexical content
+ */
+export function removeTrailingEmptyParagraphs(content: unknown): unknown {
+  if (!isLexicalContent(content)) {
+    return content
+  }
+
+  const contentObj = content as Record<string, unknown>
+  const root = contentObj.root as Record<string, unknown>
+  const children = root.children as unknown[]
+
+  if (!Array.isArray(children)) {
+    return content
+  }
+
+  // Remove empty paragraphs from the end
+  const filteredChildren = [...children]
+  while (filteredChildren.length > 0) {
+    const lastChild = filteredChildren[filteredChildren.length - 1] as Record<string, unknown>
+    
+    // Check if it's a paragraph
+    if (lastChild.type === 'paragraph') {
+      const paragraphChildren = lastChild.children as unknown[]
+      if (Array.isArray(paragraphChildren)) {
+        // Check if paragraph is empty (no text content)
+        const hasText = paragraphChildren.some((child) => {
+          const childObj = child as Record<string, unknown>
+          return childObj.type === 'text' && typeof childObj.text === 'string' && childObj.text.trim() !== ''
+        })
+        
+        if (!hasText) {
+          // Remove this empty paragraph
+          filteredChildren.pop()
+          continue
+        }
+      }
+    }
+    
+    // Stop if we hit a non-empty paragraph or non-paragraph element
+    break
+  }
+
+  // Return cleaned content
+  return {
+    ...contentObj,
+    root: {
+      ...root,
+      children: filteredChildren,
+    },
+  }
+}

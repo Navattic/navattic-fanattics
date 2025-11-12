@@ -3,7 +3,7 @@
 import { payload } from '@/lib/payloadClient'
 import { User, Challenge, Comment, DiscussionPost } from '@/payload-types'
 import { revalidateTag, revalidatePath } from 'next/cache'
-import { extractTextFromLexicalContent } from '@/utils/commentContent'
+import { extractTextFromLexicalContent, removeTrailingEmptyParagraphs } from '@/utils/commentContent'
 
 export async function createComment({
   richContent,
@@ -29,11 +29,14 @@ export async function createComment({
   }
 
   try {
+    // Clean up trailing empty paragraphs before saving
+    const cleanedRichContent = removeTrailingEmptyParagraphs(richContent)
+
     const result = await payload.create({
       collection: 'comments',
       data: {
-        richContent: richContent,
-        content: '',
+        richContent: cleanedRichContent,
+        content: '', 
         user: user.id,
         challenge: challenge?.id || null,
         discussionPost: discussionPost?.id || null,
@@ -123,11 +126,14 @@ export async function updateComment({
   }
 
   try {
+    // Clean up trailing empty paragraphs before saving
+    const cleanedRichContent = removeTrailingEmptyParagraphs(richContent)
+
     const result = await payload.update({
       collection: 'comments',
       id: commentId,
       data: {
-        richContent: richContent,
+        richContent: cleanedRichContent,
         // Clear old content field when updating to richContent
         content: '',
       },
