@@ -42,7 +42,11 @@ export function getCommentContent(comment: Comment): string | object {
   ) {
     return richContent as object
   }
-  return comment.content || ''
+  const content = comment.content
+  if (typeof content === 'string') {
+    return content
+  }
+  return ''
 }
 
 export function convertStringToLexical(text: string) {
