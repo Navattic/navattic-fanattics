@@ -29,20 +29,11 @@ import {
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
-// Determine if we should enable Payload Cloud plugin
 // Only enable in production or when explicitly using Supabase connection
 const isProduction = process.env.NODE_ENV === 'production'
 const connectionString = isProduction
   ? process.env.DATABASE_URI || ''
   : process.env.DEST_DATABASE_URI || ''
-
-// Log connection string info for debugging (masked for security)
-const maskedConnectionString = connectionString
-  ? connectionString.replace(/(:\/\/[^:]+:)([^@]+)(@)/, '$1***$3')
-  : 'NOT SET'
-console.log('[Payload Config] Environment:', isProduction ? 'production' : 'development')
-console.log('[Payload Config] Connection string (masked):', maskedConnectionString)
-console.log('[Payload Config] Is Supabase connection:', connectionString.includes('supabase.co'))
 
 const isSupabaseConnection = connectionString.includes('supabase.co')
 const shouldEnableCloudPlugin = isProduction || isSupabaseConnection
