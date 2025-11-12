@@ -225,34 +225,34 @@ function ToolbarPlugin() {
 
   return (
     <>
-      <div className="border-b bg-gray-50 px-3 py-2">
-        <div className="flex gap-2">
+      <div className="bg-gray-50 border-b border-gray-100 px-2 py-1">
+        <div className="flex gap-1">
           <Button
             type="button"
             variant="ghost"
-            size="sm"
+            size="xs"
             onClick={() => editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'bold')}
-            className={`h-8 px-2 ${isBold ? 'bg-gray-200' : ''}`}
+            className={`px-2 ${isBold ? 'bg-gray-200' : ''}`}
           >
-            <Icon name="bold" className="size-4" />
+            <Icon name="bold" size="sm" />
           </Button>
           <Button
             type="button"
             variant="ghost"
-            size="sm"
+            size="xs"
             onClick={() => editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'italic')}
-            className={`h-8 px-2 ${isItalic ? 'bg-gray-200' : ''}`}
+            className={`px-2 ${isItalic ? 'bg-gray-200' : ''}`}
           >
-            <Icon name="italic" className="size-4" />
+            <Icon name="italic" size="sm" />
           </Button>
           <Button
             type="button"
             variant="ghost"
-            size="sm"
+            size="xs"
             onClick={() => setIsLinkModalOpen(true)}
-            className={`h-8 px-2 ${isLink ? 'bg-gray-200' : ''}`}
+            className={`px-2 ${isLink ? 'bg-gray-200' : ''}`}
           >
-            <Icon name="link" className="size-4" />
+            <Icon name="link" size="sm" />
           </Button>
         </div>
       </div>
@@ -366,7 +366,7 @@ export function LexicalEditor({ value, onChange, placeholder, disabled }: Lexica
 
   return (
     <div
-      className={`flex flex-col overflow-hidden rounded-lg border ${disabled ? 'pointer-events-none opacity-50' : ''}`}
+      className={`flex flex-col overflow-hidden rounded-xl border border-gray-200 bg-white ${disabled ? 'pointer-events-none opacity-50' : ''}`}
     >
       <LexicalComposer initialConfig={initialConfig}>
         <ToolbarPlugin />
@@ -374,8 +374,8 @@ export function LexicalEditor({ value, onChange, placeholder, disabled }: Lexica
           <RichTextPlugin
             contentEditable={
               <ContentEditable
-                className="max-h-96 min-h-48 w-full resize-none overflow-y-auto p-3 !text-base outline-none"
-                style={{ minHeight: '192px', maxHeight: '384px' }}
+                className="max-h-96 min-h-32 w-full resize-none overflow-y-auto p-3 !text-base outline-none"
+                style={{ minHeight: '128px', maxHeight: '256px' }}
               />
             }
             placeholder={

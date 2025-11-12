@@ -52,13 +52,14 @@ export function CommentActions({
         <Icon name="reply" size="sm" className="-translate-y-[2px]" />
         Reply
       </Button>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="sm">
-            <Icon name="ellipsis" size="sm" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-48 rounded-xl">
+      {isCurrentUserComment && (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="sm">
+              <Icon name="ellipsis" size="sm" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-48 rounded-xl">
           {/* {user?.roles?.includes('admin') && (
             <DropdownMenuItem
               onClick={() => console.log('Award points')}
@@ -118,8 +119,9 @@ export function CommentActions({
               </Dialog>
             </>
           )}
-        </DropdownMenuContent>
-      </DropdownMenu>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      )}
     </div>
   )
 }

@@ -1,13 +1,14 @@
 'use client'
 
 import { useState } from 'react'
-import { Button } from '@/components/ui'
+import { Button, LexicalEditor } from '@/components/ui'
 import { updateComment } from './actions'
 import { Comment } from '@/payload-types'
+import { convertStringToLexical, extractTextFromLexicalContent } from '@/utils/commentContent'
 
 interface CommentEditFormProps {
   commentId: number
-  initialContent: string
+  initialContent: string | object
   onCancel: () => void
   onSuccess: (updatedComment: Comment) => void
 }
@@ -18,17 +19,32 @@ export function CommentEditForm({
   onCancel,
   onSuccess,
 }: CommentEditFormProps) {
-  const [content, setContent] = useState(initialContent)
+  // Convert initial content to Lexical format if it's a string
+  const getInitialLexicalContent = () => {
+    if (typeof initialContent === 'string') {
+      // Old comment format - convert to Lexical
+      return convertStringToLexical(initialContent)
+    }
+    // Already in Lexical format
+    return initialContent
+  }
+
+  const [richContent, setRichContent] = useState<any>(getInitialLexicalContent())
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    // Validate content
+    const textContent = extractTextFromLexicalContent(richContent.root).trim()
+    if (!textContent) return
+
     setIsSubmitting(true)
 
     try {
       const updatedComment = await updateComment({
         commentId,
-        content,
+        richContent,
       })
       onSuccess(updatedComment)
     } catch (error) {
@@ -41,10 +57,10 @@ export function CommentEditForm({
 
   return (
     <form className="flex w-full flex-col gap-3" onSubmit={handleSubmit}>
-      <textarea
-        className="h-24 w-full resize-none rounded-lg border bg-white p-3"
-        value={content}
-        onChange={(e) => setContent(e.target.value)}
+      <LexicalEditor
+        value={richContent}
+        onChange={setRichContent}
+        placeholder="Edit your comment"
         disabled={isSubmitting}
       />
       <div className="flex gap-2">
@@ -52,7 +68,7 @@ export function CommentEditForm({
           variant="ghost"
           colorScheme="gray"
           type="button"
-          size="sm"
+          size="md"
           onClick={onCancel}
           disabled={isSubmitting}
         >
@@ -62,8 +78,8 @@ export function CommentEditForm({
           variant="solid"
           colorScheme="gray"
           type="submit"
-          size="sm"
-          disabled={!content.trim() || isSubmitting}
+          size="md"
+          disabled={!extractTextFromLexicalContent(richContent.root).trim() || isSubmitting}
         >
           Save changes
         </Button>

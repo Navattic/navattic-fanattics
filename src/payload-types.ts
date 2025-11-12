@@ -307,7 +307,16 @@ export interface Avatar {
  */
 export interface Comment {
   id: number;
-  content: string;
+  content?: string | null;
+  richContent?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
   user: number | User;
   challenge?: (number | null) | Challenge;
   discussionPost?: (number | null) | DiscussionPost;
@@ -756,6 +765,7 @@ export interface UsersSelect<T extends boolean = true> {
  */
 export interface CommentsSelect<T extends boolean = true> {
   content?: T;
+  richContent?: T;
   user?: T;
   challenge?: T;
   discussionPost?: T;

@@ -42,22 +42,23 @@
 
 .editor-list-ol {
   padding: 0;
-  margin: 0;
-  margin-left: 16px;
+  margin: 0 0 8px 0;
+  margin-left: 12px;
+  list-style-type: decimal;
+  list-style-position: inside;
 }
 
 .editor-list-ul {
   padding: 0;
-  margin: 0;
-  margin-left: 16px;
+  margin: 0 0 8px 0;
+  margin-left: 12px;
+  list-style-type: disc;
+  list-style-position: inside;
 }
 
 .editor-listitem {
-  margin: 8px 32px 8px 32px;
-}
-
-.editor-nested-listitem {
-  list-style-type: none;
+  margin: 0;
+  padding: 0;
 }
 
 .editor-link {
@@ -315,7 +316,7 @@
   --radius-sm: calc(var(--radius) - 4px);
 
   --animate-accordion-down: accordion-down 0.2s ease-out;
-  --animate-accordion-up: accordion-up 0.2s ease-out;  
+  --animate-accordion-up: accordion-up 0.2s ease-out;
 
   @keyframes accordion-down {
     from {
@@ -461,34 +462,35 @@
     --pink-800: 336 74% 35%;
     --pink-900: 336 69% 30%;
     /* Shadows */
-    --shadow-button-base-layered: 0px 1px 1px 0px rgba(0, 0, 0, 0.1),
-      0px 2px 3px 0px rgba(0, 0, 0, 0.08), 1px 4px 8px 0px rgba(0, 0, 0, 0.12);
+    --shadow-button-base-layered:
+      0px 1px 1px 0px rgba(0, 0, 0, 0.1), 0px 2px 3px 0px rgba(0, 0, 0, 0.08),
+      1px 4px 8px 0px rgba(0, 0, 0, 0.12);
 
-    --shadow-gray-button-inset-skeuo: 0px -3px 2px 0px rgba(0, 0, 0, 0.4) inset,
-      0px 2px 0.4px 0px rgba(255, 255, 255, 0.14) inset;
-    --shadow-blue-button-inset-skeuo: 0px -3px 2px 0px rgba(0, 0, 0, 0.2) inset,
-      0px 2px 0.4px 0px rgba(255, 255, 255, 0.14) inset;
-    --shadow-red-button-inset-skeuo: 0px -3px 2px 0px rgba(0, 0, 0, 0.2) inset,
-      0px 2px 0.4px 0px rgba(255, 255, 255, 0.14) inset;
+    --shadow-gray-button-inset-skeuo:
+      0px -3px 2px 0px rgba(0, 0, 0, 0.4) inset, 0px 2px 0.4px 0px rgba(255, 255, 255, 0.14) inset;
+    --shadow-blue-button-inset-skeuo:
+      0px -3px 2px 0px rgba(0, 0, 0, 0.2) inset, 0px 2px 0.4px 0px rgba(255, 255, 255, 0.14) inset;
+    --shadow-red-button-inset-skeuo:
+      0px -3px 2px 0px rgba(0, 0, 0, 0.2) inset, 0px 2px 0.4px 0px rgba(255, 255, 255, 0.14) inset;
 
-    --shadow-button-deep-inset-indented: 0px 3px 1px 0px rgba(0, 0, 0, 0.2) inset,
-      0px 0px 3px 0px rgba(0, 0, 0, 0.2) inset;
+    --shadow-button-deep-inset-indented:
+      0px 3px 1px 0px rgba(0, 0, 0, 0.2) inset, 0px 0px 3px 0px rgba(0, 0, 0, 0.2) inset;
     --shadow-button-shallow-inset-indented: 0px 2px 1px 0px rgba(0, 0, 0, 0.05) inset;
 
-    --shadow-button-elevated: 0px 2px 3px 0px rgba(0, 0, 0, 0.03),
-      0px 2px 2px -1px rgba(0, 0, 0, 0.03);
+    --shadow-button-elevated:
+      0px 2px 3px 0px rgba(0, 0, 0, 0.03), 0px 2px 2px -1px rgba(0, 0, 0, 0.03);
 
-    --shadow-gray-solid-focus: 0px 0px 0px 1px var(--colors-white, #fff),
-      0px 0px 1px 3px rgba(7, 10, 13, 0.4);
-    --shadow-blue-solid-focus: 0px 0px 0px 1px var(--colors-white, #fff),
-      0px 0px 1px 3px rgba(38, 109, 240, 0.4);
-    --shadow-red-solid-focus: 0px 0px 0px 1px var(--colors-white, #fff),
-      0px 0px 1px 3px rgba(239, 68, 68, 0.4);
+    --shadow-gray-solid-focus:
+      0px 0px 0px 1px var(--colors-white, #fff), 0px 0px 1px 3px rgba(7, 10, 13, 0.4);
+    --shadow-blue-solid-focus:
+      0px 0px 0px 1px var(--colors-white, #fff), 0px 0px 1px 3px rgba(38, 109, 240, 0.4);
+    --shadow-red-solid-focus:
+      0px 0px 0px 1px var(--colors-white, #fff), 0px 0px 1px 3px rgba(239, 68, 68, 0.4);
 
-    --shadow-gray-focus: 0px 0px 0px 1px var(--colors-white, #fff),
-      0px 0px 1px 3px rgba(7, 10, 13, 0.2);
-    --shadow-blue-focus: 0px 0px 0px 1px var(--colors-white, #fff),
-      0px 0px 1px 3px rgba(38, 109, 240, 0.2);
+    --shadow-gray-focus:
+      0px 0px 0px 1px var(--colors-white, #fff), 0px 0px 1px 3px rgba(7, 10, 13, 0.2);
+    --shadow-blue-focus:
+      0px 0px 0px 1px var(--colors-white, #fff), 0px 0px 1px 3px rgba(38, 109, 240, 0.2);
 
     /* Other */
     --background: 0 0% 100%;
@@ -596,7 +598,7 @@
 
 @layer utilities {
   .content-container {
-    @apply w-full bg-gradient-to-b from-white to-[#F6F8F9] rounded-2xl shadow-sm;
+    @apply w-full rounded-2xl bg-gradient-to-b from-white to-[#F6F8F9] shadow-sm;
   }
   .shadow-solid-button-active,
   :where(button, a):active .shadow-solid-button-active,
@@ -742,7 +744,7 @@
     h4,
     h5,
     h6 {
-      @apply text-gray-800 mb-4 mt-6;
+      @apply mt-6 mb-4 text-gray-800;
     }
 
     p {
