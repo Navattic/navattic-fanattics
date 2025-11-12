@@ -1,7 +1,7 @@
 'use server'
 
 import { payload } from '@/lib/payloadClient'
-import { User } from '@/payload-types'
+import { User, DiscussionPost } from '@/payload-types'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { removeTrailingEmptyParagraphs } from '@/utils/commentContent'
@@ -30,7 +30,7 @@ export async function createDiscussionPost({
       collection: 'discussionPosts',
       data: {
         title,
-        content: cleanedContent,
+        content: cleanedContent as DiscussionPost['content'],
         author: author.id,
         status: 'published',
       },
@@ -94,7 +94,7 @@ export async function updateDiscussionPost({
       id: postId,
       data: {
         title,
-        content: cleanedContent,
+        content: cleanedContent as DiscussionPost['content'],
         lastActivity: new Date().toISOString(),
       },
     })
