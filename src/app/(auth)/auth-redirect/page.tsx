@@ -18,7 +18,12 @@ export default async function AuthRedirect() {
 
   while (!user && attempts < maxAttempts) {
     try {
-      const users = await payload.find({
+      if (!payload) {
+        console.error('[AuthRedirect] Payload is not initialized')
+        redirect('/login?error=payload_not_initialized')
+      }
+
+      const users = await payload?.find({
         collection: 'users',
         where: {
           email: {
@@ -29,9 +34,15 @@ export default async function AuthRedirect() {
         draft: false,
       })
 
-      if (users.docs.length > 0) {
-        user = users.docs[0]
+      if (users?.docs.length > 0) {
+        user = users?.docs[0] ?? null
         break
+      } else {
+        console.error('[AuthRedirect] User not found:', {
+          email: session.user.email,
+          attempts,
+        })
+        redirect('/login?error=user_not_found')
       }
 
       // Exponential backoff: 100ms, 200ms, 400ms, 800ms, 1600ms

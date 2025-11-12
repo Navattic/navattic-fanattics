@@ -36,6 +36,7 @@ import {
 import { type Pool } from 'pg'
 import { buildConfig } from 'payload'
 import { vercelPostgresAdapter } from '@payloadcms/db-vercel-postgres'
+import { postgresAdapter } from '@payloadcms/db-postgres'
 import { payloadCloudPlugin } from '@payloadcms/payload-cloud'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import path from 'path'
@@ -63,6 +64,11 @@ import { migrations } from '../src/migrations'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
+
+// Constants (for potential future use)
+// const BATCH_SIZE = 1000 // For potential future batching
+// const MAX_RETRY_ATTEMPTS = 5 // For retry logic
+// const RETRY_BASE_DELAY_MS = 100 // Base delay for exponential backoff
 
 // Collections to seed (in dependency order to respect foreign keys)
 // Order: collections with no dependencies first, then those that depend on them
@@ -162,9 +168,11 @@ function inferTargetCollection(fieldName: string, _sourceCollection: string): st
  * Maps relationship field values using ID mappings
  */
 function mapRelationshipIds(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   row: Record<string, any>,
   collectionSlug: string,
   idMappings: Map<string, IdMapping>,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): Record<string, any> {
   const mappedRow = { ...row }
   const relationshipFields = RELATIONSHIP_FIELDS[collectionSlug] || []
@@ -260,8 +268,9 @@ async function dropAllTables(destPool: Pool, destUri: string): Promise<void> {
     }
 
     console.log(`   ✅ Successfully dropped all ${tableNames.length} tables\n`)
-  } catch (error: any) {
-    console.error(`   ❌ Error dropping tables: ${error.message}`)
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    console.error(`   ❌ Error dropping tables: ${errorMessage}`)
     throw error
   }
 }
@@ -306,11 +315,21 @@ function createConfigWithDatabaseUri(databaseUri: string, instanceId: string) {
     typescript: {
       outputFile: path.resolve(dirname, '..', 'src', 'payload-types.ts'),
     },
-    db: vercelPostgresAdapter({
-      pool: {
-        connectionString: databaseUri,
-      },
-    }),
+    // Use standard postgres adapter in development to avoid Supabase real-time WebSocket issues
+    // vercelPostgresAdapter auto-detects Supabase and tries to connect to real-time endpoints
+    // which fails when certificates are expired. The standard adapter doesn't have this issue.
+    db:
+      !isProduction && isSupabaseConnection
+        ? postgresAdapter({
+            pool: {
+              connectionString: databaseUri,
+            },
+          })
+        : vercelPostgresAdapter({
+            pool: {
+              connectionString: databaseUri,
+            },
+          }),
     sharp,
     email: resendAdapter({
       defaultFromAddress:
@@ -356,7 +375,9 @@ async function runMigrations(destUri: string): Promise<void> {
     // Initialize Payload to get access to the adapter's drizzle instance
     // According to docs: payload.db.drizzle gives us the drizzle instance
     // We'll catch WebSocket errors and continue
-    let payloadInstance: any = null
+    type PayloadInstance = Awaited<ReturnType<typeof import('payload').getPayload>>
+    let payloadInstance: PayloadInstance | null = null
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let drizzleDb: any = null
 
     try {
@@ -364,12 +385,21 @@ async function runMigrations(destUri: string): Promise<void> {
       payloadInstance = await getPayload({ config })
       // Access drizzle from the adapter as per Payload docs
       drizzleDb = payloadInstance.db.drizzle
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : String(error)
+      const isWebSocketError =
+        errorMessage.includes('certificate') ||
+        errorMessage.includes('WebSocket') ||
+        errorMessage.includes('CERT_HAS_EXPIRED')
+
       // If Payload initialization fails due to WebSocket, try to access adapter directly
-      if (error.message?.includes('certificate') || error.message?.includes('WebSocket')) {
-        console.log('   ⚠️  Payload WebSocket error caught, trying alternative approach...')
+      if (isWebSocketError) {
+        console.log(
+          '   ⚠️  Payload WebSocket error caught (likely expired certificate), trying alternative approach...',
+        )
         // The adapter might still be accessible even if WebSocket fails
         // Try to get it from the config
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const adapter = (config as any).db
         if (adapter && adapter.drizzle) {
           drizzleDb = adapter.drizzle
@@ -379,6 +409,13 @@ async function runMigrations(destUri: string): Promise<void> {
           drizzleDb = drizzle(drizzlePool)
         }
       } else {
+        // Log non-WebSocket errors with more context
+        console.error(
+          `   ❌ Payload initialization failed with non-WebSocket error: ${errorMessage}`,
+        )
+        if (error instanceof Error && error.stack) {
+          console.error(`   Stack trace: ${error.stack}`)
+        }
         throw error
       }
     }
@@ -386,16 +423,20 @@ async function runMigrations(destUri: string): Promise<void> {
     // Create the db object that migrations expect
     // It needs an execute method that works with Payload's sql template
     // Use the adapter's execute method directly to avoid WebSocket issues
-    const db = {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const db: any = {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       execute: async (query: any) => {
         // Try using the adapter's execute method if available
         // This should handle Payload's sql template without WebSocket issues
         if (payloadInstance && payloadInstance.db && payloadInstance.db.execute) {
           try {
             return await payloadInstance.db.execute(query)
-          } catch (adapterError: any) {
+          } catch (adapterError: unknown) {
             // If adapter execute also fails, try drizzle with proper toQuery
-            console.log(`   ⚠️  Adapter execute failed: ${adapterError.message}`)
+            const errorMessage =
+              adapterError instanceof Error ? adapterError.message : String(adapterError)
+            console.log(`   ⚠️  Adapter execute failed during migration execution: ${errorMessage}`)
           }
         }
 
@@ -409,16 +450,21 @@ async function runMigrations(destUri: string): Promise<void> {
           // Execute directly through pool (no WebSocket)
           await drizzlePool.query(sqlString, params)
           return { rows: [], rowCount: 0 }
-        } catch (toQueryError: any) {
+        } catch (toQueryError: unknown) {
           // If toQuery fails, try to extract SQL manually
-          console.log(`   ⚠️  toQuery failed: ${toQueryError.message}`)
+          const errorMessage =
+            toQueryError instanceof Error ? toQueryError.message : String(toQueryError)
+          console.log(`   ⚠️  toQuery failed during SQL extraction: ${errorMessage}`)
 
           // Try to get SQL from query object properties
           let sqlString = ''
-          if (query.queryChunks) {
-            sqlString = query.queryChunks.join('')
-          } else if (query.chunks) {
-            sqlString = query.chunks
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const queryAny = query as any
+          if (queryAny.queryChunks) {
+            sqlString = queryAny.queryChunks.join('')
+          } else if (queryAny.chunks) {
+            sqlString = queryAny.chunks
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               .map((chunk: any) => {
                 if (typeof chunk === 'string') {
                   return chunk
@@ -430,8 +476,12 @@ async function runMigrations(destUri: string): Promise<void> {
               })
               .join('')
           } else {
-            console.log('   ⚠️  Query object keys:', Object.keys(query))
-            throw new Error(`Cannot extract SQL from query object: ${toQueryError.message}`)
+            const queryKeys = Object.keys(query)
+            console.log(`   ⚠️  Query object structure - keys: ${queryKeys.join(', ')}`)
+            throw new Error(
+              `Cannot extract SQL from query object during migration execution. ` +
+                `Error: ${errorMessage}. Query object keys: ${queryKeys.join(', ')}`,
+            )
           }
 
           // Execute the SQL directly through pool
@@ -446,7 +496,7 @@ async function runMigrations(destUri: string): Promise<void> {
           return { rows: [], rowCount: 0 }
         }
       },
-    } as any
+    }
 
     // Create payload object for migrations
     const payload =
@@ -454,6 +504,7 @@ async function runMigrations(destUri: string): Promise<void> {
       ({
         db: db,
         config: config,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any)
 
     // Ensure migrations table exists
@@ -467,10 +518,11 @@ async function runMigrations(destUri: string): Promise<void> {
           updated_at timestamp(3) with time zone DEFAULT now() NOT NULL
         )
       `)
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Table might already exist, which is fine
-      if (!error.message?.includes('already exists')) {
-        throw error
+      const errorMessage = error instanceof Error ? error.message : String(error)
+      if (!errorMessage.includes('already exists')) {
+        throw new Error(`Failed to create migrations table: ${errorMessage}`)
       }
     }
 
@@ -494,8 +546,10 @@ async function runMigrations(destUri: string): Promise<void> {
       // Call the migration's up function
       // Use the db object we created above which has proper error handling
       await migration.up({
-        db, // Use the db object with proper execute method that handles certificate errors
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        db: db as any, // Use the db object with proper execute method that handles certificate errors
         payload,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         req: {} as any, // Minimal req object for migrations
       })
 
@@ -510,7 +564,9 @@ async function runMigrations(destUri: string): Promise<void> {
 
       if (tableCount === 0) {
         throw new Error(
-          `Migration ${migration.name} completed but no tables were created. This suggests the SQL was not executed.`,
+          `Migration ${migration.name} completed but no tables were created. ` +
+            `This suggests the SQL was not executed properly. ` +
+            `Expected tables with 'public_' prefix but found ${tableCount} tables.`,
         )
       }
 
@@ -531,8 +587,13 @@ async function runMigrations(destUri: string): Promise<void> {
     const migrationCount = parseInt(migrationsResult.rows[0]?.count || '0', 10)
 
     console.log(`   ✅ All migrations completed (${migrationCount} recorded in database)\n`)
-  } catch (error: any) {
-    console.error(`   ❌ Error running migrations: ${error.message}`)
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    const errorStack = error instanceof Error ? error.stack : undefined
+    console.error(`   ❌ Error running migrations: ${errorMessage}`)
+    if (errorStack) {
+      console.error(`   Stack trace: ${errorStack}`)
+    }
     throw error
   } finally {
     await migrationsPool.end()
@@ -575,8 +636,9 @@ async function seedCollectionDirect(
       console.log(`   ⚠️  Table ${actualTableName} does not exist in source database\n`)
       return { created: 0, skipped: 0 }
     }
-  } catch (error: any) {
-    console.log(`   ⚠️  Could not check table existence: ${error.message}\n`)
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    console.log(`   ⚠️  Could not check table existence for ${collectionSlug}: ${errorMessage}\n`)
     return { created: 0, skipped: 0 }
   }
 
@@ -584,8 +646,9 @@ async function seedCollectionDirect(
   let sourceColumns: string[]
   try {
     sourceColumns = await getTableColumns(sourcePool.pool, tableName)
-  } catch (error: any) {
-    console.log(`   ⚠️  Could not get columns: ${error.message}\n`)
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    console.log(`   ⚠️  Could not get columns for ${collectionSlug}: ${errorMessage}\n`)
     return { created: 0, skipped: 0 }
   }
 
@@ -593,8 +656,9 @@ async function seedCollectionDirect(
   let primaryKey: string
   try {
     primaryKey = await getPrimaryKeyColumn(destPool, actualTableName)
-  } catch (error: any) {
-    console.log(`   ⚠️  Could not get primary key: ${error.message}\n`)
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    console.log(`   ⚠️  Could not get primary key for ${collectionSlug}: ${errorMessage}\n`)
     return { created: 0, skipped: 0 }
   }
 
@@ -602,12 +666,14 @@ async function seedCollectionDirect(
   const limitClause = limit ? `LIMIT ${limit}` : ''
   const sourceQuery = `SELECT * FROM ${actualTableName} ORDER BY ${primaryKey} ${limitClause}`
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let sourceRows: any[]
   try {
     const result = await sourcePool.query(sourceQuery)
     sourceRows = result.rows
-  } catch (error: any) {
-    console.log(`   ⚠️  Could not query source: ${error.message}\n`)
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    console.log(`   ⚠️  Could not query source for ${collectionSlug}: ${errorMessage}\n`)
     return { created: 0, skipped: 0 }
   }
 
@@ -683,6 +749,7 @@ async function seedCollectionDirect(
       }
 
       // Prepare data for insert (exclude id, timestamps)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const insertValues: any[] = []
       const placeholders: string[] = []
 
@@ -703,19 +770,23 @@ async function seedCollectionDirect(
       // Map old ID to new ID
       idMapping.set(sourceId, newId)
       created++
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Skip if duplicate, unique constraint violation, or foreign key violation
+      const errorCode =
+        error && typeof error === 'object' && 'code' in error ? String(error.code) : undefined
+      const errorMessage = error instanceof Error ? error.message : String(error)
+
       if (
-        error.code === '23505' || // Unique violation
-        error.code === '23503' || // Foreign key violation
-        error.message?.includes('duplicate') ||
-        error.message?.includes('unique') ||
-        error.message?.includes('foreign key') ||
-        error.message?.includes('violates not-null constraint')
+        errorCode === '23505' || // Unique violation
+        errorCode === '23503' || // Foreign key violation
+        errorMessage.includes('duplicate') ||
+        errorMessage.includes('unique') ||
+        errorMessage.includes('foreign key') ||
+        errorMessage.includes('violates not-null constraint')
       ) {
         skipped++
       } else {
-        console.error(`   ❌ Error inserting row:`, error.message)
+        console.error(`   ❌ Error inserting row in ${collectionSlug}: ${errorMessage}`)
         // Don't throw - continue with next row
         skipped++
       }
@@ -860,6 +931,7 @@ async function seedRelsTables(
             }
 
             // Map all related ID columns
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const mappedRow: Record<string, any> = {
               ...row,
               parent_id: mappedParentId,
@@ -924,17 +996,20 @@ async function seedRelsTables(
             const insertQuery = `INSERT INTO ${tableName} (${quotedColumns.join(', ')}) VALUES (${placeholders.join(', ')}) RETURNING id`
             await destPool.query(insertQuery, insertValues)
             created++
-          } catch (error: any) {
+          } catch (error: unknown) {
             // Skip if duplicate or constraint violation
+            const errorCode =
+              error && typeof error === 'object' && 'code' in error ? String(error.code) : undefined
+            const errorMessage = error instanceof Error ? error.message : String(error)
             if (
-              error.code === '23505' || // Unique violation
-              error.message?.includes('duplicate') ||
-              error.message?.includes('unique') ||
-              error.message?.includes('foreign key')
+              errorCode === '23505' || // Unique violation
+              errorMessage.includes('duplicate') ||
+              errorMessage.includes('unique') ||
+              errorMessage.includes('foreign key')
             ) {
               skipped++
             } else {
-              console.error(`   ❌ Error inserting row in ${tableName}:`, error.message)
+              console.error(`   ❌ Error inserting row in ${tableName}: ${errorMessage}`)
               skipped++
             }
           }
@@ -943,8 +1018,9 @@ async function seedRelsTables(
         console.log(`   ✅ ${tableName}: Created ${created}, Skipped ${skipped}`)
         totalCreated += created
         totalSkipped += skipped
-      } catch (error: any) {
-        console.error(`   ❌ Error processing ${tableName}:`, error.message)
+      } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : String(error)
+        console.error(`   ❌ Error processing ${tableName}: ${errorMessage}`)
         // Continue with next table
       }
     }
@@ -952,8 +1028,9 @@ async function seedRelsTables(
     console.log(
       `   ✅ Relationship tables: Total created ${totalCreated}, Skipped ${totalSkipped}\n`,
     )
-  } catch (error: any) {
-    console.error(`   ❌ Error seeding _rels tables: ${error.message}\n`)
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    console.error(`   ❌ Error seeding _rels tables: ${errorMessage}\n`)
     // Don't throw - _rels tables are important but not critical for basic functionality
   }
 }
@@ -992,6 +1069,7 @@ async function seedGlobals(
     const globalData = result.rows[0]
 
     // Check which table exists in destination and if record exists
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let existing: any
     let destTableName = 'payload_globals'
 
@@ -1076,8 +1154,9 @@ async function seedGlobals(
       }
       console.log('   ✅ Created global "guide"\n')
     }
-  } catch (error: any) {
-    console.error(`   ❌ Error seeding globals: ${error.message}\n`)
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    console.error(`   ❌ Error seeding globals: ${errorMessage}\n`)
     // Don't throw - globals are optional
   }
 }
@@ -1137,24 +1216,28 @@ async function mirrorProductionDatabase({
   const destPool = createWritePool(destUri)
 
   // Add error listeners to prevent unhandled error events during cleanup
-  sourcePool.pool.on('error', (err: any) => {
+  sourcePool.pool.on('error', (err: Error) => {
     // Ignore shutdown/termination errors
+    const errorCode = err && typeof err === 'object' && 'code' in err ? String(err.code) : undefined
+    const errorMessage = err.message || String(err)
     if (
-      err.code !== 'XX000' &&
-      !err.message?.includes('shutdown') &&
-      !err.message?.includes('termination')
+      errorCode !== 'XX000' &&
+      !errorMessage.includes('shutdown') &&
+      !errorMessage.includes('termination')
     ) {
-      console.error('Source pool error:', err.message)
+      console.error('Source pool error:', errorMessage)
     }
   })
-  destPool.on('error', (err: any) => {
+  destPool.on('error', (err: Error) => {
     // Ignore shutdown/termination errors
+    const errorCode = err && typeof err === 'object' && 'code' in err ? String(err.code) : undefined
+    const errorMessage = err.message || String(err)
     if (
-      err.code !== 'XX000' &&
-      !err.message?.includes('shutdown') &&
-      !err.message?.includes('termination')
+      errorCode !== 'XX000' &&
+      !errorMessage.includes('shutdown') &&
+      !errorMessage.includes('termination')
     ) {
-      console.error('Dest pool error:', err.message)
+      console.error('Dest pool error:', errorMessage)
     }
   })
 
@@ -1205,26 +1288,32 @@ async function mirrorProductionDatabase({
     // Close connections gracefully, ignoring shutdown/termination errors
     try {
       await sourcePool.end()
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Ignore shutdown/termination errors during cleanup
+      const errorCode =
+        error && typeof error === 'object' && 'code' in error ? String(error.code) : undefined
+      const errorMessage = error instanceof Error ? error.message : String(error)
       if (
-        !error.message?.includes('shutdown') &&
-        !error.message?.includes('termination') &&
-        error.code !== 'XX000'
+        !errorMessage.includes('shutdown') &&
+        !errorMessage.includes('termination') &&
+        errorCode !== 'XX000'
       ) {
-        console.error('Error closing source pool:', error.message)
+        console.error('Error closing source pool:', errorMessage)
       }
     }
     try {
       await destPool.end()
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Ignore shutdown/termination errors during cleanup
+      const errorCode =
+        error && typeof error === 'object' && 'code' in error ? String(error.code) : undefined
+      const errorMessage = error instanceof Error ? error.message : String(error)
       if (
-        !error.message?.includes('shutdown') &&
-        !error.message?.includes('termination') &&
-        error.code !== 'XX000'
+        !errorMessage.includes('shutdown') &&
+        !errorMessage.includes('termination') &&
+        errorCode !== 'XX000'
       ) {
-        console.error('Error closing dest pool:', error.message)
+        console.error('Error closing dest pool:', errorMessage)
       }
     }
   }
