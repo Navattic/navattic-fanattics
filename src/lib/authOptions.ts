@@ -1,15 +1,17 @@
 import { JWT, NextAuthOptions } from 'next-auth'
 import GoogleProvider from 'next-auth/providers/google'
 import EmailProvider from 'next-auth/providers/email'
-import { getPayload, User } from 'payload'
-import config from '@/payload.config'
+import { User } from 'payload'
+import { payload } from '@/lib/payloadClient'
 import { v4 } from 'uuid'
 import { Adapter, AdapterUser } from 'next-auth/adapters'
 
 function PayloadAdapter(): Adapter {
   return {
     async createUser(data: AdapterUser & { account?: { provider: string } }) {
-      const payload = await getPayload({ config })
+      if (!payload) {
+        throw new Error('Payload is not initialized. Check server logs for initialization errors.')
+      }
       const user = await payload.create({
         collection: 'users',
         data: {
@@ -30,7 +32,9 @@ function PayloadAdapter(): Adapter {
       }
     },
     async getUser(id: string) {
-      const payload = await getPayload({ config })
+      if (!payload) {
+        throw new Error('Payload is not initialized. Check server logs for initialization errors.')
+      }
       const user = await payload.findByID({ collection: 'users', id })
       return user
         ? {
@@ -42,7 +46,9 @@ function PayloadAdapter(): Adapter {
         : null
     },
     async getUserByEmail(email: string) {
-      const payload = await getPayload({ config })
+      if (!payload) {
+        throw new Error('Payload is not initialized. Check server logs for initialization errors.')
+      }
       const [user] = (
         await payload.find({
           collection: 'users',
@@ -59,7 +65,9 @@ function PayloadAdapter(): Adapter {
         : null
     },
     async createVerificationToken(params: { identifier: string; token: string; expires: Date }) {
-      const payload = await getPayload({ config })
+      if (!payload) {
+        throw new Error('Payload is not initialized. Check server logs for initialization errors.')
+      }
       const token = await payload.create({
         collection: 'verification-tokens',
         data: {
@@ -74,13 +82,16 @@ function PayloadAdapter(): Adapter {
       }
     },
     async useVerificationToken({ identifier, token }: { identifier: string; token: string }) {
-      const payload = await getPayload({ config })
       try {
         console.log('[TOKEN] Looking for token:', {
           identifier,
           token: token.substring(0, 10) + '...',
         })
 
+        if (!payload) {
+          console.error('[TOKEN] Payload is not initialized')
+          return null
+        }
         const [verificationToken] = (
           await payload.find({
             collection: 'verification-tokens',
@@ -173,12 +184,14 @@ export const authOptions: NextAuthOptions = {
           const delay = process.env.NODE_ENV === 'production' ? 100 : 10 // race condition fix
           await new Promise((resolve) => setTimeout(resolve, delay))
 
-          const payload = await getPayload({ config })
-
           const { host } = new URL(url)
           const urlWithEmail = `${url}${url.includes('?') ? '&' : '?'}email=${encodeURIComponent(email)}`
 
-          const startTime = Date.now()
+          if (!payload) {
+            throw new Error(
+              'Payload is not initialized. Check server logs for initialization errors.',
+            )
+          }
           await payload.sendEmail({
             to: email,
             from: 'noreply@mail.navattic.dev',
@@ -277,8 +290,12 @@ export const authOptions: NextAuthOptions = {
       const { email } = user
       if (!email) return false
 
-      const payload = await getPayload({ config })
       try {
+        if (!payload) {
+          console.error('[Auth] Payload is not initialized in signIn callback')
+          // Throw a specific error that will be caught and handled
+          throw new Error('database_error')
+        }
         const existingUser = await payload.find({
           collection: 'users',
           where: { email: { equals: email } },
@@ -302,11 +319,17 @@ export const authOptions: NextAuthOptions = {
 
         return true
       } catch (error) {
-        console.error('Error in SignIn Callback:', error)
-        // Re-throw specific login method mismatch errors
+        console.error('[Auth] Error in SignIn Callback:', error)
+        if (error instanceof Error) {
+          console.error('[Auth] Error message:', error.message)
+          console.error('[Auth] Error stack:', error.stack)
+        }
+        // Re-throw specific login method mismatch errors and database errors
         if (
           error instanceof Error &&
-          (error.message === 'use_email' || error.message === 'use_google')
+          (error.message === 'use_email' ||
+            error.message === 'use_google' ||
+            error.message === 'database_error')
         ) {
           throw error
         }
@@ -358,7 +381,10 @@ export const authOptions: NextAuthOptions = {
         // If we have a user ID but no user data, fetch it from the database
         // This happens on subsequent sign-ins (like magic link clicks)
         try {
-          const payload = await getPayload({ config })
+          if (!payload) {
+            console.error('[Auth] Payload is not initialized in jwt callback')
+            return token
+          }
           const dbUser = await payload.findByID({
             collection: 'users',
             id: token.sub,
