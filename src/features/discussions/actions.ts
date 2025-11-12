@@ -1,9 +1,10 @@
 'use server'
 
 import { payload } from '@/lib/payloadClient'
-import { User } from '@/payload-types'
+import { User, DiscussionPost } from '@/payload-types'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
+import { removeTrailingEmptyParagraphs } from '@/utils/commentContent'
 
 export async function createDiscussionPost({
   title,
@@ -22,11 +23,14 @@ export async function createDiscussionPost({
       status: 'published',
     })
 
+    // Clean up trailing empty paragraphs before saving
+    const cleanedContent = removeTrailingEmptyParagraphs(content)
+
     const result = await payload.create({
       collection: 'discussionPosts',
       data: {
         title,
-        content,
+        content: cleanedContent as DiscussionPost['content'],
         author: author.id,
         status: 'published',
       },
@@ -81,13 +85,16 @@ export async function updateDiscussionPost({
       throw new Error('You can only edit your own posts')
     }
 
+    // Clean up trailing empty paragraphs before saving
+    const cleanedContent = removeTrailingEmptyParagraphs(content)
+
     // Update the discussion post
     const result = await payload.update({
       collection: 'discussionPosts',
       id: postId,
       data: {
         title,
-        content,
+        content: cleanedContent as DiscussionPost['content'],
         lastActivity: new Date().toISOString(),
       },
     })

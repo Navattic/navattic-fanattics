@@ -10,6 +10,8 @@ import { softDeleteComment } from '@/features/comments/actions'
 import { Icon, Avatar } from '@/components/ui'
 import { OpenProfileDrawer } from '../UserProfilePreviewModal/OpenProfileDrawer'
 import { OptimisticComment } from '@/features/comments/OptimisticCommentsContext'
+import { RichText } from '@payloadcms/richtext-lexical/react'
+import { getCommentContent, normalizeLexicalContent } from '@/utils/commentContent'
 
 interface UserStats {
   points: number
@@ -121,7 +123,7 @@ export function CommentBlock({
             {isEditing && !isOptimisticComment(comment) ? (
               <CommentEditForm
                 commentId={comment.id as number}
-                initialContent={comment.content}
+                initialContent={getCommentContent(comment)}
                 onCancel={() => setIsEditing(false)}
                 onSuccess={(updatedComment) => {
                   setComment(updatedComment)
@@ -131,7 +133,20 @@ export function CommentBlock({
             ) : comment.deleted ? (
               <div className="py-2 text-base text-gray-500">[comment deleted]</div>
             ) : (
-              <div className="text-base text-gray-800">{comment.content}</div>
+              <div className="text-base text-gray-800">
+                {(comment as { richContent?: unknown }).richContent ? (
+                  <RichText
+                    data={
+                      normalizeLexicalContent(
+                        (comment as { richContent?: unknown }).richContent,
+                      ) as unknown as Parameters<typeof RichText>[0]['data']
+                    }
+                    className="payload-rich-text"
+                  />
+                ) : (
+                  comment.content
+                )}
+              </div>
             )}
             {!comment.deleted && showActions && (
               <CommentActions

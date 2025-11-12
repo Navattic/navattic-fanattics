@@ -1,10 +1,14 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { Avatar, Button } from '@/components/ui'
+import { Avatar, Button, LexicalEditor } from '@/components/ui'
 import { Challenge, User, Comment as PayloadComment, DiscussionPost } from '@/payload-types'
 import { createComment } from './actions'
 import { useOptimisticComments } from './OptimisticCommentsContext'
+import {
+  extractTextFromLexicalContent,
+  removeTrailingEmptyParagraphs,
+} from '@/utils/commentContent'
 
 interface CommentReplyFormProps {
   parentComment: PayloadComment
@@ -23,7 +27,38 @@ function CommentReplyForm({
   setOpenReply,
   hasReplies,
 }: CommentReplyFormProps) {
-  const [commentContent, setCommentContent] = useState('')
+  const defaultEmptyState = {
+    root: {
+      children: [
+        {
+          children: [
+            {
+              detail: 0,
+              format: 0,
+              mode: 'normal',
+              style: '',
+              text: '',
+              type: 'text',
+              version: 1,
+            },
+          ],
+          direction: 'ltr',
+          format: '',
+          indent: 0,
+          type: 'paragraph',
+          version: 1,
+        },
+      ],
+      direction: 'ltr',
+      format: '',
+      indent: 0,
+      type: 'root',
+      version: 1,
+    },
+  }
+
+  const [richContent, setRichContent] = useState<any>(defaultEmptyState)
+  const [editorKey, setEditorKey] = useState(0)
   const [status, setStatus] = useState<'idle' | 'executing' | 'error'>('idle')
   const [error, setError] = useState<string | null>(null)
   const { addOptimisticComment, removeOptimisticComment, replaceOptimisticComment } =
@@ -42,9 +77,10 @@ function CommentReplyForm({
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
 
-    if (!commentContent.trim() || status === 'executing') return
+    // Extract text from Lexical content for validation
+    const textContent = extractTextFromLexicalContent(richContent.root).trim()
+    if (!textContent || status === 'executing') return
 
-    const content = commentContent.trim()
     setStatus('executing')
     setError(null)
 
@@ -53,7 +89,8 @@ function CommentReplyForm({
     try {
       // Add optimistic comment
       optimisticId = addOptimisticComment({
-        content: content,
+        content: '', // Empty for new comments
+        richContent: richContent,
         user: user,
         challenge: challenge || undefined,
         discussionPost: discussionPost || undefined,
@@ -65,12 +102,16 @@ function CommentReplyForm({
         flaggedReports: 0,
       })
 
-      // Clear form and close reply form immediately
-      setCommentContent('')
+      // Reset editor to default empty state and force remount
+      setRichContent(defaultEmptyState)
+      setEditorKey((prev) => prev + 1)
       setOpenReply(false)
 
+      // Clean empty paragraphs before sending to server
+      const cleanedRichContent = removeTrailingEmptyParagraphs(richContent)
+
       const result = await createComment({
-        commentContent: content,
+        richContent: cleanedRichContent,
         user,
         challenge,
         discussionPost,
@@ -107,7 +148,8 @@ function CommentReplyForm({
   }
 
   function handleCancel() {
-    setCommentContent('')
+    setRichContent(defaultEmptyState)
+    setEditorKey((prev) => prev + 1)
     setError(null)
     setOpenReply(false)
   }
@@ -121,11 +163,11 @@ function CommentReplyForm({
         <Avatar user={user} showCompany={true} />
       </div>
       <form className="mt-4 flex w-full flex-col gap-3" onSubmit={handleSubmit}>
-        <textarea
-          className="h-24 w-full resize-none rounded-lg border bg-white p-3"
-          placeholder="Add a reply"
-          value={commentContent}
-          onChange={(e) => setCommentContent(e.target.value)}
+        <LexicalEditor
+          key={editorKey}
+          value={richContent}
+          onChange={setRichContent}
+          placeholder="Add a reply..."
           disabled={status === 'executing'}
         />
         {error && <p className="text-sm text-red-500">{error}</p>}
@@ -138,14 +180,16 @@ function CommentReplyForm({
             onClick={handleCancel}
             disabled={status === 'executing'}
           >
-            Cancel
+            Cance
           </Button>
           <Button
             variant="solid"
             colorScheme="gray"
             type="submit"
             size="md"
-            disabled={!commentContent.trim() || status === 'executing'}
+            disabled={
+              !extractTextFromLexicalContent(richContent.root).trim() || status === 'executing'
+            }
           >
             {status === 'executing' ? 'Posting...' : 'Reply'}
           </Button>

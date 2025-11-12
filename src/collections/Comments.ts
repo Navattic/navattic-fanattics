@@ -1,5 +1,6 @@
 import type { CollectionConfig } from 'payload'
 import { resend } from '@/lib/resendClient'
+import { extractCommentText } from '@/utils/commentContent'
 
 export const Comments: CollectionConfig = {
   slug: 'comments',
@@ -53,7 +54,7 @@ export const Comments: CollectionConfig = {
           }
           try {
             // Check if relationships are already populated or just IDs
-            let user, challenge, parentComment
+            let user, parentComment
 
             if (typeof doc.user === 'object' && doc.user !== null) {
               // User is already populated
@@ -117,7 +118,7 @@ export const Comments: CollectionConfig = {
               }
             }
 
-            const { data, error } = await resend.emails.send({
+            const { error } = await resend.emails.send({
               from:
                 process.env.NODE_ENV === 'production'
                   ? 'Fanattics Portal <team@mail.navattic.com>'
@@ -179,7 +180,7 @@ export const Comments: CollectionConfig = {
                   <div style="background-color: #fff3cd; padding: 20px; border-radius: 8px; margin: 20px 0;">
                     <h3 style="color: #333; margin-top: 0;">Comment Content</h3>
                     <div style="background-color: white; padding: 15px; border-left: 4px solid #007bff; margin: 10px 0;">
-                      ${doc.content}
+                      ${extractCommentText(doc)}
                     </div>
                   </div>
 
@@ -191,7 +192,7 @@ export const Comments: CollectionConfig = {
                     <p><strong>Parent Comment ID:</strong> ${parentComment.id}</p>
                     <p><strong>Parent Commenter:</strong> ${parentComment.user?.firstName || ''} ${parentComment.user?.lastName || ''}</p>
                     <div style="background-color: white; padding: 15px; border-left: 4px solid #dc3545; margin: 10px 0;">
-                      ${parentComment.content}
+                      ${extractCommentText(parentComment)}
                     </div>
                   </div>
                   `
@@ -219,7 +220,12 @@ export const Comments: CollectionConfig = {
     {
       name: 'content',
       type: 'textarea',
-      required: true,
+      required: false, // Made optional since new comments use richContent
+    },
+    {
+      name: 'richContent',
+      type: 'json',
+      required: false,
     },
     {
       name: 'user',

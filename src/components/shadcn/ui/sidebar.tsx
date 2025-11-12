@@ -97,8 +97,20 @@ function SidebarProvider({
   React.useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === SIDEBAR_KEYBOARD_SHORTCUT && (event.metaKey || event.ctrlKey)) {
-        event.preventDefault()
-        toggleSidebar()
+        const target = event.target as HTMLElement
+        const isEditableElement =
+          target.tagName === 'INPUT' ||
+          target.tagName === 'TEXTAREA' ||
+          target.isContentEditable ||
+          target.closest('[contenteditable="true"]') ||
+          target.closest('[role="textbox"]') ||
+          target.closest('.LexicalEditor') ||
+          target.closest('[data-lexical-editor="true"]')
+
+        if (!isEditableElement) {
+          event.preventDefault()
+          toggleSidebar()
+        }
       }
     }
 

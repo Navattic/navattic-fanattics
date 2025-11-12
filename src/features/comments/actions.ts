@@ -3,34 +3,43 @@
 import { payload } from '@/lib/payloadClient'
 import { User, Challenge, Comment, DiscussionPost } from '@/payload-types'
 import { revalidateTag, revalidatePath } from 'next/cache'
+import {
+  extractTextFromLexicalContent,
+  removeTrailingEmptyParagraphs,
+} from '@/utils/commentContent'
 
 export async function createComment({
-  commentContent,
+  richContent,
   user,
   challenge,
   discussionPost,
   parentComment,
 }: {
-  commentContent: string | undefined
+  richContent: any
   user: User
   challenge?: Challenge
   discussionPost?: DiscussionPost
   parentComment?: Comment
 }) {
-  if (!commentContent) {
+  if (!richContent) {
     throw new Error('Comment content is required')
   }
 
-  const trimmedContent = commentContent.trim()
-  if (!trimmedContent) {
+  // Extract text from Lexical content for validation
+  const textContent = extractTextFromLexicalContent(richContent.root).trim()
+  if (!textContent) {
     throw new Error('Comment content cannot be empty')
   }
 
   try {
+    // Clean up trailing empty paragraphs before saving
+    const cleanedRichContent = removeTrailingEmptyParagraphs(richContent)
+
     const result = await payload.create({
       collection: 'comments',
       data: {
-        content: trimmedContent,
+        richContent: cleanedRichContent as Record<string, unknown>,
+        content: '',
         user: user.id,
         challenge: challenge?.id || null,
         discussionPost: discussionPost?.id || null,
@@ -104,21 +113,32 @@ export const adjustLikes = async ({
 
 export async function updateComment({
   commentId,
-  content,
+  richContent,
 }: {
   commentId: Comment['id']
-  content: Comment['content']
+  richContent: any
 }): Promise<Comment> {
-  if (!content.trim()) {
+  if (!richContent) {
+    throw new Error('Comment content is required')
+  }
+
+  // Extract text from Lexical content for validation
+  const textContent = extractTextFromLexicalContent(richContent.root).trim()
+  if (!textContent) {
     throw new Error('Comment content cannot be empty')
   }
 
   try {
+    // Clean up trailing empty paragraphs before saving
+    const cleanedRichContent = removeTrailingEmptyParagraphs(richContent)
+
     const result = await payload.update({
       collection: 'comments',
       id: commentId,
       data: {
-        content: content.trim(),
+        richContent: cleanedRichContent as Record<string, unknown>,
+        // Clear old content field when updating to richContent
+        content: '',
       },
       depth: 1, // Ensure we get the full comment object with relationships
     })
