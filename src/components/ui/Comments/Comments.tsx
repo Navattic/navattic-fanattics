@@ -11,7 +11,7 @@ import { Icon, Avatar } from '@/components/ui'
 import { OpenProfileDrawer } from '../UserProfilePreviewModal/OpenProfileDrawer'
 import { OptimisticComment } from '@/features/comments/OptimisticCommentsContext'
 import { RichText } from '@payloadcms/richtext-lexical/react'
-import { getCommentContent } from '@/utils/commentContent'
+import { getCommentContent, normalizeLexicalContent } from '@/utils/commentContent'
 
 interface UserStats {
   points: number
@@ -136,7 +136,11 @@ export function CommentBlock({
               <div className="text-base text-gray-800">
                 {(comment as { richContent?: unknown }).richContent ? (
                   <RichText
-                    data={(comment as { richContent?: unknown }).richContent}
+                    data={
+                      normalizeLexicalContent(
+                        (comment as { richContent?: unknown }).richContent,
+                      ) as unknown as Parameters<typeof RichText>[0]['data']
+                    }
                     className="payload-rich-text"
                   />
                 ) : (

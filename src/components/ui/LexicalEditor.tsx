@@ -8,6 +8,7 @@ import { ContentEditable } from '@lexical/react/LexicalContentEditable'
 import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin'
 import { AutoFocusPlugin } from '@lexical/react/LexicalAutoFocusPlugin'
 import { LinkPlugin } from '@lexical/react/LexicalLinkPlugin'
+import { AutoLinkPlugin } from '@lexical/react/LexicalAutoLinkPlugin'
 import { ListPlugin } from '@lexical/react/LexicalListPlugin'
 import { MarkdownShortcutPlugin } from '@lexical/react/LexicalMarkdownShortcutPlugin'
 import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin'
@@ -29,6 +30,7 @@ import {
   $isParagraphNode,
   KEY_ENTER_COMMAND,
   COMMAND_PRIORITY_HIGH,
+  $isTextNode,
 } from 'lexical'
 import { useCallback, useEffect } from 'react'
 import { Button, Icon } from '@/components/ui'
@@ -109,8 +111,8 @@ function onError(error: Error) {
 }
 
 interface LexicalEditorProps {
-  value?: any
-  onChange: (value: any) => void
+  value?: unknown
+  onChange: (value: unknown) => void
   placeholder?: string
   disabled?: boolean
 }
@@ -120,13 +122,24 @@ function LinkModal({
   isOpen,
   onClose,
   onInsert,
+  initialUrl,
+  initialText,
 }: {
   isOpen: boolean
   onClose: () => void
   onInsert: (url: string, text: string) => void
+  initialUrl?: string
+  initialText?: string
 }) {
   const [url, setUrl] = useState('')
   const [text, setText] = useState('')
+
+  useEffect(() => {
+    if (isOpen) {
+      setUrl(initialUrl || '')
+      setText(initialText || '')
+    }
+  }, [isOpen, initialUrl, initialText])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -138,14 +151,16 @@ function LinkModal({
     }
   }
 
+  const isEditing = Boolean(initialUrl)
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Insert Link</DialogTitle>
+          <DialogTitle>{isEditing ? 'Edit link' : 'Insert link'}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
+          <div className="flex flex-col gap-2">
             <Label htmlFor="url">URL</Label>
             <Input
               id="url"
@@ -156,8 +171,8 @@ function LinkModal({
               required
             />
           </div>
-          <div>
-            <Label htmlFor="text">Link Text (optional)</Label>
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="text">Link text (optional)</Label>
             <Input
               id="text"
               placeholder="Link text"
@@ -166,10 +181,20 @@ function LinkModal({
             />
           </div>
           <div className="flex justify-end gap-2">
-            <Button type="button" variant="outline" onClick={onClose}>
+            <Button type="button" size="sm" variant="outline" onClick={onClose}>
               Cancel
             </Button>
-            <Button type="submit">Insert Link</Button>
+            <Button
+              size="sm"
+              type="button"
+              onClick={(e) => {
+                e.preventDefault()
+                e.stopPropagation()
+                handleSubmit(e)
+              }}
+            >
+              {isEditing ? 'Update link' : 'Insert link'}
+            </Button>
           </div>
         </form>
       </DialogContent>
@@ -184,6 +209,14 @@ function ToolbarPlugin() {
   const [isItalic, setIsItalic] = useState(false)
   const [isLink, setIsLink] = useState(false)
   const [isLinkModalOpen, setIsLinkModalOpen] = useState(false)
+  const [linkUrl, setLinkUrl] = useState<string | undefined>()
+  const [linkText, setLinkText] = useState<string | undefined>()
+
+  const handleLinkClick = useCallback((url: string, text: string) => {
+    setLinkUrl(url)
+    setLinkText(text)
+    setIsLinkModalOpen(true)
+  }, [])
 
   const updateToolbar = useCallback(() => {
     const selection = $getSelection()
@@ -191,10 +224,22 @@ function ToolbarPlugin() {
       setIsBold(selection.hasFormat('bold'))
       setIsItalic(selection.hasFormat('italic'))
 
-      // Check if selection is in a link
       const node = selection.anchor.getNode()
       const parent = node.getParent()
-      setIsLink($isLinkNode(parent) || $isLinkNode(node))
+      const isInLink = $isLinkNode(parent) || $isLinkNode(node)
+      setIsLink(isInLink)
+
+      if (isInLink) {
+        const linkNode = $isLinkNode(parent) ? parent : $isLinkNode(node) ? node : null
+        if (linkNode) {
+          const url = linkNode.getURL()
+          setLinkUrl(url)
+          setLinkText(linkNode.getTextContent())
+        }
+      } else {
+        setLinkUrl(undefined)
+        setLinkText(undefined)
+      }
     }
   }, [])
 
@@ -218,14 +263,123 @@ function ToolbarPlugin() {
 
   const insertLink = useCallback(
     (url: string, text: string) => {
-      editor.dispatchCommand(TOGGLE_LINK_COMMAND, url)
+      editor.update(() => {
+        const selection = $getSelection()
+        if (!$isRangeSelection(selection)) {
+          return
+        }
+
+        const selectedText = selection.getTextContent()
+        const isInLink = (() => {
+          const node = selection.anchor.getNode()
+          const parent = node.getParent()
+          return $isLinkNode(parent) || $isLinkNode(node)
+        })()
+
+        if (isInLink) {
+          editor.dispatchCommand(TOGGLE_LINK_COMMAND, null)
+          const newSelection = $getSelection()
+          if ($isRangeSelection(newSelection) && url) {
+            if (text && text !== url && text !== selectedText) {
+              const anchorOffset = newSelection.anchor.offset
+              newSelection.insertText(text)
+              const updatedSelection = $getSelection()
+              if ($isRangeSelection(updatedSelection)) {
+                const anchorNode = updatedSelection.anchor.getNode()
+                if ($isTextNode(anchorNode)) {
+                  updatedSelection.setTextNodeRange(
+                    anchorNode,
+                    anchorOffset,
+                    anchorNode,
+                    anchorOffset + text.length,
+                  )
+                  editor.dispatchCommand(TOGGLE_LINK_COMMAND, url)
+                }
+              }
+            } else {
+              editor.dispatchCommand(TOGGLE_LINK_COMMAND, url)
+            }
+          }
+        } else if (url) {
+          if (selectedText) {
+            if (text && text !== selectedText) {
+              const anchorOffset = selection.anchor.offset
+              selection.insertText(text)
+              const newSelection = $getSelection()
+              if ($isRangeSelection(newSelection)) {
+                const anchorNode = newSelection.anchor.getNode()
+                if ($isTextNode(anchorNode)) {
+                  newSelection.setTextNodeRange(
+                    anchorNode,
+                    anchorOffset,
+                    anchorNode,
+                    anchorOffset + text.length,
+                  )
+                  editor.dispatchCommand(TOGGLE_LINK_COMMAND, url)
+                }
+              }
+            } else {
+              editor.dispatchCommand(TOGGLE_LINK_COMMAND, url)
+            }
+          } else if (text && text !== url) {
+            const anchorOffset = selection.anchor.offset
+            selection.insertText(text)
+            const newSelection = $getSelection()
+            if ($isRangeSelection(newSelection)) {
+              const anchorNode = newSelection.anchor.getNode()
+              if ($isTextNode(anchorNode)) {
+                newSelection.setTextNodeRange(
+                  anchorNode,
+                  anchorOffset,
+                  anchorNode,
+                  anchorOffset + text.length,
+                )
+                editor.dispatchCommand(TOGGLE_LINK_COMMAND, url)
+              }
+            }
+          } else {
+            editor.dispatchCommand(TOGGLE_LINK_COMMAND, url)
+          }
+        }
+      })
     },
     [editor],
   )
 
+  const handleLinkButtonClick = useCallback(() => {
+    editor.getEditorState().read(() => {
+      const selection = $getSelection()
+      if ($isRangeSelection(selection)) {
+        const selectedText = selection.getTextContent()
+        const node = selection.anchor.getNode()
+        const parent = node.getParent()
+        const isInLink = $isLinkNode(parent) || $isLinkNode(node)
+
+        if (isInLink) {
+          const linkNode = $isLinkNode(parent) ? parent : $isLinkNode(node) ? node : null
+          if (linkNode) {
+            const url = linkNode.getURL()
+            const text = linkNode.getTextContent()
+            setLinkUrl(url)
+            setLinkText(text)
+            setIsLinkModalOpen(true)
+          }
+        } else {
+          setLinkUrl(undefined)
+          setLinkText(selectedText || undefined)
+          setIsLinkModalOpen(true)
+        }
+      } else {
+        setLinkUrl(undefined)
+        setLinkText(undefined)
+        setIsLinkModalOpen(true)
+      }
+    })
+  }, [editor])
+
   return (
     <>
-      <div className="bg-gray-50 border-b border-gray-100 px-2 py-1">
+      <div className="border-b border-gray-100 bg-gray-50 px-2 py-1">
         <div className="flex gap-1">
           <Button
             type="button"
@@ -249,7 +403,7 @@ function ToolbarPlugin() {
             type="button"
             variant="ghost"
             size="xs"
-            onClick={() => setIsLinkModalOpen(true)}
+            onClick={handleLinkButtonClick}
             className={`px-2 ${isLink ? 'bg-gray-200' : ''}`}
           >
             <Icon name="link" size="sm" />
@@ -258,11 +412,87 @@ function ToolbarPlugin() {
       </div>
       <LinkModal
         isOpen={isLinkModalOpen}
-        onClose={() => setIsLinkModalOpen(false)}
+        onClose={() => {
+          setIsLinkModalOpen(false)
+          setLinkUrl(undefined)
+          setLinkText(undefined)
+        }}
         onInsert={insertLink}
+        initialUrl={linkUrl}
+        initialText={linkText}
       />
+      <LinkClickHandlerPlugin onLinkClick={handleLinkClick} />
     </>
   )
+}
+
+// Plugin to handle link clicks and open edit dialog
+function LinkClickHandlerPlugin({
+  onLinkClick,
+}: {
+  onLinkClick: (url: string, text: string) => void
+}) {
+  const [editor] = useLexicalComposerContext()
+
+  useEffect(() => {
+    const handleClick = (event: MouseEvent) => {
+      const target = event.target as HTMLElement
+      const anchor = target.closest('a')
+      if (anchor && anchor.href) {
+        event.preventDefault()
+        editor.update(() => {
+          const selection = $getSelection()
+          if ($isRangeSelection(selection)) {
+            const node = selection.anchor.getNode()
+            const parent = node.getParent()
+            const linkNode = $isLinkNode(parent) ? parent : $isLinkNode(node) ? node : null
+            if (linkNode) {
+              const url = linkNode.getURL()
+              const text = linkNode.getTextContent()
+              onLinkClick(url, text)
+            } else {
+              const range = document.createRange()
+              range.selectNodeContents(anchor)
+              const newSelection = window.getSelection()
+              if (newSelection) {
+                newSelection.removeAllRanges()
+                newSelection.addRange(range)
+              }
+              setTimeout(() => {
+                editor.update(() => {
+                  const updatedSelection = $getSelection()
+                  if ($isRangeSelection(updatedSelection)) {
+                    const updatedNode = updatedSelection.anchor.getNode()
+                    const updatedParent = updatedNode.getParent()
+                    const updatedLinkNode = $isLinkNode(updatedParent)
+                      ? updatedParent
+                      : $isLinkNode(updatedNode)
+                        ? updatedNode
+                        : null
+                    if (updatedLinkNode) {
+                      const url = updatedLinkNode.getURL()
+                      const text = updatedLinkNode.getTextContent()
+                      onLinkClick(url, text)
+                    }
+                  }
+                })
+              }, 0)
+            }
+          }
+        })
+      }
+    }
+
+    const rootElement = editor.getRootElement()
+    if (rootElement) {
+      rootElement.addEventListener('click', handleClick, true)
+      return () => {
+        rootElement.removeEventListener('click', handleClick, true)
+      }
+    }
+  }, [editor, onLinkClick])
+
+  return null
 }
 
 // Plugin to limit consecutive empty paragraphs
@@ -354,7 +584,7 @@ export function LexicalEditor({ value, onChange, placeholder, disabled }: Lexica
       LinkNode,
     ],
     editorState:
-      value && typeof value === 'object' && value.root
+      value && typeof value === 'object' && value !== null && 'root' in value
         ? JSON.stringify(value)
         : JSON.stringify(defaultState),
   }
@@ -389,6 +619,52 @@ export function LexicalEditor({ value, onChange, placeholder, disabled }: Lexica
           <HistoryPlugin />
           <AutoFocusPlugin />
           <LinkPlugin />
+          <AutoLinkPlugin
+            matchers={[
+              (text) => {
+                // Match URLs starting with http:// or https://
+                const urlRegex = /(https?:\/\/[^\s]+)/
+                const match = text.match(urlRegex)
+                if (match && match.index !== undefined) {
+                  return {
+                    index: match.index,
+                    length: match[0].length,
+                    text: match[0],
+                    url: match[0],
+                  }
+                }
+                return null
+              },
+              (text) => {
+                // Match URLs starting with www.
+                const wwwRegex = /(www\.[^\s]+)/
+                const match = text.match(wwwRegex)
+                if (match && match.index !== undefined) {
+                  return {
+                    index: match.index,
+                    length: match[0].length,
+                    text: match[0],
+                    url: `https://${match[0]}`,
+                  }
+                }
+                return null
+              },
+              (text) => {
+                // Match email addresses
+                const emailRegex = /([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/
+                const match = text.match(emailRegex)
+                if (match && match.index !== undefined) {
+                  return {
+                    index: match.index,
+                    length: match[0].length,
+                    text: match[0],
+                    url: `mailto:${match[0]}`,
+                  }
+                }
+                return null
+              },
+            ]}
+          />
           <ListPlugin />
           <MarkdownShortcutPlugin transformers={TRANSFORMERS} />
           <LimitLineBreaksPlugin />

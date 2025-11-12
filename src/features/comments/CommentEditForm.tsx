@@ -4,7 +4,11 @@ import { useState } from 'react'
 import { Button, LexicalEditor } from '@/components/ui'
 import { updateComment } from './actions'
 import { Comment } from '@/payload-types'
-import { convertStringToLexical, extractTextFromLexicalContent } from '@/utils/commentContent'
+import {
+  convertStringToLexical,
+  extractTextFromLexicalContent,
+  ensureValidLexicalContent,
+} from '@/utils/commentContent'
 
 interface CommentEditFormProps {
   commentId: number
@@ -19,14 +23,14 @@ export function CommentEditForm({
   onCancel,
   onSuccess,
 }: CommentEditFormProps) {
-  // Convert initial content to Lexical format if it's a string
   const getInitialLexicalContent = () => {
+    let content: any
     if (typeof initialContent === 'string') {
-      // Old comment format - convert to Lexical
-      return convertStringToLexical(initialContent)
+      content = convertStringToLexical(initialContent)
+    } else {
+      content = initialContent
     }
-    // Already in Lexical format
-    return initialContent
+    return ensureValidLexicalContent(content)
   }
 
   const [richContent, setRichContent] = useState<any>(getInitialLexicalContent())

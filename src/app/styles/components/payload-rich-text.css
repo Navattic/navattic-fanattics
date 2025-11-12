@@ -1,6 +1,6 @@
 .payload-rich-text {
   & > img {
-    @apply mx-auto my-8 rounded-lg shadow-sm max-w-lg;
+    @apply mx-auto my-8 max-w-lg rounded-lg shadow-sm;
   }
 
   & > hr {
@@ -35,8 +35,10 @@
     @apply mb-4 text-base leading-relaxed;
   }
 
-  & * > a {
-    @apply text-blue-500 underline-offset-2 hover:underline;
+  & a,
+  & p a,
+  & * a {
+    @apply cursor-pointer text-blue-500 underline-offset-2 hover:underline;
   }
 
   & > ul {
@@ -56,6 +58,6 @@
   }
 
   & > ul > li > a {
-    @apply text-blue-500 underline-offset-2 hover:underline;
+    @apply text-blue-500 underline-offset-2 hover:underline cursor-pointer;
   }
 }

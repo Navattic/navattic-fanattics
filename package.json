@@ -15,7 +15,6 @@
     "start": "cross-env NODE_OPTIONS=--no-deprecation next start",
     "migrate:avatars": "dotenv -e .env -- tsx scripts/migrate-google-avatars.ts",
     "generate:icons": "tsx ./src/components/ui/scripts/generate-sprite-icons.ts",
-    "seed": "dotenv -e .env.local -- tsx scripts/seed-database.ts",
     "cleanup:duplicates": "dotenv -e .env.local -- tsx scripts/cleanup-duplicates.ts",
     "mirror:prod": "dotenv -e .env.local -- tsx scripts/mirror-prod-database.ts"
   },

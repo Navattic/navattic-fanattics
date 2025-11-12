@@ -242,7 +242,7 @@ const ChallengePage = async ({ params }: { params: Promise<{ slug: string }> }) 
           />
         </div>
         <div className="bg-gray-50">
-          <Container className="py-10">
+          <Container className="py-10 max-w-5xl">
             <Suspense fallback={<div>Loading comments...</div>}>
               <Comments
                 user={sessionUser}

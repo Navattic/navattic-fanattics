@@ -215,7 +215,7 @@ const DiscussionPage = async ({ params }: { params: Promise<{ slug: string }> })
           />
         </div>
         <div className="min-h-[80vh] bg-gray-50">
-          <Container className="py-10">
+          <Container className="py-10 max-w-4xl">
             <Suspense fallback={<div>Loading comments...</div>}>
               <Comments
                 user={sessionUser}

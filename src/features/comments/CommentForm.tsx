@@ -5,7 +5,10 @@ import { Avatar, Icon, Button, LexicalEditor } from '@/components/ui'
 import { Challenge, User, DiscussionPost } from '@/payload-types'
 import { createComment } from './actions'
 import { useOptimisticComments } from './OptimisticCommentsContext'
-import { extractTextFromLexicalContent } from '@/utils/commentContent'
+import {
+  extractTextFromLexicalContent,
+  removeTrailingEmptyParagraphs,
+} from '@/utils/commentContent'
 
 interface CommentFormProps {
   user: User
@@ -92,9 +95,12 @@ function CommentForm({ user, challenge, discussionPost }: CommentFormProps) {
       setRichContent(defaultEmptyState)
       setEditorKey((prev) => prev + 1)
 
+      // Clean empty paragraphs before sending to server
+      const cleanedRichContent = removeTrailingEmptyParagraphs(richContent)
+
       // Wait for server response
       const result = await createComment({
-        richContent,
+        richContent: cleanedRichContent,
         user,
         challenge,
         discussionPost,
@@ -139,7 +145,7 @@ function CommentForm({ user, challenge, discussionPost }: CommentFormProps) {
           key={editorKey}
           value={richContent}
           onChange={setRichContent}
-          placeholder="Add a comment"
+          placeholder="Leave a comment..."
           disabled={status === 'executing'}
         />
         {error && <p className="text-sm text-red-500">{error}</p>}
@@ -159,7 +165,9 @@ function CommentForm({ user, challenge, discussionPost }: CommentFormProps) {
             colorScheme="brand"
             type="submit"
             size="md"
-            disabled={!extractTextFromLexicalContent(richContent.root).trim() || status === 'executing'}
+            disabled={
+              !extractTextFromLexicalContent(richContent.root).trim() || status === 'executing'
+            }
           >
             {status === 'executing' ? 'Posting' : 'Post comment'}
             {status === 'executing' && <Icon name="spinner" size="sm" />}
