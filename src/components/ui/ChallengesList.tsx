@@ -31,10 +31,8 @@ export const ChallengesList = ({
           <Link
             key={challenge.id}
             href={`/challenges/${challenge.slug}`}
-            className={`inset-shadow space-y-3 rounded-3xl border border-gray-100 px-7 py-6 transition-all duration-200 hover:border-gray-300 [:last-child]:mb-10 ${
-              isExpired
-                ? 'bg-gradient-to-b from-gray-50/90 to-gray-50/70 opacity-75'
-                : 'bg-gradient-to-b from-white/90 to-white/70 hover:bg-white'
+            className={`inset-shadow space-y-3 rounded-3xl border border-gray-100 bg-gradient-to-b from-white/90 to-white/70 px-7 py-6 transition-all duration-200 hover:border-gray-300 [:last-child]:mb-10 ${
+              isExpired ? '' : 'hover:bg-white'
             }`}
           >
             <div className="mb-2 space-y-3">

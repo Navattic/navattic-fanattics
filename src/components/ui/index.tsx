@@ -25,6 +25,10 @@ export { Collapse } from './Compass/Collapse'
 export { Input } from './Compass/Input'
 export { Label } from './Compass/Label'
 export { Modal } from './Compass/Modal'
+export { Select, SelectItem, SelectGroup, SelectSeparator, SelectFooterButton } from './Compass/Select'
+export type { SelectProps, SelectItemProps, SelectItemWithGroupProps, SelectGroupProps, SelectFooterButtonProps } from './Compass/Select'
+export { Pagination } from './Compass/Pagination'
+export type { PaginationProps } from './Compass/Pagination'
 
 // Editors
 export { LexicalEditor } from './LexicalEditor'

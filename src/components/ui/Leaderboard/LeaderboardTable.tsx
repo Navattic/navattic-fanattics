@@ -24,6 +24,8 @@ interface UserWithStats {
 }
 
 export const LeaderboardTable = ({ users }: { users: UserWithStats[] }) => {
+  const usersWithPoints = users.filter((user) => user.points > 0)
+
   return (
     <div className="mt-10 overflow-hidden rounded-xl border border-gray-100 bg-white shadow-xs">
       <Table>
@@ -40,7 +42,7 @@ export const LeaderboardTable = ({ users }: { users: UserWithStats[] }) => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {users.map((userWithStats, index) => {
+          {usersWithPoints.map((userWithStats, index) => {
             return (
               <TableRow className="bg-gray-50" key={userWithStats.user.id}>
                 <TableCell className="px-4 text-base">

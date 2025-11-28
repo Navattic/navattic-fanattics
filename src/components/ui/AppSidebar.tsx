@@ -30,6 +30,7 @@ import {
   HandCoinsIcon,
   UserIcon,
   MessageCircleIcon,
+  UsersIcon,
   LucideIcon,
 } from 'lucide-react'
 import { NavatticLogo } from '@/components/ui/NavatticLogo'
@@ -84,6 +85,11 @@ const items = [
         label: 'Discussions',
         href: '/discussions',
         icon: MessageCircleIcon,
+      },
+      {
+        label: 'Fanattics',
+        href: '/fanattics',
+        icon: UsersIcon,
       },
     ],
   },
