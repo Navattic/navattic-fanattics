@@ -26,7 +26,7 @@ interface PopulatedUser extends User {
 const Fanattics = async ({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string }>
+  searchParams: Promise<{ page?: string; pageSize?: string }>
 }) => {
   const session = await getServerSession(authOptions)
 
@@ -38,10 +38,10 @@ const Fanattics = async ({
           <Container className="grid place-items-center">
             <div className="w-full py-20">
               <div className="text-center">
-                <h2 className="text-xl font-semibold text-gray-800 mb-2">
+                <h2 className="mb-2 text-xl font-semibold text-gray-800">
                   Welcome to the Fanattics Portal
                 </h2>
-                <p className="text-gray-500 mb-4">
+                <p className="mb-4 text-gray-500">
                   Please sign in or create an account to view the directory.
                 </p>
               </div>
@@ -89,9 +89,7 @@ const Fanattics = async ({
   const endIndex = startIndex + limit
 
   // Get the users for the current page
-  const users = allUsersWithBio
-    .slice(startIndex, endIndex)
-    .map((user) => user as PopulatedUser)
+  const users = allUsersWithBio.slice(startIndex, endIndex).map((user) => user as PopulatedUser)
 
   // Redirect to page 1 if current page is invalid
   if (currentPage > totalPages && totalPages > 0) {
@@ -210,4 +208,3 @@ const Fanattics = async ({
 }
 
 export default Fanattics
-
