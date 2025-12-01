@@ -2,7 +2,7 @@ import { payload } from '@/lib/payloadClient'
 import { notFound } from 'next/navigation'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/authOptions'
-import { PageHeader, Container, Empty, Button } from '@/components/ui'
+import { PageHeader, Container, Empty, Button, Link } from '@/components/ui'
 import { Comments } from '@/components/ui/Comments'
 import { calculateUserPoints } from '@/lib/users/points'
 import { DiscussionPost, Comment, User, Ledger } from '@/payload-types'
@@ -191,9 +191,11 @@ const DiscussionPage = async ({ params }: { params: Promise<{ slug: string }> })
                 description="Please sign in or create an account to view the portal."
                 iconName="user"
                 button={
-                  <Button href="/login" size="md" className="mt-3">
-                    Sign in
-                  </Button>
+                  <Link href="/login">
+                    <Button size="md" className="mt-3">
+                      Sign in
+                    </Button>
+                  </Link>
                 }
               />
             </div>

@@ -504,7 +504,7 @@ export default function OnboardingForm({ session }: OnboardingFormProps) {
                       variant="outline"
                       size="md"
                       onClick={() => document.getElementById('avatar-upload')?.click()}
-                      disabled={isAvatarUploading}
+                      isDisabled={isAvatarUploading}
                       className="h-8"
                     >
                       {isAvatarUploading ? (
@@ -613,7 +613,7 @@ export default function OnboardingForm({ session }: OnboardingFormProps) {
                 >
                   Back
                 </Button>
-                <Button type="submit" variant="solid" size="md" disabled={isSubmitting}>
+                <Button type="submit" variant="solid" size="md" isDisabled={isSubmitting}>
                   {isSubmitting ? 'Saving' : 'Enter portal'}
                   {isSubmitting ? <Icon name="spinner" /> : <Icon name="arrow-right" />}
                 </Button>

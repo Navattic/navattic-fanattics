@@ -74,7 +74,7 @@ export function CommentEditForm({
           type="button"
           size="md"
           onClick={onCancel}
-          disabled={isSubmitting}
+          isDisabled={isSubmitting}
         >
           Cancel
         </Button>
@@ -83,7 +83,7 @@ export function CommentEditForm({
           colorScheme="gray"
           type="submit"
           size="md"
-          disabled={!extractTextFromLexicalContent(richContent.root).trim() || isSubmitting}
+          isDisabled={!extractTextFromLexicalContent(richContent.root).trim() || isSubmitting}
         >
           Save changes
         </Button>

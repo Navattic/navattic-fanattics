@@ -6,6 +6,7 @@ import { PageHeader, Container, Empty, Button } from '@/components/ui'
 import { Comments } from '@/components/ui/Comments'
 import { calculateUserPoints } from '@/lib/users/points'
 import { Challenge, Ledger, Comment, User } from '@/payload-types'
+import Link from 'next/link'
 import { unstable_cache } from 'next/cache'
 import { Suspense } from 'react'
 import { ChallengeDetails } from '@/features/challenges/ChallengeDetails'
@@ -217,9 +218,11 @@ const ChallengePage = async ({ params }: { params: Promise<{ slug: string }> }) 
                 description="Please sign in or create an account to view the portal."
                 iconName="user"
                 button={
-                  <Button href="/login" size="md" className="mt-3">
-                    Sign in
-                  </Button>
+                  <Link href="/login">
+                    <Button size="md" className="mt-3">
+                      Sign in
+                    </Button>
+                  </Link>
                 }
               />
             </div>
@@ -242,7 +245,7 @@ const ChallengePage = async ({ params }: { params: Promise<{ slug: string }> }) 
           />
         </div>
         <div className="bg-gray-50">
-          <Container className="py-10 max-w-5xl">
+          <Container className="max-w-5xl py-10">
             <Suspense fallback={<div>Loading comments...</div>}>
               <Comments
                 user={sessionUser}

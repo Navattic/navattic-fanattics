@@ -386,7 +386,7 @@ function ToolbarPlugin() {
             variant="ghost"
             size="xs"
             onClick={() => editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'bold')}
-            className={`px-2 ${isBold ? 'bg-gray-200' : ''}`}
+            className={`${isBold ? 'bg-gray-200' : ''}`}
           >
             <Icon name="bold" size="sm" />
           </Button>
@@ -395,7 +395,7 @@ function ToolbarPlugin() {
             variant="ghost"
             size="xs"
             onClick={() => editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'italic')}
-            className={`px-2 ${isItalic ? 'bg-gray-200' : ''}`}
+            className={`${isItalic ? 'bg-gray-200' : ''}`}
           >
             <Icon name="italic" size="sm" />
           </Button>
@@ -404,7 +404,7 @@ function ToolbarPlugin() {
             variant="ghost"
             size="xs"
             onClick={handleLinkButtonClick}
-            className={`px-2 ${isLink ? 'bg-gray-200' : ''}`}
+            className={`${isLink ? 'bg-gray-200' : ''}`}
           >
             <Icon name="link" size="sm" />
           </Button>

@@ -10254,10 +10254,10 @@ vfile-message@^4.0.0:
     "@types/unist" "^3.0.0"
     unist-util-stringify-position "^4.0.0"
 
-virtua@^0.47.2:
-  version "0.47.2"
-  resolved "https://registry.yarnpkg.com/virtua/-/virtua-0.47.2.tgz#99500f0850b72217254c0d035c4559467ee01cd8"
-  integrity sha512-4TINosxooggtYQjm/8n7tdVQKJ1NoTQCR5hd2P2Lqu2xLl07OWgiygZ+Z07yT7gJQvpQYkDzKuB+yy5xTQkefg==
+virtua@0.38.5:
+  version "0.38.5"
+  resolved "https://registry.yarnpkg.com/virtua/-/virtua-0.38.5.tgz#b8a53dfd1d68bb3b72775874d9040ec5a30f6709"
+  integrity sha512-oe7ALwH3vVoi/5vFeZwc4G7iNM0vOmLbCBNzUBg/nWTQ6196D7aHsXd07kbqjC5lc/2WnaNd/bCrZ3fH9a3Mzw==
 
 wcwidth@^1.0.1:
   version "1.0.1"

@@ -73,7 +73,7 @@ export const ProductCard = ({
             size="lg"
             className="w-full"
             variant={hasEnoughPoints ? 'solid' : 'outline'}
-            disabled={!hasEnoughPoints}
+            isDisabled={!hasEnoughPoints}
             onClick={handleRedeem}
           >
             {hasEnoughPoints ? (

@@ -913,12 +913,12 @@ export function CompanySelector({ userEmail, name, label, description }: Company
             'Save'
           ),
           onClick: handleCreateCompany,
-          disabled: !newCompanyName.trim() || !newCompanyWebsite.trim() || isCreating,
+          isDisabled: !newCompanyName.trim() || !newCompanyWebsite.trim() || isCreating,
         }}
         secondaryButton={{
           children: 'Cancel',
           onClick: resetNewCompanyForm,
-          disabled: isCreating,
+          isDisabled: isCreating,
         }}
         showCloseButton={false}
       >

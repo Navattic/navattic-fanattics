@@ -3,6 +3,7 @@ import { GuideContent, PageHeader, Container, PageTitle, Empty, Button } from '@
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/authOptions'
 import { calculateUserPoints } from '@/lib/users/points'
+import Link from 'next/link'
 
 const GuideAndRules = async () => {
   const guide = await payload.findGlobal({
@@ -33,9 +34,12 @@ const GuideAndRules = async () => {
                 description="Please sign in or create an account to view the portal."
                 iconName="user"
                 button={
-                  <Button href="/login" size="md" className="mt-3">
+                  <Link href="/login">
+
+                  <Button size="md" className="mt-3">
                     Sign in
                   </Button>
+                  </Link>
                 }
               />
             </div>

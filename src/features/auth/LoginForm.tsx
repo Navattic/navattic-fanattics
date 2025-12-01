@@ -253,7 +253,7 @@ export default function LoginForm({ mode = 'signin' }: LoginFormProps) {
           type="submit"
           size="lg"
           className="w-full text-base"
-          disabled={loadingState !== 'idle'}
+          isDisabled={loadingState !== 'idle'}
         >
           {loadingState === 'email' ? (
             <span className="flex items-center justify-center gap-1">
@@ -281,7 +281,7 @@ export default function LoginForm({ mode = 'signin' }: LoginFormProps) {
         size="lg"
         className="w-full text-base"
         onClick={handleGoogleAuth}
-        disabled={loadingState !== 'idle'}
+        isDisabled={loadingState !== 'idle'}
       >
         {loadingState === 'google' ? (
           <span className="flex items-center justify-center gap-1">

@@ -1,5 +1,5 @@
 import { payload } from '@/lib/payloadClient'
-import { PageHeader, Container, PageTitle, Button, Icon, Empty } from '@/components/ui'
+import { PageHeader, Container, PageTitle, Button, Icon, Empty, Link } from '@/components/ui'
 import { PodiumCard } from '@/components/ui/Leaderboard/PodiumCard'
 import { LeaderboardTable } from '@/components/ui/Leaderboard/LeaderboardTable'
 import { User, Ledger, Comment } from '@/payload-types'
@@ -149,9 +149,11 @@ const Leaderboard = async () => {
               description="Please sign in or create an account to view the portal."
               iconName="user"
               button={
-                <Button href="/login" size="md" className="mt-3">
-                  Sign in
-                </Button>
+                <Link href="/login">
+                  <Button size="md" className="mt-3">
+                    Sign in
+                  </Button>
+                </Link>
               }
             />
           </Container>
@@ -169,9 +171,11 @@ const Leaderboard = async () => {
             title="Leaderboard"
             description="See the most active Fanattics and view their profile."
             button={
-              <Button href="/challenges" size="md" variant="outline">
-                Complete a challenge <Icon name="arrow-right" className="size-4" />
-              </Button>
+              <Link href="/challenges">
+                <Button size="md" variant="outline">
+                  Complete a challenge <Icon name="arrow-right" className="size-4" />
+                </Button>
+              </Link>
             }
           />
           {sortedUsers.length > 0 ? (

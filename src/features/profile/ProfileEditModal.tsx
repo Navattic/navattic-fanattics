@@ -349,7 +349,7 @@ export function ProfileEditModal({ open, onOpenChange }: ProfileEditModalProps) 
                   variant="outline"
                   size="md"
                   onClick={() => document.getElementById('profile-avatar-upload')?.click()}
-                  disabled={isAvatarUploading}
+                  isDisabled={isAvatarUploading}
                   className="h-8"
                 >
                   {isAvatarUploading ? (
@@ -481,7 +481,7 @@ export function ProfileEditModal({ open, onOpenChange }: ProfileEditModalProps) 
         ) : (
           'Save changes'
         ),
-        disabled: isSubmitting || isLoading,
+        isDisabled: isSubmitting || isLoading,
         onClick: form.handleSubmit(onSubmit),
       }}
       secondaryButton={{

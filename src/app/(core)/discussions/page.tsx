@@ -5,6 +5,7 @@ import { PageHeader, Container, Empty, Button, Icon, PageTitle } from '@/compone
 import { calculateUserPoints } from '@/lib/users/points'
 import { DiscussionsList } from '@/components/ui/DiscussionsList'
 import { CreatePostModal } from '@/features/discussions/CreatePostModal'
+import Link from 'next/link'
 
 export const revalidate = 300 // 5 minutes
 
@@ -50,9 +51,9 @@ const Discussions = async () => {
                 description="Please sign in or create an account to view the portal."
                 iconName="user"
                 button={
-                  <Button href="/login" size="md">
-                    Sign in
-                  </Button>
+                  <Link href="/login">
+                    <Button size="md">Sign in</Button>
+                  </Link>
                 }
               />
             </Container>
@@ -103,7 +104,7 @@ const Discussions = async () => {
                 iconName="message-circle"
                 button={
                   <div className="mt-4">
-                    <CreatePostModal user={sessionUser} buttonColorScheme="outline"/>
+                    <CreatePostModal user={sessionUser} buttonColorScheme="outline" />
                   </div>
                 }
               />

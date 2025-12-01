@@ -4,9 +4,10 @@ import { ReactNode } from 'react'
 import { cva, VariantProps } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
 import { useDisclosure } from '@/components/ui/Compass/utils/hooks'
-import { Button, ButtonGroup, Collapse, Icon, IconButton } from '@/components/ui'
+import { Button, ButtonGroup, Collapse, Icon } from '@/components/ui'
 import { ButtonProps } from './Button'
 import { IconName } from './Icon'
+import Link from 'next/link'
 
 export interface InlineBannerProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'title'> {
   colorScheme?: VariantProps<typeof inlineBannerVariants>['colorScheme']
@@ -15,7 +16,7 @@ export interface InlineBannerProps extends Omit<React.HTMLAttributes<HTMLDivElem
   description?: string | ReactNode
   className?: string
   isDismissible?: boolean
-  actionButton?: ButtonProps
+  actionButton?: ButtonProps & { href?: string }
   onDismiss?: (isDismissed: boolean) => void
   'data-test-id'?: string
   collapseClassName?: string
@@ -86,7 +87,11 @@ export function InlineBanner({
 
         {(isDismissible || actionButton) && (
           <ButtonGroup size="sm" className="items-center self-stretch">
-            {actionButton && <Button variant="outline" {...actionButton} />}
+            {actionButton && (
+              <Link href={actionButton.href ?? ''}>
+                <Button variant="outline" {...actionButton} />
+              </Link>
+            )}
 
             {isDismissible && (
               <Button

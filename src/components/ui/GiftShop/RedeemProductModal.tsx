@@ -143,7 +143,7 @@ export const RedeemProductModal = ({
                     variant="solid"
                     colorScheme="brand"
                     onClick={handleConfirm}
-                    disabled={isRedeeming}
+                    isDisabled={isRedeeming}
                   >
                     {isRedeeming ? (
                       <>

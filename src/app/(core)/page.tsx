@@ -12,6 +12,7 @@ import {
 import { ChallengesList } from '@/components/ui/ChallengesList'
 import { payload } from '@/lib/payloadClient'
 import { calculateUserPoints } from '@/lib/users/points'
+import Link from 'next/link'
 
 const Home = async () => {
   const session = await getServerSession(authOptions)
@@ -39,9 +40,11 @@ const Home = async () => {
                 description="Please sign in or create an account to view the portal."
                 iconName="user"
                 button={
-                  <Button href="/login" size="md" className="mt-3">
-                    Sign in
-                  </Button>
+                  <Link href="/login">
+                    <Button size="md" className="mt-3">
+                      Sign in
+                    </Button>
+                  </Link>
                 }
               />
             </div>
@@ -121,10 +124,12 @@ const Home = async () => {
             }
             description={userPointsDescription}
             button={
-              <Button href="/challenges" variant="outline" size="sm">
-                View challenges
-                <Icon name="arrow-right" className="size-4" />
-              </Button>
+              <Link href="/challenges">
+                <Button variant="outline" size="sm">
+                  View challenges
+                  <Icon name="arrow-right" className="size-4" />
+                </Button>
+              </Link>
             }
           />
           <div className="flex flex-col gap-4">

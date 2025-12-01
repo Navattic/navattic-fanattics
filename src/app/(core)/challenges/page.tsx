@@ -5,6 +5,7 @@ import { authOptions } from '@/lib/authOptions'
 import { getServerSession } from 'next-auth'
 import { calculateUserPoints } from '@/lib/users/points'
 import { Ledger } from '@/payload-types'
+import Link from 'next/link'
 
 export const revalidate = 3600 // 1h
 
@@ -73,9 +74,9 @@ const Challenges = async () => {
                 description="Please sign in or create an account to view the portal."
                 iconName="user"
                 button={
-                  <Button href="/login" size="md">
-                    Sign in
-                  </Button>
+                  <Link href="/login">
+                    <Button size="md">Sign in</Button>
+                  </Link>
                 }
               />
             </Container>
@@ -112,9 +113,11 @@ const Challenges = async () => {
               title="Challenges"
               description="Complete challenges to earn points, which you can redeem for rewards"
               button={
-                <Button href="/gift-shop" size="md" variant="outline">
-                  View rewards <Icon name="arrow-right" className="size-4" />
-                </Button>
+                <Link href="/gift-shop">
+                  <Button size="md" variant="outline">
+                    View rewards <Icon name="arrow-right" className="size-4" />
+                  </Button>
+                </Link>
               }
             />
 

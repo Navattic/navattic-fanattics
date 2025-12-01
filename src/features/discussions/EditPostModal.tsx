@@ -62,14 +62,14 @@ export function EditPostModal({
           'Save Changes'
         ),
         onClick: handleSubmit,
-        disabled: isSubmitting,
+        isDisabled: isSubmitting,
         variant: 'solid',
         colorScheme: 'brand',
       }}
       secondaryButton={{
         children: 'Cancel',
         onClick: handleCancel,
-        disabled: isSubmitting,
+        isDisabled: isSubmitting,
       }}
     >
       <div className="px-6">

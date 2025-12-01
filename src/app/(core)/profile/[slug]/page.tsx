@@ -6,7 +6,8 @@ import { Statistics } from '@/features/profile/Statistics'
 import { ProfileEditButton } from '@/features/profile/ProfileEditButton'
 import { calculateUserPoints } from '@/lib/users/points'
 import { payload } from '@/lib/payloadClient'
-import { User, Ledger, Comment } from '@/payload-types'
+import { Ledger } from '@/payload-types'
+import Link from 'next/link'
 
 const ProfilePage = async ({ params }: { params: Promise<{ slug: string }> }) => {
   const { slug } = await params
@@ -26,9 +27,11 @@ const ProfilePage = async ({ params }: { params: Promise<{ slug: string }> }) =>
                 description="Please sign in or create an account to view the portal."
                 iconName="user"
                 button={
-                  <Button href="/login" size="md" className="mt-3">
-                    Sign in
-                  </Button>
+                  <Link href="/login">
+                    <Button size="md" className="mt-3">
+                      Sign in
+                    </Button>
+                  </Link>
                 }
               />
             </div>

@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams } from 'next/navigation'
 import type { User } from '@/payload-types'
-import { PageTitle, Empty, Button, Icon, Pagination } from '@/components/ui'
+import { PageTitle, Empty, Button, Icon, Pagination, Link } from '@/components/ui'
 import { FanatticsDirectoryGrid } from './FanatticsDirectoryGrid'
 
 interface UserWithStats {
@@ -63,9 +63,11 @@ export function FanatticsDirectoryPage({
           `}
         button={
           currentUserSlug ? (
-            <Button href={`/profile/${currentUserSlug}`} size="md" variant="outline">
-              View your profile <Icon name="arrow-right" className="size-4" />
-            </Button>
+            <Link href={`/profile/${currentUserSlug}`}>
+              <Button size="md" variant="outline">
+                View your profile <Icon name="arrow-right" className="size-4" />
+              </Button>
+            </Link>
           ) : undefined
         }
       />

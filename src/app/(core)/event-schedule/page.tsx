@@ -14,16 +14,12 @@ const EventEntry = ({ event, isPastEvent }: { event: Event; isPastEvent?: boolea
       <div className="flex flex-col justify-between p-2 pt-3 pr-8">
         <div className="space-y-3 pb-4">
           <div className="text-lg font-semibold text-balance text-gray-800">{event.title}</div>
-          <Button
-            variant={isPastEvent ? 'outline' : 'solid'}
-            colorScheme="brand"
-            size="xs"
-            href={event.cta?.link ?? ''}
-            target="_blank"
-          >
-            {event.cta?.label ?? 'Register here'}
-            <Icon name="arrow-right" className="size-3" />
-          </Button>
+          <a href={event.cta?.link ?? ''} target="_blank">
+            <Button variant={isPastEvent ? 'outline' : 'solid'} colorScheme="brand" size="xs">
+              {event.cta?.label ?? 'Register here'}
+              <Icon name="arrow-right" className="size-3" />
+            </Button>
+          </a>
         </div>
         <div className="mt-5 flex flex-col gap-4">
           <div className="flex items-center gap-3">
@@ -125,9 +121,11 @@ const EventSchedule = async () => {
                 description="Please sign in or create an account to view the portal."
                 iconName="user"
                 button={
-                  <Button href="/login" size="md" className="mt-3">
-                    Sign in
-                  </Button>
+                  <Link href="/login">
+                    <Button size="md" className="mt-3">
+                      Sign in
+                    </Button>
+                  </Link>
                 }
               />
             </div>

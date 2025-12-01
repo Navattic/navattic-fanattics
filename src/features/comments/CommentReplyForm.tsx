@@ -178,7 +178,7 @@ function CommentReplyForm({
             type="button"
             size="md"
             onClick={handleCancel}
-            disabled={status === 'executing'}
+            isDisabled={status === 'executing'}
           >
             Cance
           </Button>
@@ -187,7 +187,7 @@ function CommentReplyForm({
             colorScheme="gray"
             type="submit"
             size="md"
-            disabled={
+            isDisabled={
               !extractTextFromLexicalContent(richContent.root).trim() || status === 'executing'
             }
           >

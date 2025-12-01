@@ -40,21 +40,19 @@ import { cva } from 'class-variance-authority'
 import { matchSorter } from 'match-sorter'
 import { Virtualizer, VirtualizerHandle } from 'virtua'
 import { cn } from '@/lib/utils'
-import { calculateErrorColor, RedShadeName } from './utils/color'
-import { Button, ButtonProps } from './Button'
-import { FieldSet, FieldSetProps } from './FieldSet'
-import { Icon, IconName } from './Icon'
-import { IconButton } from './IconButton'
-import { Tooltip } from './Tooltip'
-
-type NvSize = 'xs' | 'sm' | 'md' | 'lg'
+import { calculateErrorColor, RedShadeName } from '@/components/ui/Compass/utils/color'
+import { NvSize } from './utils/types'
+import { FieldSet, FieldSetProps } from '@/components/ui/Compass/FieldSet'
+import { ButtonProps } from '@/components/ui/Compass/Button'
+import { IconName } from '@/components/ui/Compass/Icon'
+import { Tooltip, IconButton, Button, Icon } from '@/components/ui'
 
 const Root = RadixRoot as <T extends string | number>(
   props: RadixSelectProps & {
     value?: T
     defaultValue?: T
     onValueChange?: (value: T) => void
-  }
+  },
 ) => React.ReactNode
 
 type SelectRootProps<T extends string | number> = Omit<
@@ -80,9 +78,7 @@ function SelectRoot<T extends string | number>({
       onValueChange={(newValue) => {
         if (onValueChange) {
           // Convert back to original type
-          const convertedValue = (
-            typeof value === 'number' ? Number(newValue) : newValue
-          ) as T
+          const convertedValue = (typeof value === 'number' ? Number(newValue) : newValue) as T
           onValueChange(convertedValue)
         }
       }}
@@ -150,15 +146,15 @@ export type SelectProps<T extends string | number = string> = {
 
 const selectTriggerVariants = cva(
   [
-    'group/trigger relative flex min-w-[60px] select-none items-center justify-start gap-2 overflow-hidden border transition-all',
+    'group/trigger relative flex w-full min-w-60 select-none items-center justify-start gap-2 overflow-hidden border transition-all',
     'data-disabled:cursor-not-allowed data-disabled:opacity-50',
   ],
   {
     variants: {
       variant: {
         default: [
-          'bg-white focus:outline-none h-8 rounded-lg border-gray-300 leading-5',
-          'data-disabled:bg-gray-50 data-placeholder:text-gray-400 disabled:bg-gray-50',
+          'bg-white focus-outline h-8 rounded-lg border-gray-300 leading-5',
+          'data-disabled:bg-gray-50 data-placeholder:text-gray-400 disabled:bg-gray-100',
         ],
         themable:
           'bg-ct-dialog-bg data-placeholder:text-ct-dialog-text/50 px-ct-button-padding-h! py-ct-button-padding-v! border-ct-dialog-text/30 focus-within:border-ct-dialog-text/90 leading-none focus-within:outline-ct-focus-ring-width focus-within:outline-ct-focus-ring-color outline-offset-1 rounded-ct-form-field-radius px-ct-button-padding-h py-ct-button-padding-v text-ct-dialog-font-size font-ct-dialog-font-family',
@@ -209,7 +205,7 @@ const selectTriggerVariants = cva(
         className: 'h-10 rounded-[10px] text-base data-placeholder:text-base', // 40px
       },
     ],
-  }
+  },
 )
 
 const contentVariants = cva(
@@ -225,7 +221,7 @@ const contentVariants = cva(
           'bg-ct-dialog-bg divide-ct-close/15 rounded-ct-dialog-radius border-ct-dialog-text/30 focus-within:border-ct-dialog-text/90 focus-within:outline-ct-focus-ring-width focus-within:outline-ct-focus-ring-color outline-offset-2',
       },
     },
-  }
+  },
 )
 
 const itemVariants = cva(
@@ -257,7 +253,7 @@ const itemVariants = cva(
         className: 'data-highlighted:bg-gray-100',
       },
     ],
-  }
+  },
 )
 
 /**
@@ -334,16 +330,18 @@ export const Select = forwardRef(
       style,
       ...props
     }: SelectProps<T>,
-    forwardedRef: React.Ref<HTMLButtonElement>
+    forwardedRef: React.Ref<HTMLButtonElement>,
   ) => {
     const [open, onOpenChange] = useState(defaultOpen)
     const [internalSearchValue, setInternalSearchValue] = useState<string>('')
+
     const searchValue =
       externalSearchValue !== undefined ? externalSearchValue : internalSearchValue
     const setSearchValue =
       externalSearchValue !== undefined ? externalOnSearchChange : setInternalSearchValue
 
     const [key, setKey] = useState<number>(+new Date())
+
     const generatedId = useId()
     const uniqueId = id || generatedId
     const searchInputRef = useRef<HTMLInputElement>(null)
@@ -366,19 +364,16 @@ export const Select = forwardRef(
         setKey(+new Date())
         onClear?.()
       },
-      [onClear]
+      [onClear],
     )
 
     const leftItem = useMemo(() => {
       if (iconLeft || isLoading) {
         return (
           <IconPrimitive
-            className={cn(
-              'pointer-events-none flex items-center justify-center text-gray-500',
-              {
-                'text-red-700 data-placeholder:text-red-700/50': Boolean(error),
-              }
-            )}
+            className={cn('pointer-events-none flex items-center justify-center text-gray-500', {
+              'text-red-700 data-placeholder:text-red-700/50': Boolean(error),
+            })}
           >
             <Icon
               name={!isLoading && iconLeft ? iconLeft : 'loader'}
@@ -399,36 +394,25 @@ export const Select = forwardRef(
     }, [iconLeft, elementLeft, error, isLoading, size])
 
     const ungroupedItems: SelectItemProps<T>[] = useMemo(() => {
-      return (
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        items?.map(({ group: _, ...rest }: SelectItemWithGroupProps<T>) => rest) || []
-      )
+      return items?.map(({ group: _, ...rest }: SelectItemWithGroupProps<T>) => rest) || []
     }, [items])
 
     const matches = useMemo(() => {
       if (!searchValue) return items as SelectItemWithGroupProps<T>[]
-
       const keys = ['label', 'value']
       const matchedItems = matchSorter(ungroupedItems, searchValue, {
         keys,
       }) as SelectItemProps[]
 
       // Convert matchedItems back to SelectItemWithGroupProps[]
-      const matchesWithGroups: SelectItemWithGroupProps<T>[] = matchedItems.map(
-        (item) => {
-          const originalItem = items?.find((i) => i.value === item.value)
-          return originalItem || (item as SelectItemWithGroupProps<T>)
-        }
-      )
+      const matchesWithGroups: SelectItemWithGroupProps<T>[] = matchedItems.map((item) => {
+        const originalItem = items?.find((i) => i.value === item.value)
+        return originalItem || (item as SelectItemWithGroupProps<T>)
+      })
 
       // Radix Select does not work if we don't render the selected item, so we make sure to include it in the list of matches.
-      const selectedItem = items?.find(
-        (item: SelectItemWithGroupProps<T>) => item.value === value
-      )
-      if (
-        selectedItem &&
-        !matchesWithGroups.some((item) => item.value === selectedItem.value)
-      ) {
+      const selectedItem = items?.find((item: SelectItemWithGroupProps<T>) => item.value === value)
+      if (selectedItem && !matchesWithGroups.some((item) => item.value === selectedItem.value)) {
         matchesWithGroups.push(selectedItem)
       }
 
@@ -453,7 +437,7 @@ export const Select = forwardRef(
           <SelectGroup
             key="no-items"
             separatorTop={false}
-            className="text-gray-500 pointer-events-none my-2 flex items-center justify-center px-2 text-sm font-medium"
+            className="text-subtle pointer-events-none my-2 flex items-center justify-center px-2 text-sm font-medium"
           >
             No items!
           </SelectGroup>
@@ -469,7 +453,7 @@ export const Select = forwardRef(
           <SelectGroup
             key="no-matches"
             separatorTop={false}
-            className="text-gray-500 pointer-events-none my-2 flex items-center justify-center px-2 text-sm font-medium"
+            className="text-subtle pointer-events-none my-2 flex items-center justify-center px-2 text-sm font-medium"
           >
             No items found!
           </SelectGroup>
@@ -488,6 +472,7 @@ export const Select = forwardRef(
                 }
 
           const group = acc.find((g) => g.name === groupInfo.name)
+
           if (group) {
             group.items.push(item)
           } else {
@@ -497,22 +482,19 @@ export const Select = forwardRef(
               nameElementRight: groupInfo.nameElementRight,
             })
           }
-
           return acc
         },
         [] as Array<
           DefaultSelectGroup & {
             items: SelectItemProps<T>[]
           }
-        >
+        >,
       )
 
       return (
         <>
           {groups.map(({ name: groupName, items: groupItems }, index) => {
-            const selectedGroupIndex = groupItems.findIndex(
-              (item) => item.value === value
-            )
+            const selectedGroupIndex = groupItems.findIndex((item) => item.value === value)
             return (
               <SelectGroup
                 key={groupName || `group-${index}`}
@@ -590,7 +572,7 @@ export const Select = forwardRef(
                   'flex h-8 w-full appearance-none items-center pl-8 text-sm leading-none outline-hidden',
                   {
                     'cursor-not-allowed opacity-50': isLoading || isDisabled,
-                  }
+                  },
                 )}
                 // Ariakit's Combobox manually triggers a blur event on virtually
                 // blurred items, making them work as if they had actual DOM
@@ -608,6 +590,7 @@ export const Select = forwardRef(
               />
             </div>
           )}
+
           <ScrollUpButton
             className={cn('relative flex items-center justify-center', {
               'text-gray-700': variant !== 'themable',
@@ -623,6 +606,7 @@ export const Select = forwardRef(
               })}
             />
           </ScrollUpButton>
+
           <Viewport className="min-h-[calc(var(--radix-select-trigger-height)-4px)]">
             {isSearchable ? <ComboboxList>{renderItems}</ComboboxList> : renderItems}
           </Viewport>
@@ -641,11 +625,11 @@ export const Select = forwardRef(
             />
             <Icon name="chevron-down" size="sm" />
           </ScrollDownButton>
+
           {footerButton && (
             <SelectFooterButton
-              isLoading={isLoading}
               {...footerButton}
-              onClick={(event) => {
+              onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
                 footerButton.onClick?.(event)
                 onOpenChange(false)
               }}
@@ -675,7 +659,7 @@ export const Select = forwardRef(
         sideOffset,
         sticky,
         variant,
-      ]
+      ],
     )
 
     const rootContents = useMemo(
@@ -691,8 +675,7 @@ export const Select = forwardRef(
                 showChevronIcon,
                 size,
               }),
-              label || description ? 'w-full' : 'w-auto',
-              className
+              className,
             )}
             data-test-id={dataTestId}
             ref={forwardedRef}
@@ -727,7 +710,8 @@ export const Select = forwardRef(
                   {
                     'text-red-700': Boolean(error),
                   },
-                  { 'text-ct-close': variant === 'themable' }
+
+                  { 'text-ct-close': variant === 'themable' },
                 )}
               />
             </IconPrimitive>
@@ -752,7 +736,7 @@ export const Select = forwardRef(
         usePortal,
         variant,
         size,
-      ]
+      ],
     )
 
     return (
@@ -769,14 +753,7 @@ export const Select = forwardRef(
         state={error ? 'error' : 'default'}
         variant={variant}
         isDisabled={isDisabled}
-        className={cn(
-          'relative',
-          {
-            'w-auto': !label && !description,
-            'min-w-0': !label && !description,
-          },
-          wrapperClassName
-        )}
+        className={cn('relative', wrapperClassName)}
       >
         <SelectRoot<T>
           key={key}
@@ -792,7 +769,7 @@ export const Select = forwardRef(
           {...props}
         >
           {/*This allows the clearable icon button to always sit in the trigger*/}
-          <span className={cn('relative', label || description ? 'w-full' : 'w-auto')}>
+          <span className="relative w-full">
             {isSearchable ? (
               <ComboboxProvider
                 open={open}
@@ -819,18 +796,17 @@ export const Select = forwardRef(
                 className="absolute top-1 right-1"
                 tooltip="Clear"
                 onClick={handleClear}
-                isDisabled={isDisabled}
               />
             )}
           </span>
         </SelectRoot>
       </FieldSet>
     )
-  }
+  },
 ) as SelectComponentWithDisplayName
 
 type SelectComponent = <T extends string | number = string>(
-  props: SelectProps<T> & { ref?: React.Ref<HTMLButtonElement> }
+  props: SelectProps<T> & { ref?: React.Ref<HTMLButtonElement> },
 ) => React.ReactNode
 
 interface SelectComponentWithDisplayName extends SelectComponent {
@@ -850,22 +826,17 @@ type SelectItemPropsBase<T extends string | number = string> = {
   description?: string
   variant?: 'default' | 'themable'
   value: T
-} & Omit<
-  RadixSelectItemProps,
-  'disabled' | 'textValue' | 'children' | 'label' | 'value' | 'hidden'
->
+} & Omit<RadixSelectItemProps, 'disabled' | 'textValue' | 'children' | 'label' | 'value' | 'hidden'>
 
-type SelectItemPropsWithLabel<T extends string | number = string> =
-  SelectItemPropsBase<T> & {
-    label: string
-    children?: never
-  }
+type SelectItemPropsWithLabel<T extends string | number = string> = SelectItemPropsBase<T> & {
+  label: string
+  children?: never
+}
 
-type SelectItemPropsWithChildren<T extends string | number = string> =
-  SelectItemPropsBase<T> & {
-    label?: never
-    children: React.ReactNode
-  }
+type SelectItemPropsWithChildren<T extends string | number = string> = SelectItemPropsBase<T> & {
+  label?: never
+  children: React.ReactNode
+}
 
 type DefaultSelectGroup = { name?: string; nameElementRight?: ReactNode }
 
@@ -873,8 +844,9 @@ export type SelectItemProps<T extends string | number = string> =
   | SelectItemPropsWithLabel<T>
   | SelectItemPropsWithChildren<T>
 
-export type SelectItemWithGroupProps<T extends string | number = string> =
-  SelectItemProps<T> & { group?: string | DefaultSelectGroup }
+export type SelectItemWithGroupProps<T extends string | number = string> = SelectItemProps<T> & {
+  group?: string | DefaultSelectGroup
+}
 
 export const SelectItem = forwardRef(
   <T extends string | number = string>(
@@ -893,7 +865,7 @@ export const SelectItem = forwardRef(
       isHidden,
       ...props
     }: SelectItemProps<T>,
-    forwardedRef: React.Ref<HTMLDivElement>
+    forwardedRef: React.Ref<HTMLDivElement>,
   ) => {
     const item = useMemo(
       () => (
@@ -938,19 +910,16 @@ export const SelectItem = forwardRef(
             )}
           </div>
           <ItemIndicator
-            className={cn(
-              'absolute right-3 flex h-6 items-center justify-center text-sm',
-              {
-                'text-gray-900': variant !== 'themable',
-                'text-ct-dialog-text': variant === 'themable',
-              }
-            )}
+            className={cn('absolute right-3 flex h-6 items-center justify-center text-sm', {
+              'text-gray-900': variant !== 'themable',
+              'text-ct-dialog-text': variant === 'themable',
+            })}
           >
             <Icon name="check" />
           </ItemIndicator>
         </>
       ),
-      [children, description, iconLeft, isReadOnly, label, sublabel, variant]
+      [children, description, iconLeft, isReadOnly, label, sublabel, variant],
     )
 
     return (
@@ -959,7 +928,7 @@ export const SelectItem = forwardRef(
           className={cn(itemVariants({ variant, isSearchable }), className)}
           disabled={isDisabled}
           value={String(value)}
-          textValue={label ? String(label) : String(value)}
+          textValue={String(value)}
           asChild={isSearchable}
           ref={forwardedRef}
           {...props}
@@ -968,7 +937,7 @@ export const SelectItem = forwardRef(
         </Item>
       )
     )
-  }
+  },
 )
 
 SelectItem.displayName = 'SelectItem'
@@ -1007,9 +976,10 @@ export const SelectGroup = forwardRef<
       itemCount,
       elementRight,
     },
-    ref
+    ref,
   ) => {
     const virtualizerRef = useRef<VirtualizerHandle>(null)
+
     useLayoutEffect(() => {
       if (selectedIndex === -1) return
 
@@ -1048,7 +1018,7 @@ export const SelectGroup = forwardRef<
         {separatorBottom && <SelectSeparator className="my-1" />}
       </>
     )
-  }
+  },
 )
 
 SelectGroup.displayName = 'SelectGroup'
@@ -1057,13 +1027,14 @@ export type SelectFooterButtonProps = Pick<
   ButtonProps,
   | 'id'
   | 'children'
+  | 'iconLeft'
+  | 'iconRight'
   | 'colorScheme'
   | 'variant'
   | 'onClick'
   | 'isLoading'
   | 'isDisabled'
 > & {
-  iconLeft?: IconName
   tooltipContent?: string | ReactNode
 }
 
@@ -1075,28 +1046,24 @@ export const SelectFooterButton = forwardRef<HTMLButtonElement, SelectFooterButt
       iconLeft = 'plus',
       tooltipContent,
       onClick,
-      children,
       ...props
     },
-    ref
+    ref,
   ) => {
     const button = (
       <Button
         ref={ref}
         variant={variant}
         colorScheme={colorScheme}
+        iconLeft={iconLeft}
         className="w-full"
         onPointerDown={(e) => {
           e.stopPropagation()
           onClick?.(e)
         }}
         {...props}
-      >
-        {iconLeft && <Icon name={iconLeft} className="mr-2" />}
-        {children}
-      </Button>
+      />
     )
-
     return (
       <div className="mt-1 w-full border-t border-gray-300 px-2 pt-2 pb-2">
         {tooltipContent ? (
@@ -1108,8 +1075,7 @@ export const SelectFooterButton = forwardRef<HTMLButtonElement, SelectFooterButt
         )}
       </div>
     )
-  }
+  },
 )
 
 SelectFooterButton.displayName = 'SelectFooterButton'
-

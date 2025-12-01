@@ -106,11 +106,11 @@ export function Pagination({
         <ButtonGroup variant="outline" size={variant === 'default' ? 'sm' : 'xs'}>
           {variant === 'default' ? (
             <>
-              <Button disabled={page === 0} onClick={() => onPageChange?.(page - 1)} size="sm">
+              <Button isDisabled={page === 0} onClick={() => onPageChange?.(page - 1)} size="sm">
                 Previous
               </Button>
               <Button
-                disabled={page === maxPage - 1}
+                isDisabled={page === maxPage - 1}
                 onClick={() => onPageChange?.(page + 1)}
                 size="sm"
               >

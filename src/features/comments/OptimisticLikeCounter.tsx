@@ -98,7 +98,7 @@ function OptimisticLikeCounter({
       variant="ghost"
       size="sm"
       onClick={handleLikeToggle}
-      disabled={isPending || comment.isOptimistic}
+      isDisabled={isPending || comment.isOptimistic}
     >
       <Icon
         name={optimisticState.isLiked ? 'thumbs-up-filled' : 'thumbs-up'}
